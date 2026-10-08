@@ -1,0 +1,14 @@
+node_modules/
+site/
+test-results/
+playwright-report/
+*.pdf
+*.PDF
+*.ppt
+*.pptx
+*.docx
+*.log
+.env
+.env.*
+.DS_Store
+Thumbs.db
