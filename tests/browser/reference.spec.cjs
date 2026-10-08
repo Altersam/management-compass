@@ -8,7 +8,6 @@ test('all reference pages render offline assets and links without errors',async(
 test('profiles isolate working drafts, cases and editable diary, including nested pages',async({page})=>{
   await page.goto('/');page.once('dialog',d=>d.accept('Профиль А'));await page.locator('#addProfile').click();
   const a=await page.locator('#profileSelect').inputValue();
-<<<<<<< HEAD
   await page.locator('[data-view-link=practice]').click();
   await page.locator('#taskForm [name=result]').fill('Результат А');
   await page.locator('.practice-tabs a[href="#cases"]').click();
@@ -25,21 +24,6 @@ test('profiles isolate working drafts, cases and editable diary, including neste
   expect(b).not.toBe(a);await expect(page.locator('#statNotes')).toHaveText('0');await expect(page.locator('#taskForm [name=result]')).toHaveValue('');await expect(page.locator('[data-case=focus] textarea')).toHaveValue('');
   await page.goto(`/modules/module-08.html?user=${b}#process`);await expect(page.locator('form[data-tool=process] [name=field0]')).toHaveValue('');
   await page.goto(`/?user=${a}#practice`);await expect(page.locator('#taskForm [name=result]')).toHaveValue('Результат А');await expect(page.locator('#statNotes')).toHaveText('2');
-=======
-  await page.locator('#taskForm [name=result]').fill('Результат А');
-  await page.locator('[data-case=focus] input[value="1"]').check();await page.locator('[data-case=focus] .check-case').click();
-  await expect(page.locator('[data-case=focus] .case-feedback')).toContainText('Логика обоснована');
-  await page.locator('[data-case=focus] textarea').fill('Уточнить конфликт приоритетов');await page.locator('[data-case=focus] .save-case-note').click();
-  await page.locator('#diaryList .edit-entry').first().click();await page.locator('#diaryForm [name=action]').fill('Согласовать срок завтра');await page.locator('#diaryForm [type=submit]').click();
-  await expect(page.locator('#diaryList')).toContainText('Согласовать срок завтра');
-  await page.goto(`/modules/module-08.html?user=${a}`);await page.locator('form[data-tool=process] [name=field0]').fill('Вход: обращение, выход: принятый ответ');
-  await page.reload();await expect(page.locator('form[data-tool=process] [name=field0]')).toHaveValue('Вход: обращение, выход: принятый ответ');
-  await page.locator('form[data-tool=process] [type=submit]').click();await page.goto(`/?user=${a}`);await expect(page.locator('#diaryList')).toContainText('Карта процесса');
-  page.once('dialog',d=>d.accept('Профиль Б'));await page.locator('#addProfile').click();const b=await page.locator('#profileSelect').inputValue();
-  expect(b).not.toBe(a);await expect(page.locator('#statNotes')).toHaveText('0');await expect(page.locator('#taskForm [name=result]')).toHaveValue('');await expect(page.locator('[data-case=focus] textarea')).toHaveValue('');
-  await page.goto(`/modules/module-08.html?user=${b}`);await expect(page.locator('form[data-tool=process] [name=field0]')).toHaveValue('');
-  await page.goto(`/?user=${a}`);await expect(page.locator('#taskForm [name=result]')).toHaveValue('Результат А');await expect(page.locator('#statNotes')).toHaveText('2');
->>>>>>> fe405c0604a0b1ab41d3f43b71d6a8b379703d35
 });
 test('export contains model parameters and import clones profile without overwriting',async({page})=>{
   await page.goto('/adizes-paei.html');await page.locator('input[data-index="0"]').evaluate(input=>{input.value='5';input.dispatchEvent(new Event('input',{bubbles:true}));});
@@ -53,7 +37,6 @@ test('export contains model parameters and import clones profile without overwri
 test('mobile reference has no document overflow and searchable sections',async({page})=>{
   await page.setViewportSize({width:390,height:844});await page.goto('/');
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
-<<<<<<< HEAD
   await page.locator('[data-view-link=reference]').click();await page.locator('#moduleSearch').fill('документы');await expect(page.locator('.module-card:visible')).toHaveCount(1);
   await page.goto('/modules/module-08.html#process');expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
   await page.locator('#capacityDetails summary').click();
@@ -107,14 +90,3 @@ test('visual theory and technique pages remain usable on mobile, with unique SVG
     await page.goto('/modules/module-08.html#process');await page.screenshot({path:process.env.REFERENCE_SCREENSHOTS+'/compass-technique.png',fullPage:true});
   }
 });
-=======
-  await page.locator('#moduleSearch').fill('документы');await expect(page.locator('.module-card:visible')).toHaveCount(1);
-  await page.goto('/modules/module-08.html');expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
-  await page.locator('#capacityForm [name=flow]').fill('100');await page.locator('#capacityForm button').click();await expect(page.locator('#capacityResult')).toContainText('очередь будет расти');
-});
-test('unsaved diary draft survives navigation and starts empty in a different profile',async({page})=>{
-  await page.goto('/');await page.locator('#diaryForm [name=title]').fill('Черновик наблюдения');await page.locator('#diaryForm [name=situation]').fill('Нужно восстановить факты передачи');
-  await page.reload();await expect(page.locator('#diaryForm [name=title]')).toHaveValue('Черновик наблюдения');
-  page.once('dialog',d=>d.accept('Новая тетрадь'));await page.locator('#addProfile').click();await expect(page.locator('#diaryForm [name=title]')).toHaveValue('');
-});
->>>>>>> fe405c0604a0b1ab41d3f43b71d6a8b379703d35

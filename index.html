@@ -21,7 +21,6 @@
         <div class="profile-actions"><button class="text-button" id="addProfile">＋ Новый</button><button class="text-button" id="deleteProfile">Удалить</button></div>
         <span class="save-state" id="saveState">● Данные хранятся на этом устройстве</span>
       </div>
-<<<<<<< HEAD
       <nav class="side-nav" aria-label="Основные разделы">
         <a href="#route" data-view-link="start"><span>01</span> Ситуация</a>
         <a href="#modules" data-view-link="reference"><span>02</span> Теория и техники</a>
@@ -29,19 +28,11 @@
         <a href="#diary" data-view-link="journal"><span>04</span> Мои записи</a>
       </nav>
       <a class="sidebar-help" href="#faq">Помощь и частые вопросы</a>
-=======
-      <nav class="side-nav" aria-label="Разделы">
-        <a href="#top">Обзор</a><a href="#route">Навигатор ситуации</a><a href="#modules">Разделы справочника</a>
-        <a href="#practice">Рабочие техники</a><a href="#cases">Кейсы и самопроверка</a><a href="#diary">Рабочий дневник</a>
-        <a href="#library">Теория и материалы</a><a href="#faq">FAQ</a>
-      </nav>
->>>>>>> fe405c0604a0b1ab41d3f43b71d6a8b379703d35
       <div class="sidebar-note"><b>Как пользоваться</b><p>Возьмите актуальную рабочую ситуацию, выберите маршрут, примените технику и запишите наблюдение в дневник.</p></div>
     </aside>
 
     <main id="top">
       <header class="topbar">
-<<<<<<< HEAD
         <div><span class="eyebrow">Рабочий справочник · <span id="profileNameLabel">Мои записи</span></span><h1 id="viewTitle">С чего начать в рабочей ситуации?</h1></div>
         <details class="data-menu"><summary>Данные профиля</summary><div class="top-actions"><button class="button quiet" id="exportProfile">Экспорт данных</button><button class="button quiet" id="importProfileButton">Импорт</button></div></details><input id="importProfile" type="file" accept="application/json,.json" hidden>
       </header>
@@ -52,29 +43,13 @@
       </section>
 
       <section class="stats-grid" aria-label="Моя рабочая тетрадь" data-screen="journal" hidden>
-=======
-        <div><span class="eyebrow">Рабочий справочник · <span id="profileNameLabel">Мои записи</span></span><h1>Что делать, когда обычный порядок не помогает?</h1></div>
-        <div class="top-actions"><button class="button quiet" id="exportProfile">Экспорт данных</button><button class="button quiet" id="importProfileButton">Импорт</button><input id="importProfile" type="file" accept="application/json,.json" hidden></div>
-      </header>
-
-      <section class="hero panel">
-        <div class="hero-copy"><span class="pill">Инструмент для ежедневной работы</span><h2>Управляйте системой, а не только списком задач</h2><p>Теория помогает понять логику, интерактивы — выбрать способ действия, а дневник — увидеть, что действительно сработало в вашем подразделении.</p><a class="button primary" href="#route">Разобрать ситуацию <span aria-hidden="true">→</span></a></div>
-        <div class="hero-visual" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit-center">РЕЗУЛЬТАТ</div><span class="orbit-label label-a">люди</span><span class="orbit-label label-b">процессы</span><span class="orbit-label label-c">решения</span></div>
-      </section>
-
-      <section class="stats-grid" aria-label="Моя рабочая тетрадь">
->>>>>>> fe405c0604a0b1ab41d3f43b71d6a8b379703d35
         <article class="stat-card"><span>Избранные разделы</span><b id="statModules">0</b><small>быстрый доступ к нужному</small></article>
         <article class="stat-card"><span>Записей в дневнике</span><b id="statNotes">0</b><small>личные наблюдения и планы</small></article>
         <article class="stat-card"><span>Разобрано ситуаций</span><b id="statCases">0</b><small>ответы и размышления для себя</small></article>
         <article class="stat-card"><span>Последняя запись</span><b class="stat-date" id="statDate">Пока нет</b><small>вернитесь к своему плану действий</small></article>
       </section>
 
-<<<<<<< HEAD
       <section class="section-block" id="route" data-screen="start">
-=======
-      <section class="section-block" id="route">
->>>>>>> fe405c0604a0b1ab41d3f43b71d6a8b379703d35
         <div class="section-heading"><div><span class="eyebrow">Быстрый старт</span><h2>С чего начать в вашей ситуации?</h2><p>Выберите наблюдаемый симптом. Навигатор подскажет, какой контур проверить первым.</p></div></div>
         <div class="route-workbench panel">
           <label for="problemSelect">Что происходит сейчас?</label><select id="problemSelect"></select>
@@ -82,7 +57,6 @@
         </div>
       </section>
 
-<<<<<<< HEAD
       <section class="section-block" id="modules" data-screen="reference" hidden>
         <div class="section-heading heading-with-action"><div><span class="eyebrow">Полный справочник</span><h2>Теория, модели и визуальные техники</h2><p>10 разделов и 30 техник. Читайте объяснение, изучайте схему, затем применяйте к своей ситуации. Можно искать по теме или сразу по названию инструмента.</p></div><a class="button quiet" href="navigator.html" id="navigatorLink">Карта ситуаций ↗</a></div>
         <div class="module-grid" id="moduleGrid"></div>
@@ -90,14 +64,6 @@
 
       <nav class="practice-tabs" data-screen="practice" aria-label="Формат практики" hidden><a href="#practice">Рабочие шаблоны</a><a href="#cases">Кейсы и рефлексия</a></nav>
       <section class="section-block" id="practice" data-screen="practice" data-pane="templates" hidden>
-=======
-      <section class="section-block" id="modules">
-        <div class="section-heading heading-with-action"><div><span class="eyebrow">Объяснения + действия</span><h2>10 ракурсов административной работы</h2><p>Каждый раздел: краткая теория, две пошаговые техники с примером, рабочие шаблоны, кейс и вопросы к себе. Выбирайте нужное по ситуации.</p></div><a class="button quiet" href="navigator.html" id="navigatorLink">Карта решений ↗</a></div>
-        <div class="module-grid" id="moduleGrid"></div>
-      </section>
-
-      <section class="section-block" id="practice">
->>>>>>> fe405c0604a0b1ab41d3f43b71d6a8b379703d35
         <div class="section-heading"><div><span class="eyebrow">Рабочие техники</span><h2>Соберите следующий управленческий шаг</h2><p>Заполните короткий шаблон — используйте результат в работе или сохраните его в дневник.</p></div></div>
         <div class="tool-grid">
           <article class="tool-card panel"><div class="tool-title"><span class="tool-icon">01</span><div><span class="eyebrow">Ясная задача</span><h3>Постановка поручения</h3></div></div><p>Начинайте с проверяемого результата, затем согласуйте владельца, срок, качество и необходимые ресурсы.</p>
@@ -109,31 +75,18 @@
         </div>
       </section>
 
-<<<<<<< HEAD
       <section class="section-block" id="cases" data-screen="practice" data-pane="cases" hidden>
         <div class="section-heading"><div><span class="eyebrow">Самопроверка</span><h2>Кейсы: выберите действие, затем проверьте логику</h2><p>Проверьте своё решение и последствия каждого варианта. Запишите, как примените вывод к собственной ситуации.</p></div></div>
         <label class="case-chooser">Выберите ситуацию для разбора<select id="caseSelect"></select></label><div class="case-grid" id="caseGrid"></div>
       </section>
 
       <section class="section-block" id="diary" data-screen="journal" hidden>
-=======
-      <section class="section-block" id="cases">
-        <div class="section-heading"><div><span class="eyebrow">Самопроверка</span><h2>Кейсы: выберите действие, затем проверьте логику</h2><p>Проверьте своё решение и последствия каждого варианта. Запишите, как примените вывод к собственной ситуации.</p></div></div>
-        <div class="case-grid" id="caseGrid"></div>
-      </section>
-
-      <section class="section-block" id="diary">
->>>>>>> fe405c0604a0b1ab41d3f43b71d6a8b379703d35
         <div class="section-heading heading-with-action"><div><span class="eyebrow">Личная практика</span><h2>Мой рабочий дневник</h2><p>Фиксируйте ситуацию, свои решения и следующий эксперимент. Черновик сохраняется при вводе; готовую запись можно отредактировать позже.</p></div><button class="button quiet" id="exportDiary">Скачать дневник</button></div>
         <div class="diary-layout"><form id="diaryForm" class="panel diary-form"><div class="form-row"><label>Дата<input type="date" name="date" required></label><label>Тип записи<select name="type"><option>Рефлексия</option><option>Решение</option><option>Кейс</option><option>План действия</option><option>Итог недели</option></select></label></div><label>Короткий заголовок<input name="title" required placeholder="Например: поздняя эскалация риска"></label><label>Ситуация и факты<textarea name="situation" required placeholder="Что произошло? Что вы знаете точно?"></textarea></label><label>Мой вывод / чему научился<textarea name="learning" placeholder="Какие причины обнаружились? Что оказалось важным?"></textarea></label><label>Следующий шаг<textarea name="action" placeholder="Что, кто и к какому сроку сделает иначе?"></textarea></label><label>Насколько я доволен своим способом действия? <output id="ratingValue">3</output> / 5<input type="range" name="rating" min="1" max="5" value="3" id="ratingRange"></label><button class="button primary" type="submit">Сохранить запись</button></form>
           <div class="diary-list-wrap"><div class="diary-controls"><label class="search-label">Поиск по дневнику<input id="diarySearch" type="search" placeholder="Слово, тема или решение"></label><select id="diaryFilter" aria-label="Фильтр записей"><option value="all">Все записи</option></select></div><button class="text-button" id="weeklyPrompt">Начать рефлексию недели</button><div class="diary-list" id="diaryList"></div></div></div>
       </section>
 
-<<<<<<< HEAD
       <section class="section-block" id="library" data-screen="reference" hidden>
-=======
-      <section class="section-block" id="library">
->>>>>>> fe405c0604a0b1ab41d3f43b71d6a8b379703d35
         <div class="section-heading heading-with-action"><div><span class="eyebrow">Теория и модели</span><h2>Понятная логика за рабочими действиями</h2><p>Обобщённые административные ситуации, без привязки к организации или программному продукту.</p></div><a class="button quiet" href="sources.html">Модели и литература ↗</a></div>
         <div class="resource-grid">
           <a class="resource-card" href="navigator.html"><span>Карта решений</span><b>Ситуация → следующий шаг</b><small>Что проверить, чего избегать, как оценить результат</small></a>
@@ -143,11 +96,7 @@
         </div>
       </section>
 
-<<<<<<< HEAD
       <section class="section-block" id="faq" data-screen="help" hidden>
-=======
-      <section class="section-block" id="faq">
->>>>>>> fe405c0604a0b1ab41d3f43b71d6a8b379703d35
         <div class="section-heading"><div><span class="eyebrow">Частые вопросы</span><h2>Как превратить материалы в рабочую привычку?</h2></div></div>
         <div class="faq-list">
           <details><summary>Нужно ли читать разделы строго по порядку?</summary><p>Нет. Начните с ситуации, откройте нужную технику и примените её к реальному процессу. Справочник не назначает обучение, сроки прохождения или оценки.</p></details>
@@ -160,26 +109,16 @@
         </div>
       </section>
 
-<<<<<<< HEAD
       <footer class="footer"><a href="#route">К ситуации</a><a href="#faq">Помощь</a><a href="sources.html">Модели и литература</a></footer>
-=======
-      <footer class="footer"><a href="#top">↑ Наверх</a><span>Локальный справочник · теория, практики и личные записи</span><a href="sources.html">О моделях</a></footer>
->>>>>>> fe405c0604a0b1ab41d3f43b71d6a8b379703d35
     </main>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script src="assets/content.js"></script>
-<<<<<<< HEAD
   <script src="assets/knowledge.js"></script>
   <script src="assets/visuals.js"></script>
   <script src="assets/store.js"></script>
   <script src="assets/cases.js"></script>
   <script src="assets/app.js"></script>
   <script src="assets/navigation.js"></script>
-=======
-  <script src="assets/store.js"></script>
-  <script src="assets/cases.js"></script>
-  <script src="assets/app.js"></script>
->>>>>>> fe405c0604a0b1ab41d3f43b71d6a8b379703d35
 </body>
 </html>
