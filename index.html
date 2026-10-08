@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#142b4a">
+  <meta name="description" content="Локальный справочник администратора: что делать в рабочей ситуации, пошаговые техники, примеры, кейсы и личный дневник.">
+  <title>Практика управления — рабочий справочник администратора</title>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#top" aria-label="На главную">
+        <span class="brand-mark">У</span>
+        <span>Практика управления<small>рабочая среда руководителя</small></span>
+      </a>
+      <div class="profile-box">
+        <label for="profileSelect">Личный профиль</label>
+        <select id="profileSelect" aria-label="Выбрать профиль"></select>
+        <div class="profile-actions"><button class="text-button" id="addProfile">＋ Новый</button><button class="text-button" id="deleteProfile">Удалить</button></div>
+        <span class="save-state" id="saveState">● Данные хранятся на этом устройстве</span>
+      </div>
+      <nav class="side-nav" aria-label="Разделы">
+        <a href="#top">Обзор</a><a href="#route">Навигатор ситуации</a><a href="#modules">Разделы справочника</a>
+        <a href="#practice">Рабочие техники</a><a href="#cases">Кейсы и самопроверка</a><a href="#diary">Рабочий дневник</a>
+        <a href="#library">Теория и материалы</a><a href="#faq">FAQ</a>
+      </nav>
+      <div class="sidebar-note"><b>Как пользоваться</b><p>Возьмите актуальную рабочую ситуацию, выберите маршрут, примените технику и запишите наблюдение в дневник.</p></div>
+    </aside>
+
+    <main id="top">
+      <header class="topbar">
+        <div><span class="eyebrow">Рабочий справочник · <span id="profileNameLabel">Мои записи</span></span><h1>Что делать, когда обычный порядок не помогает?</h1></div>
+        <div class="top-actions"><button class="button quiet" id="exportProfile">Экспорт данных</button><button class="button quiet" id="importProfileButton">Импорт</button><input id="importProfile" type="file" accept="application/json,.json" hidden></div>
+      </header>
+
+      <section class="hero panel">
+        <div class="hero-copy"><span class="pill">Инструмент для ежедневной работы</span><h2>Управляйте системой, а не только списком задач</h2><p>Теория помогает понять логику, интерактивы — выбрать способ действия, а дневник — увидеть, что действительно сработало в вашем подразделении.</p><a class="button primary" href="#route">Разобрать ситуацию <span aria-hidden="true">→</span></a></div>
+        <div class="hero-visual" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit-center">РЕЗУЛЬТАТ</div><span class="orbit-label label-a">люди</span><span class="orbit-label label-b">процессы</span><span class="orbit-label label-c">решения</span></div>
+      </section>
+
+      <section class="stats-grid" aria-label="Моя рабочая тетрадь">
+        <article class="stat-card"><span>Избранные разделы</span><b id="statModules">0</b><small>быстрый доступ к нужному</small></article>
+        <article class="stat-card"><span>Записей в дневнике</span><b id="statNotes">0</b><small>личные наблюдения и планы</small></article>
+        <article class="stat-card"><span>Разобрано ситуаций</span><b id="statCases">0</b><small>ответы и размышления для себя</small></article>
+        <article class="stat-card"><span>Последняя запись</span><b class="stat-date" id="statDate">Пока нет</b><small>вернитесь к своему плану действий</small></article>
+      </section>
+
+      <section class="section-block" id="route">
+        <div class="section-heading"><div><span class="eyebrow">Быстрый старт</span><h2>С чего начать в вашей ситуации?</h2><p>Выберите наблюдаемый симптом. Навигатор подскажет, какой контур проверить первым.</p></div></div>
+        <div class="route-workbench panel">
+          <label for="problemSelect">Что происходит сейчас?</label><select id="problemSelect"></select>
+          <div id="routeResult" class="route-result" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section class="section-block" id="modules">
+        <div class="section-heading heading-with-action"><div><span class="eyebrow">Объяснения + действия</span><h2>10 ракурсов административной работы</h2><p>Каждый раздел: краткая теория, две пошаговые техники с примером, рабочие шаблоны, кейс и вопросы к себе. Выбирайте нужное по ситуации.</p></div><a class="button quiet" href="navigator.html" id="navigatorLink">Карта решений ↗</a></div>
+        <div class="module-grid" id="moduleGrid"></div>
+      </section>
+
+      <section class="section-block" id="practice">
+        <div class="section-heading"><div><span class="eyebrow">Рабочие техники</span><h2>Соберите следующий управленческий шаг</h2><p>Заполните короткий шаблон — используйте результат в работе или сохраните его в дневник.</p></div></div>
+        <div class="tool-grid">
+          <article class="tool-card panel"><div class="tool-title"><span class="tool-icon">01</span><div><span class="eyebrow">Ясная задача</span><h3>Постановка поручения</h3></div></div><p>Начинайте с проверяемого результата, затем согласуйте владельца, срок, качество и необходимые ресурсы.</p>
+            <form id="taskForm" class="form-grid"><label>Что должно быть готово?<textarea name="result" required placeholder="Например: согласованный проект регламента"></textarea></label><div class="form-row"><label>Ответственный<input name="owner" placeholder="Имя / роль"></label><label>Срок<input name="deadline" type="date"></label></div><label>Критерий качества<input name="quality" placeholder="По каким признакам принимаем результат?"></label><label>Ресурс или зависимость<input name="dependency" placeholder="Данные, согласование, помощь коллег"></label><button class="button primary" type="submit">Собрать поручение</button></form><div class="generated" id="taskOutput" hidden><b>Черновик поручения</b><p></p><div class="inline-actions"><button class="button quiet save-generated" data-kind="Поручение">Сохранить в дневник</button><button class="text-button copy-generated">Копировать</button></div></div>
+          </article>
+          <article class="tool-card panel"><div class="tool-title"><span class="tool-icon violet">02</span><div><span class="eyebrow">Согласование</span><h3>Подготовка к сложному разговору</h3></div></div><p>Отделите факты от интерпретаций и переведите разногласие к общему результату, ограничениям и вариантам.</p>
+            <form id="talkForm" class="form-grid"><label>Наблюдаемый факт<textarea name="fact" required placeholder="Что произошло? Что можно проверить?"></textarea></label><label>Общий результат<input name="goal" placeholder="Какой итог нужен обеим сторонам?"></label><label>Интересы и ограничения<textarea name="interests" placeholder="Что важно каждой стороне? Какие ограничения реальны?"></textarea></label><label>Варианты следующего шага<textarea name="options" placeholder="Два-три выполнимых варианта и последствия"></textarea></label><button class="button primary" type="submit">Подготовить разговор</button></form><div class="generated" id="talkOutput" hidden><b>План разговора</b><p></p><div class="inline-actions"><button class="button quiet save-generated" data-kind="План разговора">Сохранить в дневник</button><button class="text-button copy-generated">Копировать</button></div></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section-block" id="cases">
+        <div class="section-heading"><div><span class="eyebrow">Самопроверка</span><h2>Кейсы: выберите действие, затем проверьте логику</h2><p>Проверьте своё решение и последствия каждого варианта. Запишите, как примените вывод к собственной ситуации.</p></div></div>
+        <div class="case-grid" id="caseGrid"></div>
+      </section>
+
+      <section class="section-block" id="diary">
+        <div class="section-heading heading-with-action"><div><span class="eyebrow">Личная практика</span><h2>Мой рабочий дневник</h2><p>Фиксируйте ситуацию, свои решения и следующий эксперимент. Черновик сохраняется при вводе; готовую запись можно отредактировать позже.</p></div><button class="button quiet" id="exportDiary">Скачать дневник</button></div>
+        <div class="diary-layout"><form id="diaryForm" class="panel diary-form"><div class="form-row"><label>Дата<input type="date" name="date" required></label><label>Тип записи<select name="type"><option>Рефлексия</option><option>Решение</option><option>Кейс</option><option>План действия</option><option>Итог недели</option></select></label></div><label>Короткий заголовок<input name="title" required placeholder="Например: поздняя эскалация риска"></label><label>Ситуация и факты<textarea name="situation" required placeholder="Что произошло? Что вы знаете точно?"></textarea></label><label>Мой вывод / чему научился<textarea name="learning" placeholder="Какие причины обнаружились? Что оказалось важным?"></textarea></label><label>Следующий шаг<textarea name="action" placeholder="Что, кто и к какому сроку сделает иначе?"></textarea></label><label>Насколько я доволен своим способом действия? <output id="ratingValue">3</output> / 5<input type="range" name="rating" min="1" max="5" value="3" id="ratingRange"></label><button class="button primary" type="submit">Сохранить запись</button></form>
+          <div class="diary-list-wrap"><div class="diary-controls"><label class="search-label">Поиск по дневнику<input id="diarySearch" type="search" placeholder="Слово, тема или решение"></label><select id="diaryFilter" aria-label="Фильтр записей"><option value="all">Все записи</option></select></div><button class="text-button" id="weeklyPrompt">Начать рефлексию недели</button><div class="diary-list" id="diaryList"></div></div></div>
+      </section>
+
+      <section class="section-block" id="library">
+        <div class="section-heading heading-with-action"><div><span class="eyebrow">Теория и модели</span><h2>Понятная логика за рабочими действиями</h2><p>Обобщённые административные ситуации, без привязки к организации или программному продукту.</p></div><a class="button quiet" href="sources.html">Модели и литература ↗</a></div>
+        <div class="resource-grid">
+          <a class="resource-card" href="navigator.html"><span>Карта решений</span><b>Ситуация → следующий шаг</b><small>Что проверить, чего избегать, как оценить результат</small></a>
+          <a class="resource-card" href="adizes.html"><span>Отдельный практикум</span><b>Модели Адизеса</b><small>PAEI, CAPI, командные различия и жизненный цикл</small></a>
+          <a class="resource-card" href="modules/module-08.html"><span>Рабочий инструмент</span><b>Бережливое улучшение сервиса</b><small>Потери, узкие места и проверка гипотезы улучшения</small></a>
+          <a class="resource-card" href="modules/module-09.html"><span>Практика изменений</span><b>ADKAR и принятие изменений</b><small>Связать создание решения с освоением новой практики</small></a>
+        </div>
+      </section>
+
+      <section class="section-block" id="faq">
+        <div class="section-heading"><div><span class="eyebrow">Частые вопросы</span><h2>Как превратить материалы в рабочую привычку?</h2></div></div>
+        <div class="faq-list">
+          <details><summary>Нужно ли читать разделы строго по порядку?</summary><p>Нет. Начните с ситуации, откройте нужную технику и примените её к реальному процессу. Справочник не назначает обучение, сроки прохождения или оценки.</p></details>
+          <details><summary>С какой техники начать?</summary><p>Сначала уточните наблюдаемый факт и нужный результат. Если неясно, что происходит, используйте диагностику; если не хватает полномочий — подготовьте варианты для решения; если договорённость достигнута — фиксируйте исполнение и проверку.</p></details>
+          <details><summary>Как сохраняются мои ответы, результаты и записи?</summary><p>В браузере на этом устройстве, в отдельном хранилище для каждого созданного профиля. Данные не передаются на сервер. Используйте «Экспорт данных» для резервной копии или переноса в другой браузер.</p></details>
+          <details><summary>Что означает локальный профиль?</summary><p>Он разделяет личные заметки и черновики на этом устройстве. Выберите своё имя перед работой. Профили доступны любому, кто пользуется этим браузером; это не учётные записи с паролем.</p></details>
+          <details><summary>Как применять советы о документах и полномочиях?</summary><p>Общие принципы помогают подготовить решение. Конкретные формы, полномочия, сроки и процедуры берите из действующих правил вашей организации.</p></details>
+          <details><summary>Как разбирать кейсы с командой?</summary><p>Сначала попросите каждого сформулировать факты, ожидаемый результат и следующий шаг. Только после этого откройте разбор. Обсуждайте качество решения, а не «правильность» человека; сохраните командные договорённости в рабочем документе.</p></details>
+          <details><summary>Что делать, если не хватает полномочий или ресурсов?</summary><p>Не подменяйте решение ожиданием или неформальным давлением. Зафиксируйте факт, влияние на результат, доступные варианты и запрос на управленческий выбор. После эскалации обновите роли, сроки и контрольные точки.</p></details>
+        </div>
+      </section>
+
+      <footer class="footer"><a href="#top">↑ Наверх</a><span>Локальный справочник · теория, практики и личные записи</span><a href="sources.html">О моделях</a></footer>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="assets/content.js"></script>
+  <script src="assets/store.js"></script>
+  <script src="assets/cases.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>

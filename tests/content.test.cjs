@@ -1,0 +1,25 @@
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
+const root=path.resolve(__dirname,'..');
+const context={window:{}};vm.runInNewContext(fs.readFileSync(path.join(root,'assets/content.js'),'utf8'),context);
+const data=context.window.HANDBOOK;
+test('ten chapters have theory, actionable techniques, examples and reflection cases',()=>{
+  assert.equal(data.chapters.length,10);assert.equal(data.cases.length,10);assert.equal(data.routes.length,8);
+  for(const c of data.chapters){assert.equal(c.theory.length,3);assert.equal(c.techniques.length,2);assert.equal(c.faq.length,2);assert.ok(data.cases.some(k=>k.chapter===c.id));
+    for(const t of c.techniques){assert.equal(t.steps.length,5);assert.equal(t.fields.length,4);for(const k of ['name','when','why','example','mistake','check'])assert.ok(t[k].length>10);}
+    for(const n of c.related)assert.ok(data.chapters.some(m=>m.id===n));
+  }
+  for(const c of data.cases){assert.equal(c.feedback.length,c.options.length);assert.ok(c.answer>=0&&c.answer<c.options.length);assert.ok(c.reflection);}
+  assert.equal(new Set(data.cases.map(c=>c.id)).size,10);
+});
+test('all public JavaScript parses and all local HTML links/scripts exist',()=>{
+  const files=[...fs.readdirSync(root).filter(f=>f.endsWith('.html')),...fs.readdirSync(path.join(root,'modules')).map(f=>'modules/'+f)];
+  for(const f of fs.readdirSync(path.join(root,'assets')).filter(f=>f.endsWith('.js')))new vm.Script(fs.readFileSync(path.join(root,'assets',f),'utf8'),{filename:f});
+  for(const f of files){const text=fs.readFileSync(path.join(root,f),'utf8');assert.match(text,/<html lang="ru"/);for(const match of text.matchAll(/(?:href|src)="([^"]+)"/g)){const link=match[1].split(/[?#]/)[0];if(!link||/^[a-z]+:/i.test(link))continue;assert.ok(fs.existsSync(path.resolve(path.dirname(path.join(root,f)),link)),`${f} -> ${link}`);}}
+});
+test('public content is generalised and has no PDF assets or external runtime dependency',()=>{
+  const publicFiles=[...fs.readdirSync(root).filter(f=>f.endsWith('.html')),...['assets','modules'].flatMap(dir=>fs.readdirSync(path.join(root,dir)).map(f=>dir+'/'+f))];
+  for(const f of publicFiles){assert.doesNotMatch(f,/\.(pdf|pptx?|docx)$/i);const text=fs.readFileSync(path.join(root,f),'utf8');assert.doesNotMatch(text,/Финансов[а-я]+ университет|DIRECTUM|регламент[а-я ]+университет/i);assert.doesNotMatch(text,/(?:src=["']https?:|@import\s+url|fetch\()/i);}
+  for(const c of data.chapters)assert.ok(fs.existsSync(path.join(root,`modules/module-${String(c.id).padStart(2,'0')}.html`)));
+});
