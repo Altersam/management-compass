@@ -20,8 +20,11 @@
     function calculate(save=false){const flex=Number(document.getElementById('flex').value),control=Number(document.getElementById('control').value);document.getElementById('flexValue').value=flex;document.getElementById('controlValue').value=control;document.getElementById('balanceResult').textContent=flex<3&&control<3?'Оба значения низкие. Начните с ясного результата, владельца процесса и одного управляемого эксперимента.':flex-control>=2?'Гибкость опережает контроль. Проверьте роли, критерии приёмки и повторяемость исполнения.':control-flex>=2?'Контроль опережает гибкость. Найдите согласование, которое не снижает существенный риск, и подготовьте пилот улучшения.':'Разрыв невелик. Это повод проверить по фактам, насколько одновременно обеспечены результат, надёжность и адаптация, а не доказательство стадии Prime.';if(save)persist({flex,control});}root.querySelectorAll('input').forEach(i=>i.oninput=()=>calculate(true));calculate();
   }
   ({paei,capi,lifecycle}[key])();
+<<<<<<< HEAD
   root.insertAdjacentHTML('afterbegin',Visuals.render(key));
   Visuals.bind(root);
+=======
+>>>>>>> fe405c0604a0b1ab41d3f43b71d6a8b379703d35
   const f=document.getElementById('reflectionForm');const draft=S.profile(p.id).data.worksheets[`adizes-${key}`]||{};
   for(const[k,v]of Object.entries(draft))if(f.elements[k]&&typeof v==='string')f.elements[k].value=v;
   f.oninput=()=>S.update(p.id,d=>d.worksheets[`adizes-${key}`]=Object.fromEntries(new FormData(f)));
