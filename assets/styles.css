@@ -9,6 +9,9 @@
 @media print{.reading-nav,.reading-bar,.worksheet,.toast{display:none!important}.reading-page{max-width:none;padding:0}.theory-grid{display:block}.theory-card,.technique-detail{break-inside:avoid;margin:12px 0}.table-wrap{overflow:visible}.diary-list{max-height:none;overflow:visible}}
 
 /* Focused navigation and visual explanations. */
+.mode-link{display:block;margin:16px 0;color:var(--blue);font-size:13px;font-weight:750}
+.learning-callout{display:flex;gap:15px;justify-content:space-between;align-items:center;padding:13px 17px;background:#edf3ff;border:1px solid #cddbf2;border-radius:12px;font-size:13px;margin:20px 0}
+.learning-callout a{color:var(--blue);font-weight:750}
 .side-nav {gap:7px}
 .side-nav a {display:flex;align-items:center;gap:9px;padding:12px 10px;font-size:14px}
 .side-nav a span {font-size:10px;color:#8495a8}
@@ -113,6 +116,7 @@
   .favorite-filter {padding:0}
   .module-card h3 {font-size:18px}
   .reading-page {padding:16px 13px 38px}
+  .learning-callout{display:block}.learning-callout a{display:block;margin-top:8px}
   .reading-bar {gap:7px}
   .chapter-tabs a {font-size:12px;padding:9px}
   .theory-introduction p,.theory-article p {font-size:16px;line-height:1.8}
@@ -134,6 +138,8 @@
   .mobile-model-flow .mobile-model-node:not(:last-child):after,.mobile-model-ladder .mobile-model-node:not(:last-child):after,.mobile-model-queue .mobile-model-node:not(:last-child):after {content:'↓';position:absolute;left:26px;bottom:-16px;color:#7b91ad;font-weight:800;z-index:1}
   .mobile-model-flow,.mobile-model-ladder,.mobile-model-queue {gap:17px}
   .mobile-model-quadrant {grid-template-columns:1fr 1fr}
+  .mobile-model-converge {grid-template-columns:1fr 1fr}
+  .mobile-model-converge .mobile-model-node:last-child {grid-column:1/-1}
   .mobile-model-quadrant .mobile-model-node {flex-direction:column;align-items:flex-start;padding:10px}
   .mobile-model-quadrant .mobile-step {display:none}
   .mobile-cycle-note {font-size:12px;color:#647c97;grid-column:1/-1;padding:5px 1px}

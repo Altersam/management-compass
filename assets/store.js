@@ -4,7 +4,7 @@
   const KEY = 'management-compass:v1';
   const uid = () => root.crypto?.randomUUID?.() || `p-${Date.now()}-${Math.random().toString(36).slice(2)}`;
   const date = () => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
-  const blank = () => ({favorites:[],journal:[],caseAnswers:{},caseReflections:{},worksheets:{},assessments:{}});
+  const blank = () => ({favorites:[],journal:[],caseAnswers:{},caseReflections:{},worksheets:{},assessments:{},course:{}});
   function plain(value) { return !!value && typeof value==='object' && !Array.isArray(value); }
   function validateData(d) {
     if (!plain(d) || !Array.isArray(d.journal) || !Array.isArray(d.favorites)) throw new Error('Неполные данные профиля.');
@@ -23,6 +23,12 @@
     }
     for (const v of Object.values(result.caseReflections)) if(typeof v!=='string')throw new Error('Неверная рефлексия.');
     for (const v of Object.values(result.caseAnswers)) if(!plain(v)||!Number.isInteger(v.choice)||v.choice<0||v.choice>10||typeof v.correct!=='boolean')throw new Error('Неверный ответ.');
+    if(d.course!==undefined){
+      if(!plain(d.course))throw new Error('Неверный учебный прогресс.');
+      const copy=JSON.parse(JSON.stringify(d.course));
+      const inspect=value=>{if(!value||typeof value!=='object')return;for(const key of Object.keys(value)){if(['__proto__','prototype','constructor'].includes(key))throw new Error('Недопустимое поле прогресса.');inspect(value[key]);}};
+      inspect(copy);result.course=copy;
+    }
     return result;
   }
   function createStore(adapter) {

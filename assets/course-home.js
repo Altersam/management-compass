@@ -1,0 +1,50 @@
+(() => {
+  'use strict';
+  const C=CourseUI,{M,esc}=C,root=document.getElementById('courseRoot');
+  const legacy=['route','modules','library','practice','cases','diary','faq','decisions','favorites'];
+  if(legacy.includes(location.hash.slice(1))){location.replace(C.link(`workspace.html${location.hash}`));return;}
+  C.mount();
+  function overview(){
+    const reports=COURSE.modules.map(m=>M.report(C.data(),m.id,COURSE.questions[m.id]));
+    const progress=Math.round(reports.reduce((sum,r)=>sum+r.progress,0)/10);
+    const mastered=reports.filter(r=>r.mastered).length;
+    const last=M.course(C.data()).last;
+    const current=last&&COURSE.modules.some(m=>m.id===last.module)?last:{module:1,step:'intro'};
+    return {reports,progress,mastered,last,current};
+  }
+  function map(reports){return `<ol class="course-map">${COURSE.modules.map((m,i)=>`<li><a href="${C.lesson(m.id)}" class="course-map-node ${reports[i].mastered?'mastered':''}"><span class="map-number">${String(m.id).padStart(2,'0')} · ${esc(m.lens)}</span><h3>${esc(m.title)}</h3><p>${esc(m.why)}</p><div class="progress-track"><i style="width:${reports[i].progress}%"></i></div><span class="map-status">${reports[i].mastered?'Освоен':reports[i].progress?`${reports[i].progress}% пути`:'Начать модуль'} →</span></a></li>`).join('')}</ol><div class="cycle-return"><b>10 → 02 · цикл замыкается</b><p>Измерили эффект → получили новые данные → уточнили цель, поручения и контроль.</p><a href="${C.lesson(2)}">Вернуться к регулярному менеджменту →</a></div>`;}
+  function render(){
+    const tab=location.hash==='#trajectory'?'trajectory':location.hash==='#final'?'final':'course';
+    document.querySelectorAll('[data-course-nav]').forEach(a=>{const on=a.dataset.courseNav===tab;a.classList.toggle('active',on);if(on)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
+    if(tab==='final'){renderFinal();return;}
+    const o=overview(),m=COURSE.modules[o.current.module-1];
+    if(tab==='trajectory'){
+      root.innerHTML=`<span class="eyebrow">Мой учебный путь</span><h1>Что освоено и к чему вернуться</h1><div class="course-stats"><article><b>${o.progress}%</b><span>учебного пути</span></article><article><b>${o.mastered}/10</b><span>модулей освоено</span></article><article><b>${C.data().journal.length}</b><span>личных записей</span></article></div><a class="button primary" id="continueCourse" href="${C.lesson(o.current.module,o.current.step)}">Продолжить: ${esc(m.title)} →</a><div class="trajectory-list">${COURSE.modules.map((module,i)=>{const r=o.reports[i];return `<article class="panel trajectory-row"><div><span class="eyebrow">${module.id} · ${module.lens}</span><h2>${esc(module.title)}</h2><p>${r.mastered?'Учебные шаги выполнены, порог проверки достигнут.':esc(r.missing.join(' · '))}</p>${r.last?`<small>Последняя попытка: ${r.last.score}/5</small>`:''}</div><div><b>${r.progress}%</b><a class="button quiet" href="${C.lesson(module.id,r.last&&!r.checked?'check':'intro')}">${r.mastered?'Повторить':'Продолжить'} →</a></div></article>`;}).join('')}</div>`;
+      return;
+    }
+    root.innerHTML=`<section class="course-hero"><span class="pill">10 модулей · учитесь на ситуациях</span><h1>Практика управления</h1><h2>Интерактивный курс и рабочая среда руководителя</h2><p>От личной управленческой устойчивости — к команде, процессам, изменениям и решениям на основе данных.</p><div class="course-entry-actions"><a id="continueCourse" class="button primary" href="${C.lesson(o.current.module,o.current.step)}">${o.last?'Продолжить обучение':'Открыть первый модуль'} →</a><a id="startCourse" class="button quiet" href="${C.lesson(1)}">Начать курс с темы 1</a><a class="navigator-entry" href="${C.link('workspace.html#route')}">У меня рабочая ситуация →</a></div><p class="resume-note">${o.last?`Тема ${m.id} · ${esc(m.title)} · ${o.reports[m.id-1].progress}%`: 'Начните с входного кейса. Он помогает увидеть собственный привычный ход до изучения модели.'}</p></section><div class="course-facts"><span>10 модулей</span><span>30 визуальных техник</span><span>70+ учебных ситуаций и вопросов</span><span>Рабочие шаблоны</span><span>Личный дневник</span></div><section class="section-block"><span class="eyebrow">Логика обучения</span><h2>Один понятный путь руководителя</h2><p class="course-lead">Каждая следующая тема отвечает на вопрос, который не решить предыдущей. Путь рекомендован, но любой модуль можно открыть для повторения.</p>${map(o.reports)}</section><section class="panel learning-method"><h2>Как устроен каждый модуль</h2><div class="learning-flow">${['Первая попытка','Объяснение и модель','Техника','Практика','Применение','Проверка','Кросс-связи'].map((s,i)=>`<span>${i+1}. ${s}</span>`).join('')}</div><p>Тема считается освоенной после входного кейса, трёх учебных блоков, техники, практики по критериям, записи применения в дневник и результата мини-теста не ниже 4/5. Это личная проверка понимания, а не оценка сотрудника.</p><a href="${C.link('workspace.html#modules')}">Нужен инструмент без учебного маршрута? Откройте рабочий каталог →</a></section>`;
+    if(!o.last){
+      const disabled=document.createElement('button');disabled.id='continueCourse';disabled.className='button quiet';disabled.type='button';disabled.disabled=true;disabled.textContent='Продолжить обучение';root.querySelector('#continueCourse').replaceWith(disabled);
+      root.querySelector('#startCourse').className='button primary';
+    }
+  }
+  let finalIndex=Number.isInteger(M.course(C.data()).final?.currentStep)?Math.min(9,Math.max(0,M.course(C.data()).final.currentStep)):0;
+  function renderFinal(){
+    C.save(d=>M.ensure(d).final.currentStep=finalIndex);
+    const state=M.course(C.data()).final||{answers:{},attempts:[]};
+    const q=COURSE.finalQuestions[finalIndex],answers=state.answers||{};
+    const last=state.attempts?.[state.attempts.length-1];
+    root.innerHTML=`<span class="eyebrow">Итоговый сквозной тренажёр</span><h1>Один сервис — десять управленческих ракурсов</h1><p class="course-lead">${esc(COURSE.finalStory)}</p><p class="final-threshold">Порог самопроверки — 8 из 10. Можно потренироваться до завершения всех модулей; ошибки дадут маршрут повторения.</p><div class="final-step-controls" aria-label="Этапы тренажёра">${COURSE.finalQuestions.map((q,i)=>`<button type="button" data-final-step="${i}" aria-pressed="${i===finalIndex}" class="${Number.isInteger(answers[q.id])?'answered':''}">${i+1}</button>`).join('')}</div><div class="panel final-case"><span class="eyebrow">Этап ${finalIndex+1}/10 · ${esc(COURSE.modules[q.module-1].lens)}</span>${C.question(q,answers[q.id],'final')}<div id="finalFeedback">${state.reviewed?.includes(q.id)?C.feedback(q,answers[q.id]):''}</div><div class="lesson-actions"><button type="button" id="finalExplain" class="button quiet">Разобрать выбранный ход</button><button type="button" id="finalNext" class="button primary">${finalIndex<9?'Следующий этап':'Проверить весь маршрут'} →</button></div></div><div id="finalReport">${state.submitted&&last?C.resultSummary(last,COURSE.finalQuestions,last.answers,true):''}</div><button type="button" id="saveFinalDecision" class="text-button">Записать вывод по тренажёру в дневник →</button>`;
+    root.querySelectorAll('[data-final-step]').forEach(b=>b.onclick=()=>{finalIndex=Number(b.dataset.finalStep);renderFinal();});
+    root.querySelectorAll('input').forEach(i=>i.onchange=()=>{C.save(d=>{const f=M.ensure(d).final;if(!f.answers)f.answers={};f.answers[q.id]=Number(i.value);f.submitted=false;f.reviewed=(f.reviewed||[]).filter(id=>id!==q.id);});document.getElementById('finalFeedback').innerHTML='';document.getElementById('finalReport').innerHTML='';root.querySelector(`[data-final-step="${finalIndex}"]`).classList.add('answered');});
+    document.getElementById('finalExplain').onclick=()=>{const choice=(M.course(C.data()).final?.answers||{})[q.id];if(!Number.isInteger(choice)){C.U.notify('Выберите действие.');return;}C.save(d=>{const f=M.ensure(d).final;f.reviewed=[...new Set([...(f.reviewed||[]),q.id])];});document.getElementById('finalFeedback').innerHTML=C.feedback(q,choice);};
+    document.getElementById('finalNext').onclick=()=>{if(!Number.isInteger(M.course(C.data()).final?.answers?.[q.id])){C.U.notify('Выберите действие на этом этапе.');return;}if(finalIndex<9){finalIndex++;renderFinal();}else{let result;C.save(d=>result=M.submit(d,'final',COURSE.finalQuestions));if(!result.complete){C.U.notify('Ответьте на все 10 этапов; можно вернуться кнопками выше.');return;}renderFinal();document.getElementById('finalReport').scrollIntoView({behavior:'smooth'});}};
+    const conclusion=document.createElement('label');conclusion.className='final-conclusion';conclusion.innerHTML=`Мой вывод и следующий шаг<textarea id="finalConclusion" placeholder="Что попробую в собственной работе и когда проверю?">${esc(state.reflection||'')}</textarea>`;document.getElementById('saveFinalDecision').before(conclusion);
+    document.getElementById('finalConclusion').oninput=e=>C.save(d=>M.ensure(d).final.reflection=e.target.value);
+    document.getElementById('saveFinalDecision').onclick=()=>{const f=M.course(C.data()).final,last=f?.attempts?.[f.attempts.length-1];if(!last){C.U.notify('Сначала завершите итоговую проверку.');return;}if(!f.reflection?.trim()){C.U.notify('Добавьте свой вывод и следующий шаг.');return;}const existing=C.data().journal.find(j=>j.id===f.decisionEntryId);const entry=C.S.journal(C.active,{...(existing||{}),type:'Решение',title:'Итоговый тренажёр: общий сервис',situation:COURSE.finalStory,learning:`Результат: ${last.score}/10. ${COURSE.finalQuestions.filter(q=>last.wrong.includes(q.id)).map(q=>q.title).join('; ')||'Все выбранные ходы обоснованы.'}`,action:f.reflection,updatedAt:new Date().toISOString()});C.save(d=>M.ensure(d).final.decisionEntryId=entry.id);C.U.notify('Вывод добавлен в личный дневник.');};
+    Visuals.bind(root);
+  }
+  window.addEventListener('hashchange',()=>{render();window.scrollTo({top:0,behavior:'instant'});});
+  window.addEventListener('storage',render);
+  render();
+})();
