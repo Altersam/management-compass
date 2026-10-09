@@ -40,7 +40,7 @@
     grid.querySelectorAll('[data-library-mode]').forEach(b=>b.onclick=()=>{libraryMode=b.dataset.libraryMode;draw();});
     draw();
   }
-  function route(){Navigator.mount({select:$('problemSelect'),result:$('routeResult'),store:S,profile:active});}
+  function route(){WorkingNavigator.mount({select:$('problemSelect'),result:$('routeResult'),store:S,profile:active});}
   function cases(){
     const selector=$('caseSelect'),previous=selector.value;
     selector.innerHTML=HANDBOOK.cases.map(c=>`<option value="${c.id}">${esc(c.title)}</option>`).join('');
@@ -64,7 +64,7 @@
       if(![...f.elements.type.options].some(o=>o.value===e.type))f.elements.type.add(new Option(e.type,e.type));
       for(const k of ['date','type','title','situation','learning','action','rating'])f.elements[k].value=e[k];
       $('ratingValue').value=e.rating;f.querySelector('[type=submit]').textContent='Сохранить изменения';
-      const cancel=document.createElement('button');cancel.type='button';cancel.id='cancelEdit';cancel.className='text-button';cancel.textContent='Отменить редактирование';cancel.onclick=()=>{save(d=>delete d.worksheets.diaryDraft);resetDiary();};f.append(cancel);f.scrollIntoView({behavior:'smooth'});
+      const cancel=document.createElement('button');cancel.type='button';cancel.id='cancelEdit';cancel.className='text-button';cancel.textContent='Отменить редактирование';cancel.onclick=()=>{save(d=>delete d.worksheets.diaryDraft);resetDiary();};f.append(cancel);f.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth'});
     });
   }
   $('diarySearch').oninput=diary;$('diaryFilter').onchange=diary;
