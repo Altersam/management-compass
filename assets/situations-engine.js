@@ -41,11 +41,11 @@
       visual={segments:tasks.map(t=>({...t,choice:plan[t.id]})),used,over,switching};
     }
     if(topic===2){
-      const timely=Number(s.point)<=Number(s.dependency)&&s.check==='ready';
+      const timely=Number(s.point)===Number(s.dependency)&&s.check==='ready';
       const discovered=timely?Number(s.point):Math.max(Number(s.point),s.check==='sent'?4:0);
       const room=Math.max(0,5-discovered);
       metrics=[metric('Сведения нужны','день '+s.dependency),metric('Проблема видна','день '+discovered),metric('Время на реакцию',room,'дн.')];
-      story.push(timely?'Вы проверили не отправку запроса, а готовность нужных данных. Задержка видна до того, как начнётся зависимая работа.':'Отправка запроса выглядит как хороший статус. Но отсутствие пригодного ответа проявится позже, когда зависимая работа уже должна быть готова.');
+      story.push(timely?'Вы проверили не отправку запроса, а готовность нужных данных. Задержка видна до того, как начнётся зависимая работа.':Number(s.point)<Number(s.dependency)&&s.check==='ready'?'Ранняя сверка может предупредить риск. Но обещанный момент передачи ещё впереди: она сама по себе не подтверждает, что данные появятся вовремя.':'Отправка запроса выглядит как хороший статус. Но отсутствие пригодного ответа проявится позже, когда зависимая работа уже должна быть готова.');
       story.push(room>=2?'Есть время обсудить запасной источник или меньший достаточный объём.':'Теперь приходится менять обещание получателю или переделывать готовый текст. Контроль фиксирует последствия, но почти не даёт времени повлиять.');
       visual={point:Number(s.point),dependency:Number(s.dependency),discovered,timely};
     }
