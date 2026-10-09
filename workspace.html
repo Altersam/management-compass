@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#142b4a">
   <meta name="description" content="Локальный справочник администратора: что делать в рабочей ситуации, пошаговые техники, примеры, кейсы и личный дневник.">
-  <title>Практика управления — рабочий справочник администратора</title>
+  <title>Разобрать рабочую ситуацию — Практика управления</title>
   <link rel="stylesheet" href="assets/styles.css">
+  <link rel="stylesheet" href="assets/experience.css">
 </head>
 <body>
   <div class="app-shell">
@@ -16,12 +17,12 @@
         <span>Практика управления<small>рабочий навигатор</small></span>
       </a>
       <a class="mode-link" href="index.html">← Перейти к курсу</a>
-      <div class="profile-box">
+      <details class="working-settings"><summary>Настройки профиля</summary><div class="profile-box">
         <label for="profileSelect">Личный профиль</label>
         <select id="profileSelect" aria-label="Выбрать профиль"></select>
         <div class="profile-actions"><button class="text-button" id="addProfile">＋ Новый</button><button class="text-button" id="deleteProfile">Удалить</button></div>
         <span class="save-state" id="saveState">● Данные хранятся на этом устройстве</span>
-      </div>
+      </div></details>
       <nav class="side-nav" aria-label="Основные разделы">
         <a href="#route" data-view-link="start"><span>01</span> Ситуация</a>
         <a href="#modules" data-view-link="reference"><span>02</span> Теория и техники</a>
@@ -38,11 +39,6 @@
         <details class="data-menu"><summary>Данные профиля</summary><div class="top-actions"><button class="button quiet" id="exportProfile">Экспорт данных</button><button class="button quiet" id="importProfileButton">Импорт</button></div></details><input id="importProfile" type="file" accept="application/json,.json" hidden>
       </header>
 
-      <section class="hero panel" data-screen="start">
-        <div class="hero-copy"><span class="pill">Понять → выбрать → применить</span><h2>Сначала причина, затем инструмент</h2><p>Выберите ситуацию ниже. Или откройте теорию и наглядные схемы — они помогут понять, почему техника работает и где её границы.</p><a class="button primary" href="#modules">Теория и визуальные техники <span aria-hidden="true">→</span></a></div>
-        <div class="hero-visual" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit-center">РЕЗУЛЬТАТ</div><span class="orbit-label label-a">люди</span><span class="orbit-label label-b">процессы</span><span class="orbit-label label-c">решения</span></div>
-      </section>
-
       <section class="stats-grid" aria-label="Моя рабочая тетрадь" data-screen="journal" hidden>
         <article class="stat-card"><span>Избранные разделы</span><b id="statModules">0</b><small>быстрый доступ к нужному</small></article>
         <article class="stat-card"><span>Записей в дневнике</span><b id="statNotes">0</b><small>личные наблюдения и планы</small></article>
@@ -51,7 +47,7 @@
       </section>
 
       <section class="section-block" id="route" data-screen="start">
-        <div class="section-heading"><div><span class="eyebrow">Быстрый старт</span><h2>С чего начать в вашей ситуации?</h2><p>Выберите наблюдаемый симптом. Навигатор подскажет, какой контур проверить первым.</p></div></div>
+        <div class="section-heading"><div><h2>Что сейчас мешает работе?</h2><p>Выберите похожую ситуацию и уточните два условия.</p></div></div>
         <div class="route-workbench panel">
           <label for="problemSelect">Что происходит сейчас?</label><select id="problemSelect"></select>
           <div id="routeResult" class="route-result" aria-live="polite"></div>
@@ -82,9 +78,11 @@
       </section>
 
       <section class="section-block" id="diary" data-screen="journal" hidden>
-        <div class="section-heading heading-with-action"><div><span class="eyebrow">Личная практика</span><h2>Мой рабочий дневник</h2><p>Фиксируйте ситуацию, свои решения и следующий эксперимент. Черновик сохраняется при вводе; готовую запись можно отредактировать позже.</p></div><button class="button quiet" id="exportDiary">Скачать дневник</button></div>
+        <div class="section-heading"><h2>Мои действия</h2></div><div id="workingExperiments"></div>
+        <details class="notes-archive"><summary>Прежние записи и подробные заметки</summary><button class="button quiet" id="exportDiary">Скачать дневник</button>
         <div class="diary-layout"><form id="diaryForm" class="panel diary-form"><div class="form-row"><label>Дата<input type="date" name="date" required></label><label>Тип записи<select name="type"><option>Рефлексия</option><option>Решение</option><option>Кейс</option><option>План действия</option><option>Итог недели</option></select></label></div><label>Короткий заголовок<input name="title" required placeholder="Например: поздняя эскалация риска"></label><label>Ситуация и факты<textarea name="situation" required placeholder="Что произошло? Что вы знаете точно?"></textarea></label><label>Мой вывод / чему научился<textarea name="learning" placeholder="Какие причины обнаружились? Что оказалось важным?"></textarea></label><label>Следующий шаг<textarea name="action" placeholder="Что, кто и к какому сроку сделает иначе?"></textarea></label><label>Насколько я доволен своим способом действия? <output id="ratingValue">3</output> / 5<input type="range" name="rating" min="1" max="5" value="3" id="ratingRange"></label><button class="button primary" type="submit">Сохранить запись</button></form>
           <div class="diary-list-wrap"><div class="diary-controls"><label class="search-label">Поиск по дневнику<input id="diarySearch" type="search" placeholder="Слово, тема или решение"></label><select id="diaryFilter" aria-label="Фильтр записей"><option value="all">Все записи</option></select></div><button class="text-button" id="weeklyPrompt">Начать рефлексию недели</button><div class="diary-list" id="diaryList"></div></div></div>
+        </details>
       </section>
 
       <section class="section-block" id="library" data-screen="reference" hidden>
@@ -118,6 +116,9 @@
   <script src="assets/knowledge.js"></script>
   <script src="assets/visuals.js"></script>
   <script src="assets/store.js"></script>
+  <script src="assets/choices.js"></script>
+  <script src="assets/experiments.js"></script>
+  <script src="assets/navigator.js"></script>
   <script src="assets/cases.js"></script>
   <script src="assets/app.js"></script>
   <script src="assets/navigation.js"></script>

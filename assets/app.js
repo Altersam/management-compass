@@ -40,7 +40,7 @@
     grid.querySelectorAll('[data-library-mode]').forEach(b=>b.onclick=()=>{libraryMode=b.dataset.libraryMode;draw();});
     draw();
   }
-  function route(){const select=$('problemSelect'),prev=select.value;select.innerHTML=HANDBOOK.routes.map(r=>`<option value="${r.id}">${esc(r.label)}</option>`).join('');if(HANDBOOK.routes.some(r=>r.id===prev))select.value=prev;function show(){const r=HANDBOOK.routes.find(r=>r.id===select.value);$('routeResult').innerHTML=`<h3>Первый шаг</h3><p>${esc(r.first)}</p><div class="route-steps">${r.path.map((n,i)=>`${i?'<i>→</i>':''}<a href="${href(modulePath(n))}">${esc(chapters[n-1].title)}</a>`).join('')}</div><p><b>Избегайте:</b> ${esc(r.avoid)}</p><p><b>Проверка:</b> ${esc(r.proof)}</p><button id="routeToDiary" class="text-button">Записать свой план →</button>`;$('routeToDiary').onclick=()=>{resetDiary();const f=$('diaryForm');f.elements.title.value=r.label;f.elements.learning.value=`Первый шаг: ${r.first}\nПроверка: ${r.proof}`;f.elements.type.value='План действия';save(d=>d.worksheets.diaryDraft={...Object.fromEntries(new FormData(f)),editing:''});location.hash='diary';};}select.onchange=show;show();}
+  function route(){Navigator.mount({select:$('problemSelect'),result:$('routeResult'),store:S,profile:active});}
   function cases(){
     const selector=$('caseSelect'),previous=selector.value;
     selector.innerHTML=HANDBOOK.cases.map(c=>`<option value="${c.id}">${esc(c.title)}</option>`).join('');
@@ -50,6 +50,7 @@
     selector.onchange=show;show();
   }
   function diary(){
+    const experimentRoot=$('workingExperiments');if(experimentRoot)Experiments.render(experimentRoot,S,active);
     const select=$('diaryFilter'),old=select.value;
     const types=[...new Set(['Решение',...data().journal.map(e=>e.type)])];
     select.innerHTML='<option value="all">Все записи</option>'+types.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join('');

@@ -4,7 +4,7 @@
   const KEY = 'management-compass:v1';
   const uid = () => root.crypto?.randomUUID?.() || `p-${Date.now()}-${Math.random().toString(36).slice(2)}`;
   const date = () => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
-  const blank = () => ({favorites:[],journal:[],caseAnswers:{},caseReflections:{},worksheets:{},assessments:{},course:{}});
+  const blank = () => ({favorites:[],journal:[],caseAnswers:{},caseReflections:{},worksheets:{},assessments:{},course:{},experiments:[]});
   function plain(value) { return !!value && typeof value==='object' && !Array.isArray(value); }
   function validateData(d) {
     if (!plain(d) || !Array.isArray(d.journal) || !Array.isArray(d.favorites)) throw new Error('Неполные данные профиля.');
@@ -28,6 +28,15 @@
       const copy=JSON.parse(JSON.stringify(d.course));
       const inspect=value=>{if(!value||typeof value!=='object')return;for(const key of Object.keys(value)){if(['__proto__','prototype','constructor'].includes(key))throw new Error('Недопустимое поле прогресса.');inspect(value[key]);}};
       inspect(copy);result.course=copy;
+    }
+    if(d.experiments!==undefined){
+      if(!Array.isArray(d.experiments))throw new Error('Неверный список действий.');
+      result.experiments=d.experiments.map(e=>{
+        if(!plain(e)||!['id','action','place','reviewDate'].every(k=>typeof e[k]==='string'))throw new Error('Неверное действие.');
+        if(!/^\d{4}-\d{2}-\d{2}$/.test(e.reviewDate)||Number.isNaN(Date.parse(e.reviewDate)))throw new Error('Неверная дата проверки.');
+        if(e.outcome&&!['helped','partly','not-helped'].includes(e.outcome))throw new Error('Неверный итог действия.');
+        return {id:e.id,action:e.action,place:e.place,reviewDate:e.reviewDate,topic:Number(e.topic)||null,outcome:e.outcome||null,why:typeof e.why==='string'?e.why:'',journalEntryId:typeof e.journalEntryId==='string'?e.journalEntryId:null,createdAt:typeof e.createdAt==='string'?e.createdAt:'',updatedAt:typeof e.updatedAt==='string'?e.updatedAt:''};
+      });
     }
     return result;
   }

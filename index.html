@@ -2,15 +2,35 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Интерактивный курс и рабочая среда руководителя: 10 модулей, визуальные модели, кейсы, личная траектория и дневник.">
-  <meta name="theme-color" content="#142b4a">
-  <title>Практика управления — интерактивный курс и рабочая среда руководителя</title>
-  <link rel="stylesheet" href="assets/styles.css"><link rel="stylesheet" href="assets/course.css">
+  <meta name="description" content="Практика управления: учитесь на решениях и их последствиях, затем применяйте инструменты к своей работе.">
+  <meta name="theme-color" content="#142b4a"><title>Практика управления — курс о решениях, людях и системе</title>
+  <link rel="stylesheet" href="assets/styles.css"><link rel="stylesheet" href="assets/course.css"><link rel="stylesheet" href="assets/experience.css">
 </head>
 <body>
-  <div id="courseHeader"></div>
-  <main id="courseRoot" class="course-page"><noscript>Для интерактивного курса включите JavaScript. Учебные данные и личные записи хранятся в браузере.</noscript></main>
-  <script src="assets/content.js"></script><script src="assets/knowledge.js"></script><script src="assets/visuals.js"></script>
-  <script src="assets/store.js"></script><script src="assets/course-data.js"></script><script src="assets/course-questions.js"></script>
-  <script src="assets/course-model.js"></script><script src="assets/course-ui.js"></script><script src="assets/course-home.js"></script>
+  <div id="courseHeader"><header class="learning-header"><a class="learning-brand" href="index.html">Практика управления</a><nav><a href="index.html">Учиться</a><a href="workspace.html#route">Рабочие ситуации</a><a href="settings.html">Настройки</a></nav></header></div>
+  <main class="experience-page" id="courseRoot">
+    <div id="homeContent">
+      <section class="welcome">
+        <h1>Практика управления</h1>
+        <p>Интерактивный курс о том, как принимать решения, работать с людьми и улучшать систему, а не только тушить текущие проблемы.</p>
+        <div class="welcome-actions"><a class="button primary" id="startCourse" href="learn.html?module=1">Пройти курс</a><a class="button quiet" href="workspace.html#route">Разобрать рабочую ситуацию</a></div>
+        <p id="resumeCourse" class="resume-place" hidden></p>
+      </section>
+      <section class="course-stages" aria-labelledby="courseMapTitle">
+        <h2 id="courseMapTitle">От своего рабочего дня — к системе</h2>
+        <section class="course-stage"><span>01</span><div><h3>Управлять собой и результатом</h3><p>Как перестать только реагировать и начать управлять результатом?</p><ol><li><a class="topic-link" data-topic="1" href="learn.html?module=1">Самоорганизация и устойчивость</a></li><li><a class="topic-link" data-topic="2" href="learn.html?module=2">Регулярный менеджмент</a></li></ol></div></section>
+        <section class="course-stage"><span>02</span><div><h3>Управлять взаимодействием</h3><p>Как получать результат через людей без постоянного ручного контроля?</p><ol start="3"><li><a class="topic-link" data-topic="3" href="learn.html?module=3">Команда и самостоятельность</a></li><li><a class="topic-link" data-topic="4" href="learn.html?module=4">Этика и справедливость</a></li><li><a class="topic-link" data-topic="5" href="learn.html?module=5">Коммуникация</a></li><li><a class="topic-link" data-topic="6" href="learn.html?module=6">Работа между подразделениями</a></li></ol></div></section>
+        <section class="course-stage"><span>03</span><div><h3>Управлять системой</h3><p>Почему люди могут всё делать правильно, а система всё равно работает плохо?</p><ol start="7"><li><a class="topic-link" data-topic="7" href="learn.html?module=7">Решения, документы и исполнение</a></li><li><a class="topic-link" data-topic="8" href="learn.html?module=8">Процессы и сервис</a></li></ol></div></section>
+        <section class="course-stage"><span>04</span><div><h3>Изменять и улучшать систему</h3><p>Как изменить способ работы и убедиться, что он действительно помог?</p><ol start="9"><li><a class="topic-link" data-topic="9" href="learn.html?module=9">Принятие изменений</a></li><li><a class="topic-link" data-topic="10" href="learn.html?module=10">Данные и выводы</a></li></ol></div></section>
+        <p class="course-loop">Измерили, что изменилось → вернулись к поручениям и следующему решению.</p>
+      </section>
+      <section class="how-learning"><h2>Как проходит обучение</h2><p>Ситуация → ваше решение → последствия → объяснение → практика → одно действие в своей работе.</p><p>Вы собираете рабочий день, выбираете момент контроля, меняете границы самостоятельности, разбираете переписку и наблюдаете очередь сервиса.</p></section>
+      <section class="after-learning"><h2>Инструменты остаются под рукой</h2><p>10 тем, 30 практических техник, реальные ситуации и одна связанная управленческая симуляция.</p><a href="index.html#final">Попробовать управлять общим сервисом →</a><a href="workspace.html#modules">Открыть инструменты →</a></section>
+    </div>
+    <section id="secondaryContent" hidden></section>
+  </main>
+  <script src="assets/content.js"></script><script src="assets/knowledge.js"></script><script src="assets/visuals.js"></script><script src="assets/store.js"></script>
+  <script src="assets/course-data.js"></script><script src="assets/course-questions.js"></script><script src="assets/learning-content.js"></script><script src="assets/question-revision.js"></script>
+  <script src="assets/course-model.js"></script><script src="assets/choices.js"></script><script src="assets/experiments.js"></script><script src="assets/simulation-engine.js"></script>
+  <script src="assets/course-ui.js"></script><script src="assets/course-home.js"></script>
 </body></html>

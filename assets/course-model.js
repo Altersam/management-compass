@@ -29,6 +29,15 @@
   }
   function report(data,id,questions){
     const m=moduleState(data,id);
+    if(m.pedagogy===2){
+      const learned=[0,1,2].filter(i=>Number.isInteger(m.microAnswers?.[i]?.choice)).length;
+      const experienced=Boolean(m.activities?.intro?.done),practiced=Boolean(m.activities?.practice?.done);
+      const applied=Boolean(m.experimentId||m.transferEntryId);
+      const core=Number(experienced)+learned+Number(practiced)+Number(applied);
+      const last=m.attempts[m.attempts.length-1]||null;
+      const completed=Boolean(m.legacyCompleted)||core===6;
+      return {progress:completed?100:Math.round(core/6*100),mastered:completed,last,missing:[],learned,checked:Boolean(last),current:score(questions,m.answers)};
+    }
     const learned=[0,1,2].filter(n=>m.visited.includes(`theory-${n}`)).length;
     const checked=m.attempts.some(a=>a.score>=4&&a.total===5);
     const core=Boolean(m.diagnostic)+learned+Number(m.visited.includes('technique'))+Number(m.visited.includes('practice'))+Number(Boolean(m.transferEntryId))+Number(checked);
