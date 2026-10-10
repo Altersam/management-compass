@@ -40,6 +40,20 @@ async function lint(){
   }
   for(const file of files.filter(f=>f.startsWith('assets/game/')&&f.endsWith('.js')))if(/Math\.random\s*\(/.test(fs.readFileSync(path.join(root,file),'utf8')))errors.push(`${file}: game randomness must be seeded`);
   console.log(`Game: ${gameTasks.length} tasks, ${Object.keys(eventDefinitions).length} event definitions; seeded engine and course links checked.`);
+  const [{stages:detectiveStages,sources:detectiveSources,interventions:detectiveInterventions,scenarios:detectiveScenarios},{createCasebook,trace,compare},{evidence}]=await Promise.all(['data','model','evidence'].map(name=>import(pathToFileURL(path.join(root,`assets/detective/${name}.js`)))));
+  const stageIds=new Set(detectiveStages.map(s=>s.id)),sourceIds=new Set(detectiveSources.map(s=>s.id)),interventionIds=new Set(detectiveInterventions.map(i=>i.id));
+  if(stageIds.size!==detectiveStages.length||sourceIds.size!==detectiveSources.length||interventionIds.size!==detectiveInterventions.length)errors.push('detective: duplicate IDs');
+  for(const source of detectiveSources)if(!source.name||!source.description||!Number.isInteger(source.cost)||source.cost<=0)errors.push(`detective source ${source.id}: invalid content/cost`);
+  for(const intervention of detectiveInterventions)if(!intervention.name||!intervention.description||!stageIds.has(intervention.stage))errors.push(`detective intervention ${intervention.id}: invalid stage`);
+  for(const [index,scenario] of detectiveScenarios.entries()){
+    if(!stageIds.has(scenario.stage)||!interventionIds.has(scenario.intervention)||!scenario.title||!scenario.explanation||!scenario.next||!topics.some(t=>t.id===scenario.topic)||!/^theory-[0-2]$/.test(scenario.step))errors.push(`detective scenario ${scenario.id}: incomplete content or course link`);
+    const book=createCasebook('case-0'+(index+1));if(book.cases.length!==5)errors.push(`detective scenario ${scenario.id}: incomplete case set`);
+    for(const item of book.cases)if(trace(item).some(s=>!stageIds.has(s.stage)||[s.work,s.wait,s.rework,s.start,s.end].some(n=>!Number.isFinite(n)||n<0)))errors.push(`detective case ${item.id}: invalid timeline`);
+    for(const source of detectiveSources){const fact=evidence(book,source.id==='case'?'case:case-2':source.id);if(!fact.title||!fact.text||!fact.provenance||!fact.rows.length||fact.signals.some(id=>!stageIds.has(id)))errors.push(`detective evidence ${source.id}: incomplete`);}
+    for(const intervention of detectiveInterventions){const result=compare(book,intervention.id);if(result.before.total!==5||result.after.total!==5||result.cases.length!==5)errors.push('detective: pilot changes the comparison sample');}
+  }
+  for(const file of files.filter(f=>f.startsWith('assets/detective/')&&f.endsWith('.js')))if(/Math\.random\s*\(/.test(fs.readFileSync(path.join(root,file),'utf8')))errors.push(`${file}: randomness must be seeded`);
+  console.log(`Detective: ${detectiveStages.length} stages, ${detectiveSources.length} source types, ${detectiveScenarios.length} scenarios; case math and course links checked.`);
   for(const relative of files){
     if(!/\.(html|js)$/.test(relative))continue;
     const source=fs.readFileSync(path.join(root,relative),'utf8');
@@ -67,7 +81,7 @@ async function lint(){
     if(/(?:ты|вы|он|она|сотрудник)\s+(?:являетесь?\s+)?(?:тип\s+[DISC]|прирожд[её]нн|неизменн)|(?:PAEI\s*)?P\s*=\s*(?:DISC\s*)?D\s*=\s*Driver/i.test(sentence.text))errors.push(`${sentence.location}: personal typology label`);
   }
   for(const topic of topics)for(const b of topic.explanations)for(const o of b.micro?.options||[]){
-    if(/Этот вариант опирается на одну из видимых сторон ситуации/.test(o.appeal))warnings.push(`topic ${topic.id}.${b.micro.id}: generic appeal`);
+    if(/Этот вариант опирается на одну из видимых сторон ситуации/.test(o.appeal))errors.push(`topic ${topic.id}.${b.micro.id}: generic appeal`);
   }
   // Similarity is advisory: a shared concept must not cause automatic deletion.
   const candidates=sentences(editorial).filter(s=>s.location.includes('.explanations.')&&s.normalized.length>=100),similar=[];

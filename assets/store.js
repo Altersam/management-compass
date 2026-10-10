@@ -19,6 +19,7 @@ const root=globalThis;
     assertSafe(data);
     if(data.dataVersion!==undefined&&(!Number.isInteger(data.dataVersion)||data.dataVersion<1||data.dataVersion>DATA_VERSION))throw new Error('Неподдерживаемая версия данных профиля.');
     const copy=JSON.parse(JSON.stringify(data));
+    if(Array.isArray(copy.experiments))copy.experiments=copy.experiments.map(e=>({hypothesis:'',observations:'',nextChange:'',previousId:null,...e}));
     return {...blank(),...copy,learning:{revision:1,reviews:[],responses:{},...copy.learning},dataVersion:DATA_VERSION};
   }
   function validateData(d) {

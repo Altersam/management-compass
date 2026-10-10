@@ -1,4 +1,4 @@
-import {tickSize,random,finished} from './state.js';
+import {tickSize,random,finished,snapshot} from './state.js';
 import {contractor,skillFit,available} from './people.js';
 import {complete,blockers,taskStatus} from './project.js';
 import {emit,schedule,closeEvents} from './events.js';
@@ -40,10 +40,11 @@ function delayedEffects(s){
       t.effort+=amount;t.completedAt=null;t.quality=clamp(t.quality-0.08);s.stats.rework+=amount;s.stats.reworkCost+=18000*amount;s.spent+=18000*amount;
       emit(s,'rework',{key:effect.key,subject:t.id,detail:`${t.name}: ещё ${amount.toFixed(1)} рабочего дня. Причина: ${effect.payload.reason}`});
       const event=s.events.at(-1);event.relatedAt=effect.payload.sourceAt??effect.due-1.5;
+      event.impact={work:amount,cost:18000*amount};event.origin=effect.payload.origin||null;
     }else if(effect.effect==='learn'){
       const p=s.people.find(p=>p.id===effect.payload.person);p.skills[effect.payload.skill]=Math.min(3,(p.skills[effect.payload.skill]||0)+1);
     }else if(effect.effect==='support'){
-      if(s.supportCut){s.flags.supportEffective=true;s.adoption=Math.max(0,s.adoption-15);emit(s,'support',{key:'support-'+effect.key});}
+      if(s.supportCut){s.flags.supportEffective=true;s.adoption=Math.max(0,s.adoption-15);emit(s,'support',{key:'support-'+effect.key});s.events.at(-1).relatedAt=effect.due-2;}
     }else if(effect.effect==='metrics')s.metricsInvestigated=true;
   }
 }
@@ -53,7 +54,7 @@ function externalEvents(s){
     if(s.scope==='full'&&!s.flags.requirementsAligned){
       s.flags.requirementsChanged=true;emit(s,'requirements');
       const proto=taskById(s,'prototype');
-      if(complete(proto)&&proto.checkpoint!=='early')schedule(s,'rework',1.5,{task:proto.id,amount:1.25,reason:'изменённое условие после готового прототипа',sourceAt:proto.completedAt},'requirements-return');
+      if(complete(proto)&&proto.checkpoint!=='early')schedule(s,'rework',1.5,{task:proto.id,amount:1.25,reason:'изменённое условие после готового прототипа',sourceAt:proto.completedAt,origin:taskOrigin(proto)},'requirements-return');
     }
   }
   if(s.time>=s.externalPlan.illnessDay&&!s.flags.illnessArrived){
@@ -71,12 +72,13 @@ function taskCompleted(s,t){
   closeEvents(s,'rework',t.id);
   if(t.id==='requirements'&&t.checkpoint==='early'&&t.quality>=0.65){s.flags.requirementsAligned=true;closeEvents(s,'requirements');}
   if(t.completionCount===1){
-    if(t.id==='prototype'&&t.checkpoint!=='early'&&s.flags.requirementsChanged&&!s.flags.requirementsAligned)schedule(s,'rework',1.5,{task:t.id,amount:1.25,reason:'несверенные требования',sourceAt:t.completedAt},'requirements-return');
-    else if(t.id!=='launch'&&t.quality<0.75&&t.checkpoint!=='early'&&random(s)<clamp(t.risk+(0.75-t.quality)*3.5,0.15,0.95))schedule(s,'rework',1.5,{task:t.id,amount:0.75,reason:'ошибка обнаружена на следующем этапе',sourceAt:t.completedAt},'quality-return-'+t.id);
-    if(t.id==='integration'&&s.it.riskAccepted)schedule(s,'rework',1.25,{task:t.id,amount:1.5,reason:'интеграция без подтверждённого доступа',sourceAt:t.completedAt},'it-return');
+    if(t.id==='prototype'&&t.checkpoint!=='early'&&s.flags.requirementsChanged&&!s.flags.requirementsAligned)schedule(s,'rework',1.5,{task:t.id,amount:1.25,reason:'несверенные требования',sourceAt:t.completedAt,origin:taskOrigin(t)},'requirements-return');
+    else if(t.id!=='launch'&&t.quality<0.75&&t.checkpoint!=='early'&&random(s)<clamp(t.risk+(0.75-t.quality)*3.5,0.15,0.95))schedule(s,'rework',1.5,{task:t.id,amount:0.75,reason:'ошибка обнаружена на следующем этапе',sourceAt:t.completedAt,origin:taskOrigin(t)},'quality-return-'+t.id);
+    if(t.id==='integration'&&s.it.riskAccepted)schedule(s,'rework',1.25,{task:t.id,amount:1.5,reason:'интеграция без подтверждённого доступа',sourceAt:t.completedAt,origin:taskOrigin(t)},'it-return');
   }
   if(t.id==='launch'&&s.launchedAt===null){s.launchedAt=t.completedAt;s.phase='observing';}
 }
+function taskOrigin(t){return {startedAt:t.startedAt,completedAt:t.completedAt,checkpoint:t.checkpoint,assigned:[...t.assigned],quality:t.quality};}
 function causalEvents(s,loads){
   for(const p of s.people){
     if(loads[p.id]>1&&p.overloadTime>=1)emit(s,'overload',{key:'overload-'+p.id,subject:p.id,detail:`${p.name}: ${loads[p.id]} активных задачи одновременно.`});
@@ -113,7 +115,11 @@ export function advance(state,dt=tickSize){
     if(t.autonomy==='manual'&&!t.manualReviewed&&t.progress>=t.effort*0.5){t.awaitingDecision=true;continue;}
     if(t.checkpoint!=='none'&&!t.checkpointPaid){t.effort+=t.checkpoint==='early'?0.35:0.15;t.checkpointPaid=true;s.stats.checks++;s.spent+=6000;}
     const amount=Math.min(t.effort-t.progress,rate(s,t,loads)*step);
-    if(amount>0&&t.startedAt===null)t.startedAt=s.time;
+    if(amount>0&&t.startedAt===null){
+      if(!s.reviewPoints)s.reviewPoints={};
+      s.reviewPoints['task-'+t.id]={at:state.time,before:snapshot(state)};
+      t.startedAt=s.time;
+    }
     const team=t.assigned.map(id=>s.people.find(p=>p.id===id)).filter(p=>available(p,s.time));
     const quality=clamp(team.reduce((sum,p)=>sum+0.35+0.13*p.quality+0.16*skillFit(p,t)-0.18*p.fatigue-0.07*Math.max(0,loads[p.id]-1),0)/team.length+(t.checkpoint==='early'?0.1:0)+(t.checkpoint==='final'?0.03:0)-(t.autonomy==='free'?0.07:0)-(t.priority===2?0.025:0));
     t.quality=(t.quality*t.qualityWeight+quality*amount)/(t.qualityWeight+amount||1);t.qualityWeight+=amount;t.progress+=amount;
@@ -192,12 +198,12 @@ export function act(state,command){
     if(s.supportCut||s.launchedAt===null)throw new Error('Поддержка сейчас не может быть сокращена.');s.supportCut=true;schedule(s,'support',2,{},'support-'+s.time);closeEvents(s,'metrics');
   }else if(type==='restoreSupport'){s.supportCut=false;s.flags.supportEffective=false;closeEvents(s,'support');}
   else throw new Error('Неизвестное решение.');
-  const before={...structuredClone(state),decisions:[],history:[]};
+  const before=snapshot(state);
   s.decisions.push({...structuredClone(command),at:s.time,before});return s;
 }
 export function forecast(state){
   // Run current allocations on a clone. This is a conditional forecast, not an oracle.
-  const s=structuredClone(state);s.externalPlan={...s.externalPlan,requirementsDay:99,illnessDay:99,itDay:99};
+  const s=snapshot(state);s.externalPlan={...s.externalPlan,requirementsDay:99,illnessDay:99,itDay:99};
   let probe=s;
   for(let i=0;i<Math.ceil((20-s.time)/tickSize);i++){if(probe.launchedAt!==null)break;if(finished(probe))break;probe=advance(probe);}
   const tasks=Object.fromEntries(probe.tasks.map(t=>[t.id,{start:t.startedAt,end:t.completedAt}]));
@@ -210,6 +216,7 @@ export function stopReason(before,after){
   if(after.events.length>before.events.length)return 'Новое событие';
   if(after.tasks.some((t,i)=>complete(t)&&!complete(before.tasks[i])))return 'Задача завершена';
   if(after.tasks.some((t,i)=>t.awaitingDecision&&!before.tasks[i].awaitingDecision))return 'Требуется решение';
+  if(after.tasks.some((t,i)=>taskStatus(before,before.tasks[i])==='active'&&taskStatus(after,t)==='blocked'))return 'Задача ждёт условия';
   if(before.budget-before.spent>180000&&after.budget-after.spent<=180000)return 'Бюджет близок к пределу';
   return null;
 }
@@ -217,13 +224,28 @@ export function advanceToEvent(state){let s=state;for(let i=0;i<80;i++){const ne
 export function alternative(state,index,command){
   if(!finished(state))throw new Error('Сравнение доступно после завершения.');
   const decision=state.decisions[index];if(!decision?.before)throw new Error('Для старого решения нет снимка.');
-  let s=act(decision.before,command),skipped=0;
-  for(const next of state.decisions.slice(index+1)){
+  return replayAlternative(decision.before,command,state.decisions.slice(index+1));
+}
+function replayAlternative(before,command,later){
+  let s=command?act(before,command):structuredClone(before),skipped=0;
+  for(const next of later){
     while(s.time<next.at&&!finished(s))s=advance(s);
     if(finished(s))break;
     const {before,at,...action}=next;try{s=act(s,action);}catch(_){skipped++;}
   }
   while(!finished(s))s=advance(s);
   return {state:s,skipped};
+}
+export function alternativeFromEvent(state,eventId){
+  if(!finished(state))throw new Error('Сравнение доступно после завершения проекта.');
+  const event=state.events.find(e=>e.id===eventId);
+  if(!event||event.definition!=='rework'||!state.reviewPoints?.['task-'+event.subject])throw new Error('Для этой истории нет снимка начала задачи.');
+  const point=state.reviewPoints['task-'+event.subject];
+  const command=event.id==='it-return'?{type:'itWindow'}:{type:'checkpoint',task:event.subject,value:'early'};
+  // IT may already have been accepted before integration starts; compare at that explicit choice.
+  if(event.id==='it-return'){
+    const index=state.decisions.findIndex(d=>d.type==='acceptIT'&&d.before);if(index<0)throw new Error('Для этого решения нет снимка.');return alternative(state,index,state.decisions[index].before.it.contacted?null:command);
+  }
+  return replayAlternative(point.before,command,state.decisions.filter(d=>d.at>=point.at));
 }
 export {blockers,taskStatus};
