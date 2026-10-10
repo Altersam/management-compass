@@ -9,15 +9,12 @@ let renderId=0;
 
 function homeState(){
   const course=M.course(C.data()),last=course.last,element=document.getElementById('resumeCourse');
-  const sim=course.simulation;
   const game=course.projectGame,gameLink=document.getElementById('startGame');
   if(game?.revision===1&&game.phase!=='ended'&&game.time>0){gameLink.textContent=`Продолжить проект — день ${Math.min(20,Math.floor(game.time)+1)}`;}
   else gameLink.textContent='Начать игру';
   element.hidden=true;
-  if(course.resume?.kind==='simulation'&&sim?.decisions?.length<10){
-    element.hidden=false;element.innerHTML=`Вы остановились в истории общего сервиса. <a id="continueCourse" href="${C.link('index.html#final')}">Продолжить →</a>`;
-  }else if(last&&moduleCatalog.some(m=>m.id===last.module)){
-    element.hidden=false;element.innerHTML=`Вы остановились здесь: ${esc(moduleCatalog[last.module-1].title)}. <a id="continueCourse" href="${C.lesson(last.module,last.step)}">Продолжить →</a>`;
+  if(last&&moduleCatalog.some(m=>m.id===last.module)&&!M.report(C.data(),last.module,[]).mastered){
+    element.hidden=false;element.innerHTML=`Вы остановились на теме «${esc(moduleCatalog[last.module-1].title)}». <a id="continueCourse" href="${C.lesson(last.module,last.step)}">Продолжить →</a>`;
   }
   document.querySelectorAll('[data-topic]').forEach(a=>{
     const passed=M.report(C.data(),Number(a.dataset.topic),[]).mastered;

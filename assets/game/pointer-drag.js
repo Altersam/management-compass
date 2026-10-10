@@ -12,7 +12,7 @@ export function mountPointerDrag({container,onDrop,onPause,preview}){
     target?.classList.add('drop-target');ghost.textContent=target?preview(drag.id,target.dataset.dropTask):'Перенесите человека на задачу';
     ghost.style.left=Math.min(innerWidth-260,Math.max(8,e.clientX+12))+'px';ghost.style.top=Math.max(8,Math.min(innerHeight-110,e.clientY+12))+'px';
   }
-  function up(e){if(!drag||e.pointerId!==drag.pointer)return;const current=drag,task=target?.dataset.dropTask;cleanup();if(current.active){e.preventDefault();container.addEventListener('click',event=>{event.preventDefault();event.stopImmediatePropagation();},{capture:true,once:true});if(task)onDrop(current.id,task);}}
+  function up(e){if(!drag||e.pointerId!==drag.pointer)return;const current=drag,task=target?.dataset.dropTask;cleanup();if(current.active){e.preventDefault();container.addEventListener('click',event=>{if(event.target.closest('[data-drag-person]')){event.preventDefault();event.stopImmediatePropagation();}},{capture:true,once:true});if(task)onDrop(current.id,task);}}
   container.addEventListener('pointerdown',down);container.addEventListener('pointermove',move);container.addEventListener('pointerup',up);container.addEventListener('pointercancel',cleanup);
   return ()=>{cleanup();container.removeEventListener('pointerdown',down);container.removeEventListener('pointermove',move);container.removeEventListener('pointerup',up);container.removeEventListener('pointercancel',cleanup);};
 }

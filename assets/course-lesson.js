@@ -64,7 +64,7 @@ export function mountLesson({topic:currentTopic}) {
     document.getElementById('nextQuestion').onclick=()=>{if(i<4){mutate(m=>m.questionCursor=i+1);check();}else{let result;C.save(d=>result=M.submit(d,topic,questions));if(result.complete){document.getElementById('quizResult').innerHTML=C.resultSummary(result,questions,state().answers)+`<a class="button primary" href="#connections">Продолжить →</a>`;}}};
   }
   function connections(){
-    content(`<h1>Что меняется дальше</h1><p class="story-lead">${esc(p.bridge)}</p><a class="button primary" href="${topic<10?C.lesson(topic+1):C.link('index.html#final')}">${topic<10?'Продолжить':'Попробовать управлять общим сервисом'} →</a><details class="reference-details"><summary>Если нужна другая сторона этой ситуации</summary>${module.connections.map(({id,reason})=>`<p><a href="${C.lesson(id)}">${esc(COURSE.modules[id-1].title)}</a><br>${esc(reason)}</p>`).join('')}</details><a href="${C.link('experiments.html')}">Вернуться к своему действию →</a>`);
+    content(`<h1>Что меняется дальше</h1><p class="story-lead">${esc(p.bridge)}</p><a class="button primary" href="${topic<10?C.lesson(topic+1):C.link('game.html')}">${topic<10?'Продолжить':'Попробовать проект под давлением'} →</a><details class="reference-details"><summary>Если нужна другая сторона этой ситуации</summary>${module.connections.map(({id,reason})=>`<p><a href="${C.lesson(id)}">${esc(COURSE.modules[id-1].title)}</a><br>${esc(reason)}</p>`).join('')}</details><a href="${C.link('experiments.html')}">Вернуться к своему действию →</a>`);
   }
   window.addEventListener('hashchange',()=>{render();C.scrollToTop();});render();
 }

@@ -1,6 +1,6 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const {createState,resumeState,random}=require('../assets/game/state.js');
-const {advance,act,rate,workloads,dailyCost,forecast}=require('../assets/game/engine.js');
+const {advance,act,rate,workloads,dailyCost,forecast,advanceToEvent,alternative}=require('../assets/game/engine.js');
 const {tasks,complete,taskStatus}=require('../assets/game/project.js');
 const {eventDefinitions}=require('../assets/game/events.js');
 const {report}=require('../assets/game/scoring.js');
@@ -108,4 +108,24 @@ test('many seeds and allocations keep time, quality, capacity and costs finite',
     assert.ok(s.tasks.every(t=>t.progress>=0&&t.progress<=t.effort+0.00001&&t.quality>=0&&t.quality<=1));
     assert.ok(s.people.every(p=>p.fatigue>=0&&p.fatigue<=1));assert.ok(resumeState(s));
   }
+});
+test('new balance reserves 18 percent of capacity while a saved legacy run retains full capacity',()=>{
+  const modern=createState(),old=createState('service-20',{balanceVersion:1});
+  assert.ok(Math.abs(rate(modern,task(modern,'requirements'))/rate(old,task(old,'requirements'))-0.82)<0.00001);
+  delete old.balanceVersion;delete old.preferences;old.people.forEach(p=>delete p.capacity);
+  const resumed=resumeState(old);assert.equal(resumed.balanceVersion,1);assert.equal(resumed.people[0].capacity,1);assert.equal(resumed.preferences.autoPause,true);
+});
+test('skip executes ordinary ticks, stops on the first visible change and does not mutate the input',()=>{
+  const s=allocated(),before=JSON.stringify(s),result=advanceToEvent(s);assert.equal(JSON.stringify(s),before);
+  assert.ok(result.reason);assert.deepEqual(result.state,step(s,result.state.time/0.25));
+});
+test('resource negotiations exchange early speed, waiting and training effort',()=>{
+  const s=allocated(),burst=act(s,{type:'itBurst'}),window=act(s,{type:'itWindow'}),transfer=act(s,{type:'sponsorTransfer'});
+  assert.equal(burst.it.ready,true);assert.equal(window.it.readyAt,4);assert.ok(burst.spent>window.spent);assert.ok(task(transfer,'training').effort>task(s,'training').effort);
+});
+test('post-game alternative replays one decision and leaves the earned run unchanged',()=>{
+  let s=act(allocated(),{type:'coordinateIT'});s=act(s,{type:'clarify'});s=step(s,80);
+  const before=JSON.stringify(s),index=s.decisions.findIndex(d=>d.type==='clarify');
+  const result=alternative(s,index,{type:'pauseTask',task:'requirements',value:false});
+  assert.equal(JSON.stringify(s),before);assert.ok(result.state.stats.rework>s.stats.rework);assert.throws(()=>alternative(allocated(),0,{type:'scope'}));
 });
