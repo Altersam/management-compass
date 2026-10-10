@@ -5,7 +5,7 @@ const root=globalThis;
   const uid = () => root.crypto?.randomUUID?.() || `p-${Date.now()}-${Math.random().toString(36).slice(2)}`;
   const date = () => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
   const DATA_VERSION=3;
-  const blank = () => ({dataVersion:DATA_VERSION,favorites:[],journal:[],caseAnswers:{},caseReflections:{},worksheets:{},assessments:{},course:{},experiments:[]});
+  const blank = () => ({dataVersion:DATA_VERSION,learning:{revision:1,reviews:[],responses:{}},favorites:[],journal:[],caseAnswers:{},caseReflections:{},worksheets:{},assessments:{},course:{},experiments:[]});
   function plain(value) { return !!value && typeof value==='object' && !Array.isArray(value); }
   function assertSafe(value){
     if(!value||typeof value!=='object')return;
@@ -19,7 +19,7 @@ const root=globalThis;
     assertSafe(data);
     if(data.dataVersion!==undefined&&(!Number.isInteger(data.dataVersion)||data.dataVersion<1||data.dataVersion>DATA_VERSION))throw new Error('Неподдерживаемая версия данных профиля.');
     const copy=JSON.parse(JSON.stringify(data));
-    return {...blank(),...copy,dataVersion:DATA_VERSION};
+    return {...blank(),...copy,learning:{revision:1,reviews:[],responses:{},...copy.learning},dataVersion:DATA_VERSION};
   }
   function validateData(d) {
     if (!plain(d) || !Array.isArray(d.journal) || !Array.isArray(d.favorites)) throw new Error('Неполные данные профиля.');

@@ -29,7 +29,7 @@
   function report(data,id,questions){
     const m=moduleState(data,id);
     if(m.pedagogy===2){
-      const learned=[0,1,2].filter(i=>Number.isInteger(m.microAnswers?.[i]?.choice)).length;
+      const learned=[0,1,2].filter(i=>Number.isInteger(m.microAnswers?.[i]?.choice)||m.microAnswers?.[i]?.selfChecked===true).length;
       const experienced=Boolean(m.activities?.intro?.done),practiced=Boolean(m.activities?.practice?.done);
       const applied=Boolean(m.experimentId||m.transferEntryId);
       const core=Number(experienced)+learned+Number(practiced)+Number(applied);

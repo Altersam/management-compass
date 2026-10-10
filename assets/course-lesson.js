@@ -1,6 +1,7 @@
 import {CourseUI} from './course-ui.js';
 import * as Activities from './activities.js';
 import * as Experiments from './experiments.js';
+import {productive,scheduleReviews,reviewFor,contextualQuestion} from './learning-practice.js';
 export function mountLesson({topic:currentTopic}) {
   const C=CourseUI,{M,esc}=C;
   const topic=currentTopic.id,module=currentTopic.course,p={scene:currentTopic.scene.title,lead:currentTopic.scene.lead,blocks:currentTopic.explanations,bridge:currentTopic.bridge},reference=currentTopic.reference,questions=currentTopic.questions;
@@ -42,8 +43,16 @@ export function mountLesson({topic:currentTopic}) {
   }[n];}
   function theory(block){
     const b=p.blocks[block],answer=state().microAnswers?.[block];
+    if(block===1&&productive[topic]){productiveAction(b,block,answer);return;}
     content(`<article class="teacher-explanation"><h1>${esc(b.title)}</h1><p class="story-lead">${esc(b.story)}</p><p>${esc(b.explain)}</p><p class="name-the-principle">${esc(b.term)}</p>${Visuals.render(module.visuals[block])}</article><form id="microAction" class="micro-action">${C.question(b.micro,answer?.choice,'micro')}<button class="button primary">Что произойдёт?</button></form><div id="microFeedback">${answer?`<p class="teacher-reply">${esc(b.micro.options[answer.choice]?.analysis||'')}</p>`:''}</div><div class="natural-next" id="microNext" ${answer?'':'hidden'}><a class="button primary" href="#${block<2?'theory-'+(block+1):'practice'}">${block<2?'Дальше':'Попробовать на другом условии'} →</a></div>`);
     document.getElementById('microAction').onsubmit=e=>{e.preventDefault();const chosen=e.currentTarget.querySelector('input:checked');if(!chosen){C.U.notify('Выберите вариант.');return;}const choice=Number(chosen.value);mutate(m=>m.microAnswers[block]={choice,at:new Date().toISOString()});document.getElementById('microFeedback').innerHTML=`<p class="teacher-reply">${esc(b.micro.options[choice].analysis)}</p>`;document.getElementById('microNext').hidden=false;};
+  }
+  function productiveAction(b,block,saved){
+    const exercise=productive[topic];
+    content(`<article class="teacher-explanation"><h1>${esc(b.title)}</h1><p class="story-lead">${esc(b.story)}</p><p>${esc(b.explain)}</p><p class="name-the-principle">${esc(b.term)}</p>${Visuals.render(module.visuals[block])}</article><form id="productiveAction" class="compact-application"><label>${esc(exercise.prompt)}<textarea name="response" required>${esc(saved?.response||'')}</textarea></label><button class="button primary">Сопоставить с условиями</button></form><div id="productiveCriteria" ${saved?.selfChecked?'':'hidden'}><h2>Самопроверка</h2><ul>${exercise.criteria.map(c=>`<li>${esc(c)}</li>`).join('')}</ul><p><b>Один возможный ответ:</b> ${esc(exercise.example)}</p><p>Сравните с собственным текстом: какие условия вы учли, какие стоит добавить?</p><button id="confirmProductive" class="button quiet">Сопоставил с условиями</button></div><div class="natural-next" id="microNext" ${saved?.selfChecked||Number.isInteger(saved?.choice)?'':'hidden'}><a class="button primary" href="#theory-2">Дальше →</a></div>`);
+    const form=document.getElementById('productiveAction');form.oninput=()=>mutate(m=>m.microAnswers[block]={...m.microAnswers[block],response:form.elements.response.value});
+    form.onsubmit=e=>{e.preventDefault();if(!form.elements.response.value.trim())return;document.getElementById('productiveCriteria').hidden=false;};
+    document.getElementById('confirmProductive').onclick=()=>{mutate(m=>m.microAnswers[block]={...m.microAnswers[block],response:form.elements.response.value,selfChecked:true,at:new Date().toISOString()});document.getElementById('microNext').hidden=false;};
   }
   function technique(){
     const t=reference.techniques.find(t=>t.id===state().selectedTechnique)||reference.techniques[0];
@@ -58,13 +67,15 @@ export function mountLesson({topic:currentTopic}) {
   }
   function applicationPrompt(n){return {1:'Что перестанет вытесняться из вашего рабочего дня?',2:'Где проверка поможет увидеть задержку раньше?',3:'Какое типовое решение человек сможет принимать без вас?',4:'Какой критерий своего решения стоит сделать понятнее?',5:'Какое сообщение вы перепишете для конкретного адресата?',6:'На каком стыке нужен понятный вопрос человеку с правом выбора?',7:'Где стоит проверить не отправку, а реальное применение?',8:'Какую потерю в одном процессе вы проверите?',9:'Какой группе нужна другая поддержка перехода?',10:'Какое альтернативное объяснение показателя вы проверите?'}[n];}
   function check(){
-    const m=state(),i=Math.min(4,Math.max(0,Number(m.questionCursor)||0)),q=questions[i];
-    content(`<h1>${esc(q.title)}</h1><form id="singleDecision">${C.question(q,m.answers[q.id])}<button class="button primary">Посмотреть последствия</button></form><div id="decisionFeedback"></div><div class="natural-next" id="decisionNext" hidden><button id="nextQuestion" class="button quiet">${i<4?'Другая ситуация':'Что взять в работу'} →</button></div><div id="quizResult"></div>`);
+    const m=state(),i=Math.min(1,Math.max(0,Number(m.shortQuestionCursor)||0)),q=questions[i];
+    content(`<h1>${esc(q.title)}</h1><form id="singleDecision">${C.question(q,m.answers[q.id])}<button class="button primary">Посмотреть последствия</button></form><div id="decisionFeedback"></div><div class="natural-next" id="decisionNext" hidden><button id="nextQuestion" class="button quiet">${i<1?'Другая ситуация':'Что взять в работу'} →</button></div><div id="quizResult"></div>`);
     const f=document.getElementById('singleDecision');f.onsubmit=e=>{e.preventDefault();const selected=f.querySelector('input:checked');if(!selected){C.U.notify('Выберите действие.');return;}const choice=Number(selected.value);mutate(m=>m.answers[q.id]=choice);document.getElementById('decisionFeedback').innerHTML=C.feedback(q,choice);document.getElementById('decisionNext').hidden=false;};
-    document.getElementById('nextQuestion').onclick=()=>{if(i<4){mutate(m=>m.questionCursor=i+1);check();}else{let result;C.save(d=>result=M.submit(d,topic,questions));if(result.complete){document.getElementById('quizResult').innerHTML=C.resultSummary(result,questions,state().answers)+`<a class="button primary" href="#connections">Продолжить →</a>`;}}};
+    document.getElementById('nextQuestion').onclick=()=>{if(i<1){mutate(m=>m.shortQuestionCursor=i+1);check();}else{let result;C.save(d=>{result=M.submit(d,topic,questions.slice(0,2));scheduleReviews(d,topic,C.U.today());});if(result.complete){document.getElementById('quizResult').innerHTML=C.resultSummary(result,questions.slice(0,2),state().answers)+`<a class="button primary" href="#connections">Продолжить →</a>`;}}};
   }
   function connections(){
+    const review=reviewFor(C.data(),topic,C.U.today());
     content(`<h1>Что меняется дальше</h1><p class="story-lead">${esc(p.bridge)}</p><a class="button primary" href="${topic<10?C.lesson(topic+1):C.link('game.html')}">${topic<10?'Продолжить':'Попробовать проект под давлением'} →</a><details class="reference-details"><summary>Если нужна другая сторона этой ситуации</summary>${module.connections.map(({id,reason})=>`<p><a href="${C.lesson(id)}">${esc(COURSE.modules[id-1].title)}</a><br>${esc(reason)}</p>`).join('')}</details><a href="${C.link('experiments.html')}">Вернуться к своему действию →</a>`);
+    if(review){const original=COURSE.questions[review.topic][review.index],q=contextualQuestion(original,topic);document.getElementById('lessonContent').insertAdjacentHTML('beforeend',`<section class="mixed-practice"><h2>Ещё одна рабочая ситуация</h2><form id="mixedDecision">${C.question(q,undefined,'mixed')}<button class="button quiet">Разобрать последствия</button></form><div id="mixedFeedback" aria-live="polite"></div></section>`);document.getElementById('mixedDecision').onsubmit=e=>{e.preventDefault();const selected=e.currentTarget.querySelector('input:checked');if(!selected){C.U.notify('Выберите действие.');return;}const choice=Number(selected.value);C.save(d=>{if(!d.learning)d.learning={revision:1,reviews:[],responses:{}};if(!d.learning.responses)d.learning.responses={};d.learning.responses[q.id]={choice,context:topic,at:new Date().toISOString()};M.ensure(d,topic).mixedDone=true;const item=d.learning.reviews.find(r=>r.id===review.id);if(item)item.done=true;});document.getElementById('mixedFeedback').innerHTML=C.feedback(q,choice);};}
   }
   window.addEventListener('hashchange',()=>{render();C.scrollToTop();});render();
 }

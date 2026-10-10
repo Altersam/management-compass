@@ -25,3 +25,13 @@ test('automatic pause and skip stop at changes without removing the project boar
   await expect(page.locator('#gameStatus')).not.toBeEmpty();await expect(page.locator('.gantt-row')).toHaveCount(7);
   const time=await page.evaluate(()=>Workspace.profile(Workspace.active()).data.course.projectGame.time);await page.clock.runFor(32000);expect(await page.evaluate(()=>Workspace.profile(Workspace.active()).data.course.projectGame.time)).toBe(time);
 });
+test('short check stops after two questions and schedules later contexts without erasing legacy answers',async({page})=>{
+  await page.goto('/learn.html?module=3#check');await page.evaluate(()=>Workspace.update(CourseUI.active,d=>d.course.modules[3].answers['m3-q5']=2));
+  for(let i=0;i<2;i++){await page.locator('#singleDecision input').first().check();await page.locator('#singleDecision button').click();await page.locator('#nextQuestion').click();}
+  await expect(page.locator('#quizResult')).toContainText('из 2');const data=await page.evaluate(()=>CourseUI.data());expect(data.learning.reviews).toHaveLength(3);expect(data.course.modules[3].answers['m3-q5']).toBe(2);
+  await page.goto('/learn.html?module=5#connections');await expect(page.locator('#mixedDecision')).toContainText('сообщение');
+});
+test('productive reply is saved and checked by the user against criteria',async({page})=>{
+  await page.goto('/learn.html?module=5#theory-1');await expect(page.locator('#microAction')).toHaveCount(0);
+  await page.locator('#productiveAction textarea').fill('Выберите вариант А до среды: он сохраняет срок, но требует участия эксперта.');await page.locator('#productiveAction button').click();await expect(page.locator('#productiveCriteria')).toBeVisible();await page.locator('#confirmProductive').click();await page.reload();await expect(page.locator('#productiveAction textarea')).toHaveValue(/Выберите вариант/);await expect(page.locator('#microNext')).toBeVisible();
+});
