@@ -9,7 +9,7 @@ export function act(state,a){assertPlaying(state);const s=clone(state);
   else if(a.type==='send'){const hop=hops[s.turn],cost={email:2,chat:1,meeting:4,document:3}[s.channel]+(s.confirm?2:0);if(s.budget<cost)throw new Error('На выбранный способ не осталось времени.');s.budget-=cost;const before={...s.message};
     if(!s.confirm){if(s.channel==='chat'){s.message.quality=false;s.message.resource=false;}if(hop.complex&&s.channel==='email')s.message.resource=false;}
     if(hop.formal&&s.channel!=='document')s.formal=false;
-    s.transfers.push({hop:hop.name,channel:s.channel,confirm:s.confirm,before,after:{...s.message},cost});s.turn++;if(s.turn===5)s.phase='ended';
+    s.transfers.push({hop:hop.name,channel:s.channel,confirm:s.confirm,before,after:{...s.message},cost});s.turn++;if(s.turn===5||s.budget<1)s.phase='ended';
   }else throw new Error('Действие не найдено.');record(s,a,a.type==='send'?'Сообщение передано':'Способ передачи изменён');return s;
 }
 export function validate(s){return basicValid(s)&&s.turn<=5&&s.budget>=0&&s.budget<=18&&channels.some(([id])=>id===s.channel)&&typeof s.confirm==='boolean'&&s.message&&Object.keys(parts).every(k=>typeof s.message[k]==='boolean')&&Array.isArray(s.transfers)&&s.transfers.length===s.turn;}
