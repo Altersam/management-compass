@@ -1,96 +1,71 @@
 const {test,expect}=require('@playwright/test');
-
-async function chooseQuiz(page,module,correctCount=5){
-  const questions=await page.evaluate(id=>COURSE.questions[id].map(q=>({id:q.id,answer:q.answer})),module);
-  for(let i=0;i<questions.length;i++){const q=questions[i];const choice=i<correctCount?q.answer:(q.answer+1)%3;await page.locator(`[data-question="${q.id}"] input[value="${choice}"]`).check();}
-}
-
-test('course is the main entry and former diary bookmarks keep working',async({page})=>{
+async function range(page,name,value){await page.locator(`input[name="${name}"]`).evaluate((input,value)=>{input.value=String(value);input.dispatchEvent(new Event('input',{bubbles:true}));},value);}
+async function ethics(page){for(const id of ['facts','independent','criteria'])await page.locator(`[data-ethics="${id}"]`).click();}
+test('landing has meaningful static HTML with two entries and four stages without JavaScript',async({browser,baseURL})=>{
+  const context=await browser.newContext({javaScriptEnabled:false,baseURL}),page=await context.newPage();await page.goto('/');
+  await expect(page.locator('h1')).toHaveText('Практика управления');await expect(page.locator('.welcome-actions a')).toHaveCount(2);await expect(page.locator('.course-stage')).toHaveCount(4);await expect(page.locator('.topic-link')).toHaveCount(10);
+  await expect(page.locator('main')).toContainText('работать с людьми');await context.close();
+});
+test('learning starts in the day, changes its budget and replaces understood buttons with decisions',async({page})=>{
+  await page.goto('/');await page.locator('#startCourse').click();await expect(page.locator('.activity-1')).toBeVisible();await expect(page.locator('#ackTheory')).toHaveCount(0);
+  const before=await page.locator('.activity-metrics').textContent();await page.locator('[name=plan-meeting]').selectOption('delegate');await page.locator('[name=plan-requests]').selectOption('delegate');await page.locator('[name=plan-team]').selectOption('later');await page.locator('[name=focus]').check();await page.locator('[name=notify]').check();
+  expect(await page.locator('.activity-metrics').textContent()).not.toBe(before);await page.locator('.activity-decide').click();await page.locator('#activityNext a').click();
+  for(let i=0;i<3;i++){
+    const answer=await page.evaluate(i=>PEDAGOGY.topics[1].blocks[i].micro.answer,i);await page.locator(`#microAction input[value="${answer}"]`).check();await page.locator('#microAction button').click();await expect(page.locator('#microFeedback')).not.toBeEmpty();await page.locator('#microNext a').click();
+  }
+  await expect(page.locator('input[name=burst]')).toBeChecked();await page.locator('.activity-decide').click();await page.locator('#activityNext a').click();await page.locator('.natural-next a[href="#transfer"]').click();
+  await page.locator('#moduleTransfer [name=action]').fill('Защитить время для анализа без обычных сообщений');await page.locator('#moduleTransfer [name=place]').fill('В подготовке еженедельного отчёта');const today=await page.evaluate(()=>WorkspaceUI.today());await page.locator('#moduleTransfer [name=reviewDate]').fill(today);await page.locator('#moduleTransfer button').click();
+  await page.locator('#moduleTransfer [name=action]').fill('Защитить час анализа и согласовать критические обращения');await page.locator('#moduleTransfer button').click();
+  expect(await page.evaluate(()=>CourseUI.data().experiments.length)).toBe(1);expect(await page.evaluate(()=>CourseModel.report(CourseUI.data(),1,COURSE.questions[1]).mastered)).toBe(true);
+  await page.goto('/experiments.html');await expect(page.locator('.experiment-row')).toContainText('Защитить час');await page.locator('.experiment-row summary').click();await page.locator('[name=outcome]').selectOption('partly');await page.locator('[name=why]').fill('Анализ закончен, но критические обращения ещё надо различать.');await page.locator('[data-experiment-review] button').click();await expect(page.locator('.experiment-history')).toContainText('Частично помогло');
+});
+test('each topic has a different causal object and its controls change observations',async({page})=>{
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto('/');await expect(page.locator('h1')).toHaveText('Практика управления');await expect(page.locator('.course-map-node')).toHaveCount(10);
-  await page.locator('.navigator-entry').click();await expect(page).toHaveURL(/workspace\.html/);await expect(page.locator('#route')).toBeVisible();
-  await page.goto('/#diary');await expect(page).toHaveURL(/workspace\.html.*#diary$/);await expect(page.locator('#diaryForm')).toBeVisible();
-  expect(errors).toEqual([]);
+  const objects=['.workday','.order-timeline','.autonomy-scale','.decision-tree','.message-workbench','.department-map','.paper-document','.process-workbench','.adoption-story','.dashboard-workbench'];
+  for(let id=1;id<=10;id++){await page.goto(`/learn.html?module=${id}`);await expect(page.locator(objects[id-1])).toBeVisible();await expect(page.locator('.module-progress')).toHaveCount(0);if(id===4)await ethics(page);await page.locator('.activity-decide').click();await expect(page.locator('#activityNext a')).toBeVisible();}
+  await page.goto('/learn.html?module=2');await page.locator('[name=check]').selectOption('ready');await page.locator('[name=point]').selectOption('2');await expect(page.locator('.dependency-view .useful')).toBeVisible();await page.locator('[name=point]').selectOption('4');await expect(page.locator('.dependency-view .late')).toBeVisible();
+  await page.goto('/learn.html?module=3');await range(page,'level',3);await page.locator('[name=bounds]').check();const skilled=await page.locator('.teacher-consequences').textContent();await page.locator('[name=newTask]').check();expect(await page.locator('.teacher-consequences').textContent()).not.toBe(skilled);
+  await page.goto('/learn.html?module=5');await page.locator('[data-move="2:up"]').click();await page.locator('[data-move="1:up"]').click();await expect(page.locator('.message-piece').first()).toHaveAttribute('data-part','request');
+  await page.goto('/learn.html?module=7');await page.locator('[name=version]').selectOption('old');for(const name of ['delivered','understood','executed','accepted'])await page.locator(`[name=${name}]`).check();await expect(page.locator('.activity-metrics')).toContainText('ещё не принят');
+  await page.goto('/learn.html?module=8');const base=await page.locator('.queue-chart').textContent();await range(page,'incoming',90);expect(await page.locator('.queue-chart').textContent()).not.toBe(base);await range(page,'approvals',3);await expect(page.locator('#processWaiting')).toContainText('72');
+  await page.goto('/learn.html?module=9');await page.locator('[name=group]').selectOption('access');await page.locator('[name=help]').selectOption('access');await expect(page.locator('.activity-metrics')).toContainText('17');
+  await page.goto('/learn.html?module=10');await page.locator('[name=scope]').selectOption('all');await expect(page.locator('.activity-metrics')).toContainText('26');expect(errors).toEqual([]);
 });
-
-test('a complete module unites learning, application, grade and resume without duplicate diary entries',async({page})=>{
-  await page.goto('/learn.html?module=6');
-  await page.locator('#tryEntry').click();await page.locator('#entryAttempt input[value="0"]').check();await page.locator('#saveEntry').click();
-  await expect(page.locator('#entryFeedback')).toContainText('Почему вариант кажется разумным');
-  await page.locator('#startTheory').click();
-  for(let i=0;i<3;i++){await expect(page.locator('.lesson-thought .visual-diagram')).toHaveCount(1);await page.locator('#ackTheory').click();}
-  await page.locator('#ackTechnique').click();await page.locator('#guidedPractice [name=response]').fill('Определю общий продукт, принимающего и ограничение ресурса. Передам два варианта владельцу приоритета.');
-  for(const input of await page.locator('.rubric-check input').all())await input.check();
-  await page.locator('#guidedPractice button').click();
-  await page.locator('#moduleTransfer [name=situation]').fill('Данные для общего отчёта приходят после нужного срока.');
-  await page.locator('#moduleTransfer [name=automatic]').fill('Повторно просил коллег без уточнения ограничения.');
-  await page.locator('#moduleTransfer [name=change]').fill('Согласую продукт передачи и варианты ресурсного выбора.');
-  await page.locator('#moduleTransfer [name=reviewDate]').fill('2026-12-01');await page.locator('#moduleTransfer button').click();
-  await expect(page.locator('#transferSaved')).toContainText('План сохранён');
-  await page.locator('#moduleTransfer [name=change]').fill('Согласую продукт, варианты и раннюю проверку передачи.');await page.locator('#moduleTransfer button').click();
-  expect(await page.evaluate(()=>CourseUI.data().journal.filter(e=>e.type==='План применения').length)).toBe(1);
-  await page.locator('.lesson-actions a[href="#check"]').click();await chooseQuiz(page,6,4);await page.locator('#moduleQuiz button').click();
-  await expect(page.locator('#quizResult')).toContainText('4/5');await expect(page.locator('#masteryResult')).toContainText('Модуль освоен');await expect(page.locator('#modulePercent')).toHaveText('100%');
-  await page.reload();await expect(page.locator('#modulePercent')).toHaveText('100%');await expect(page.locator('#quizResult')).toContainText('4/5');
-  await page.locator('[data-course-nav=trajectory]').click();await expect(page.locator('.trajectory-row').nth(5)).toContainText('100%');
-  await expect(page.locator('#continueCourse')).toHaveAttribute('href',/module=6.*#check$/);
-  await page.locator('.course-profile summary').click();page.once('dialog',d=>d.accept('Другой учащийся'));await page.locator('#learningAddProfile').click();
-  await expect(page.locator('.course-stats')).toContainText('0/10');
+test('question presentation survives reload while consequence and canonical answer stay aligned',async({page})=>{
+  await page.goto('/learn.html?module=6#check');const before=await page.locator('.learning-question input').evaluateAll(inputs=>inputs.map(i=>i.value));await page.reload();expect(await page.locator('.learning-question input').evaluateAll(inputs=>inputs.map(i=>i.value))).toEqual(before);
+  const answer=await page.evaluate(()=>COURSE.questions[6][0].answer);await page.locator(`input[value="${answer}"]`).check();await page.locator('#singleDecision button').click();await expect(page.locator('#decisionFeedback')).toContainText('Что произойдёт дальше');expect(await page.evaluate(()=>CourseUI.data().course.modules['6'].answers['m6-q1'])).toBe(answer);
 });
-
-test('wrong and incomplete quizzes give targeted repetition, not premature mastery',async({page})=>{
-  await page.goto('/learn.html?module=2#check');await page.locator('#moduleQuiz button').click();await expect(page.locator('#toast')).toContainText('всех пяти');
-  await chooseQuiz(page,2,2);await page.locator('#moduleQuiz button').click();await expect(page.locator('#quizResult')).toContainText('2/5');
-  await expect(page.locator('#masteryResult')).not.toContainText('Модуль освоен');await expect(page.locator('.remediation-list a')).toHaveCount(2);
-  await page.locator('#quizResult details summary').click();await expect(page.locator('#quizResult')).toContainText('Где ограничение этого хода');
-  await page.locator('.remediation-list a').first().click();await expect(page).toHaveURL(/module=2.*#theory-[0-2]$/);await expect(page.locator('.lesson-thought')).toBeVisible();
+test('simulation branches on history, rewinds continuation, resumes and describes decisions without a grade',async({page})=>{
+  await page.goto('/#final');await page.locator('input[value=tight-check]').check();await page.locator('#makeSimulationDecision').click();await expect(page.locator('#simulationDecisionFeedback')).toContainText('зависимость от руководителя');await page.locator('#nextSimulationScene').click();await expect(page.locator('#secondaryContent h1')).toContainText('Очередь переместилась');
+  await page.locator('#undoSimulationDecision').click();await page.locator('input[value=sort-flow]').check();await page.locator('#makeSimulationDecision').click();await page.locator('#nextSimulationScene').click();await expect(page.locator('#secondaryContent h1')).not.toContainText('Очередь переместилась');
+  const rest=['narrow-bound','exceptions','deadline-rule','clear-choice','sponsor-options','confirm-meaning','bottleneck','align-example','compare-context'];
+  for(const id of rest){await page.locator(`input[value="${id}"]`).check();await page.locator('#makeSimulationDecision').click();await page.locator('#nextSimulationScene').click();}
+  await expect(page.locator('.decision-profile')).toContainText('Системная причина');await expect(page.locator('.decision-profile')).toContainText('Полномочия');await expect(page.locator('main')).not.toContainText('8/10');
+  await page.locator('#simulationReflection').fill('Проверить ожидание передачи и не делать вывод о ресурсе по одному среднему.');await page.locator('#saveSimulationReflection').click();await page.reload();await expect(page.locator('.decision-profile')).toBeVisible();expect(await page.evaluate(()=>CourseUI.data().journal.filter(e=>e.type==='Решение').length)).toBe(1);
 });
-
-test('final scenario grades ten connected stages, resumes and saves a personal decision',async({page})=>{
-  await page.goto('/#final');
-  const questions=await page.evaluate(()=>COURSE.finalQuestions.map(q=>({id:q.id,answer:q.answer})));
-  for(let i=0;i<questions.length;i++){
-    const q=questions[i],choice=i<8?q.answer:(q.answer+1)%3;
-    await page.locator(`[data-question="${q.id}"] input[value="${choice}"]`).check();await page.locator('#finalNext').click();
-  }
-  await expect(page.locator('#finalReport')).toContainText('8/10');await expect(page.locator('#finalReport .remediation-list a')).toHaveCount(2);
-  await page.locator('#finalConclusion').fill('Проверю единый канал и качество входных заявок на ограниченной группе за две недели.');await page.locator('#saveFinalDecision').click();await page.locator('#saveFinalDecision').click();
-  expect(await page.evaluate(()=>CourseUI.data().journal.filter(e=>e.type==='Решение').length)).toBe(1);
-  await page.reload();await expect(page.locator('[data-question=final-10]')).toBeVisible();await expect(page.locator('#finalReport')).toContainText('8/10');
-  await page.goto('/workspace.html#decisions');await expect(page.locator('#diaryList')).toContainText('Проверю единый канал');
+test('work navigator asks ordinary diagnostic questions and distinguishes resource from handoff',async({page})=>{
+  await page.goto('/workspace.html');await expect(page.locator('#problemSelect option')).toHaveCount(12);await page.locator('#problemSelect').selectOption('other-team');
+  await page.locator('input[name=q0][value=busy]').check();await page.locator('input[name=q1][value=yes]').check();await page.locator('#situationQuestions button').click();await expect(page.locator('#situationSuggestion')).toContainText('ресурсный выбор');await expect(page.locator('#situationSuggestion .button')).toHaveAttribute('href',/#deviation$/);
+  await page.locator('input[name=q0][value=input]').check();await page.locator('input[name=q1][value=no]').check();await page.locator('#situationQuestions button').click();await expect(page.locator('#situationSuggestion .button')).toHaveAttribute('href',/#handoff$/);await page.reload();await expect(page.locator('#problemSelect')).toHaveValue('overload');
 });
-
-test('old profiles keep worksheets, notes and Adizes observations in both modes and backup',async({page})=>{
-  await page.goto('/');
-  await page.evaluate(()=>{
-    const old={favorites:[8],journal:[{id:'old-note',date:'2026-10-08',type:'Рефлексия',title:'Моя прежняя запись',situation:'Факты до курса',learning:'Вывод',action:'Следующий шаг',rating:3,createdAt:'2026-10-08T12:00:00Z',updatedAt:''}],caseAnswers:{focus:{choice:1,correct:true}},caseReflections:{focus:'Старая рефлексия'},worksheets:{taskForm:{result:'Старое поручение'}},assessments:{paei:{values:[5,4,3]}}};
-    localStorage.setItem('management-compass:v1',JSON.stringify({version:1,active:'personal',profiles:[{id:'personal',name:'Прежний профиль',createdAt:'2026-10-08',data:old}]}));
+test('legacy records, real experiments, profile selection and backup remain compatible',async({page})=>{
+  await page.goto('/');await page.evaluate(()=>{
+    const data={favorites:[8],journal:[{id:'old-note',date:'2026-10-08',type:'Рефлексия',title:'Прежняя запись',situation:'Старые факты',learning:'Вывод',action:'Шаг',rating:3,createdAt:'2026-10-08',updatedAt:''}],caseAnswers:{focus:{choice:1,correct:true}},caseReflections:{focus:'Старая мысль'},worksheets:{taskForm:{result:'Прежнее поручение'}},assessments:{paei:{values:[5,4,3]}}};localStorage.setItem('management-compass:v1',JSON.stringify({version:1,active:'personal',profiles:[{id:'personal',name:'Прежний профиль',data}]}));
   });
-  await page.reload();await page.goto('/learn.html?module=3#theory-0');await page.locator('#ackTheory').click();
-  await page.goto('/workspace.html#practice');await expect(page.locator('#taskForm [name=result]')).toHaveValue('Старое поручение');
-  await page.goto('/workspace.html#diary');await expect(page.locator('#diaryList')).toContainText('Моя прежняя запись');
-  await page.goto('/#trajectory');
-  const backup=await page.evaluate(()=>Workspace.export(CourseUI.active));expect(backup.data.assessments.paei.values[0]).toBe(5);expect(backup.data.course.modules['3'].visited).toContain('theory-0');
-  await page.locator('#learningImport').setInputFiles({name:'full-backup.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(backup))});
-  await expect(page.locator('#learningProfileName')).toContainText('импорт');
-  expect(await page.evaluate(()=>CourseUI.data().worksheets.taskForm.result)).toBe('Старое поручение');
-  expect(await page.evaluate(()=>CourseUI.data().course.modules['3'].visited)).toContain('theory-0');
+  await page.goto('/learn.html?module=3');await page.locator('.activity-decide').click();await page.goto('/workspace.html#practice');await expect(page.locator('#taskForm [name=result]')).toHaveValue('Прежнее поручение');
+  await page.goto('/workspace.html#diary');await page.locator('.notes-archive summary').click();await expect(page.locator('#diaryList')).toContainText('Прежняя запись');
+  await page.goto('/settings.html');const backup=await page.evaluate(()=>Workspace.export(CourseUI.active));expect(backup.data.assessments.paei.values[0]).toBe(5);expect(backup.data.course.modules['3'].activities.intro.done).toBe(true);
+  await page.locator('#learningImport').setInputFiles({name:'copy.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(backup))});await expect(page.locator('#learningProfileSelect option:checked')).toContainText('импорт');
+  expect(await page.evaluate(()=>CourseUI.data().worksheets.taskForm.result)).toBe('Прежнее поручение');expect(await page.evaluate(()=>CourseUI.data().course.modules['3'].activities.intro.done)).toBe(true);
 });
-
-test('all learning modules, links and mobile stages render without script errors or overflow',async({page})=>{
-  const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.setViewportSize({width:390,height:844});
-  await page.goto('/');expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
-  for(let n=1;n<=10;n++){
-    await page.goto(`/learn.html?module=${n}#theory-1`);await expect(page.locator('.lesson-thought')).toBeVisible();
-    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`module ${n}`).toBe(true);
-    await page.locator('.adizes-comment summary').click();await expect(page.locator('.adizes-comment .visual-diagram')).toBeVisible();
-  }
-  await page.goto('/learn.html?module=6#connections');await expect(page.locator('.cross-course-links a')).toHaveCount(4);
-  await page.goto('/#final');await expect(page.locator('.final-case')).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
-  if(process.env.REFERENCE_SCREENSHOTS){
-    await page.screenshot({path:process.env.REFERENCE_SCREENSHOTS+'/course-final-mobile.png',fullPage:true});
-    await page.setViewportSize({width:1440,height:1000});await page.goto('/');await page.screenshot({path:process.env.REFERENCE_SCREENSHOTS+'/course-home.png',fullPage:true});
-    await page.goto('/learn.html?module=6#theory-2');await page.screenshot({path:process.env.REFERENCE_SCREENSHOTS+'/course-lesson.png',fullPage:true});
-  }
+test('all scenes and pages fit mobile; keyboard controls and reduced motion work',async({page})=>{
+  test.setTimeout(60000);
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));await page.setViewportSize({width:390,height:844});await page.emulateMedia({reducedMotion:'reduce'});
+  const phases=['intro','theory-0','theory-1','theory-2','practice','technique','transfer','check','connections'];
+  const pages=['/','/settings.html','/experiments.html','/workspace.html','/navigator.html','/sources.html','/adizes.html','/adizes-paei.html','/adizes-capi.html','/adizes-lifecycle.html',...Array.from({length:10},(_,i)=>`/modules/module-${String(i+1).padStart(2,'0')}.html`),...Array.from({length:10},(_,i)=>phases.map(phase=>`/learn.html?module=${i+1}#${phase}`)).flat(),'/#final'];
+  for(const url of pages){await page.goto(url);await expect(page.locator('h1:visible')).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),url).toBe(true);expect(await page.evaluate(()=>getComputedStyle(document.documentElement).scrollBehavior),url).toBe('auto');}
+  await page.goto('/learn.html?module=3');await page.locator('input[name=level]').focus();await page.keyboard.press('ArrowRight');await expect(page.locator('[data-autonomy-level="1"]')).toHaveClass(/selected/);
+  await page.goto('/learn.html?module=4');await page.locator('[data-ethics=facts]').focus();await page.keyboard.press('Enter');await expect(page.locator('#ethicsHeading')).toContainText('внешний срок');
+  if(process.env.REFERENCE_SCREENSHOTS){await page.goto('/learn.html?module=8');await page.screenshot({path:process.env.REFERENCE_SCREENSHOTS+'/experience-process-mobile.png',fullPage:true});await page.setViewportSize({width:1440,height:1000});await page.goto('/');await page.screenshot({path:process.env.REFERENCE_SCREENSHOTS+'/experience-home.png',fullPage:true});await page.goto('/learn.html?module=5');await page.screenshot({path:process.env.REFERENCE_SCREENSHOTS+'/experience-message.png',fullPage:true});}
   expect(errors).toEqual([]);
 });

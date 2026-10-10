@@ -9,14 +9,14 @@
   ];
   function initial(topic,practice=false){
     const values={
-      1:{plan:Object.fromEntries(tasks.map(t=>[t.id,'today'])),burst:practice,interruptions:6,focus:false,notify:false},
+      1:{plan:Object.fromEntries(tasks.map(t=>[t.id,'today'])),burst:practice,interruptions:6,focus:false,notify:false,persistent:false},
       2:{point:4,check:'sent',late:true,dependency:practice?1:2},
       3:{level:0,experience:practice?1:3,risk:practice?3:1,newTask:practice,bounds:false},
       4:{path:[],practice},
       5:{parts:['context','fact','request','options','recommendation','deadline'],channel:'email',tone:'neutral',extra:false,ambiguous:practice},
       6:{owner:'coordinator',action:'meeting',variants:false,cost:false,limited:practice},
       7:{version:practice?'old':'new',delivered:false,understood:false,executed:false,accepted:false},
-      8:{incoming:40,people:2,minutes:15,hours:4,returns:20,approvals:1,improvement:'none'},
+      8:{incoming:40,people:2,minutes:15,hours:4,returns:20,approvals:2,improvement:'none'},
       9:{group:practice?'access':'leader',help:'training',leader:false},
       10:{scope:'system',open:false,view:'time',conclusion:'success',evidence:'none'}
     };
@@ -38,6 +38,7 @@
       if(plan.analysis==='later')story.push('Проверка причин возвратов снова отложена. Завтра похожие запросы вернутся: важная несрочная работа постепенно становится авралом.');
       if(delegated.length)story.push('Передача требует десяти минут на условия задачи в этом примере. Если у коллег нет ресурса, очередь лишь переместится.');
       if(!s.focus&&s.interruptions>2)story.push('Короткие переключения выглядят безобидно, но в этом дне они съедают время восстановления контекста.');
+      if(s.persistent)story.push('Такой поток повторяется четвёртую неделю. Если каждый день часть работы переносится или отдаётся другим, личный порядок не устраняет избыток: сравните ресурс всей команды и входящие обязательства.');
       visual={segments:tasks.map(t=>({...t,choice:plan[t.id]})),used,over,switching};
     }
     if(topic===2){
@@ -83,7 +84,8 @@
       visual={authorized,decision,prepared};
     }
     if(topic===7){
-      const chain=[true,true,s.version==='new',s.delivered,s.understood,s.executed,s.accepted];
+      const evidence=[true,true,s.version==='new',s.delivered,s.understood,s.executed,s.accepted];
+      const chain=evidence.map((v,i)=>Boolean(v&&evidence.slice(0,i+1).every(Boolean)));
       const first=chain.findIndex(v=>!v);
       metrics=[metric('Подписано','да'),metric('Действующая версия',s.version==='new'?'передана':'не у всех'),metric('Результат',first<0?'принят':'ещё не принят')];
       story.push(s.version==='old'?'Коллега выполнил действия по прежней инструкции. Подпись новой версии не изменила его способ работы, потому что версия не дошла.':!s.delivered?'Документ существует, но у исполнителя нет подтверждённого сообщения. «Отправлено» пока говорит только о действии отправителя.':!s.understood?'Получатель подтвердил чтение. Но он считает, что нужен черновик, а вы ждёте согласованный ответ: получение не равно пониманию.':!s.executed?'Ожидания уточнены, действие ещё впереди. Понимание не является подтверждением исполнения.':!s.accepted?'Ответ подготовлен. Пока получатель не проверил его пригодность, закрывать обязательство рано.':'Новая версия дошла, смысл понят, действие выполнено и результат принят. Теперь решение действительно работает.');
@@ -91,17 +93,19 @@
     }
     if(topic===8){
       const returned=Math.max(0,Number(s.returns)-(s.improvement==='input'?12:0));
-      const minutes=Math.max(1,Number(s.minutes)-(s.improvement==='typing'?3:0));
+      const minutes=Math.max(1,Number(s.minutes));
+      const inputMinutes=s.improvement==='typing'?2:5;
       const capacity=Number(s.people)*Number(s.hours)*60/minutes;
       const load=Number(s.incoming)*(1+returned/100);
       const growth=Math.max(0,Math.round(load-capacity));
       const waiting=Math.max(0,Number(s.approvals)*1440-(s.improvement==='handoff'?720:0));
-      metrics=[metric('Обработка',minutes,'мин'),metric('Ожидание',waiting,'мин'),metric('Рост очереди',growth,'в день'),metric('Возвраты',returned,'%')];
+      metrics=[metric('Работа',inputMinutes+10+minutes,'мин'),metric('Ожидание',waiting,'мин'),metric('Рост очереди',growth,'в день'),metric('Возвраты',returned,'%')];
       story.push(waiting>minutes*20?'В этой цепочке основное время уходит не на работу, а на ожидание. Быстрее печатать полезно, но общий срок почти не изменится.':'Ожидание стало короче. Теперь проверьте, не перенесли ли ограничение на следующий этап.');
       if(growth>0)story.push(`В условном потоке ежедневно прибавляется около ${growth} необработанных запросов. Возвраты тоже потребляют мощность: команда работает, а очередь растёт.`);
       if(s.improvement==='input')story.push('Более понятный вход уменьшил повторную обработку. Но проверьте, не стало ли человеку слишком сложно подать запрос.');
       if(s.improvement==='handoff')story.push('Передача стала быстрее в этом примере. Прежде чем убирать проверку, выясните, какой риск она защищала.');
-      visual={capacity,load,growth,waiting,returned,minutes};
+      if(s.improvement==='typing')story.push('Заполнение сократилось с пяти до двух минут. Мощность следующей обработки и ожидание согласования не изменились: автоматизировали удобную операцию, а не ограничение.');
+      visual={capacity,load,growth,waiting,returned,minutes,inputMinutes};
     }
     if(topic===9){
       const needs={purpose:'meaning',skill:'training',access:'access',leader:'rules',convenience:'support'};

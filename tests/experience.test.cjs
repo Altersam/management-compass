@@ -32,8 +32,10 @@ test('queue reacts to arrivals, rework and capacity while typing alone leaves ma
   const s=E.initial(8),base=E.evaluate(8,s);
   assert.ok(E.evaluate(8,{...s,incoming:80}).visual.growth>base.visual.growth);
   assert.ok(E.evaluate(8,{...s,people:4}).visual.growth<base.visual.growth);
-  assert.ok(E.evaluate(8,{...s,approvals:2}).visual.waiting>base.visual.waiting);
+  assert.ok(E.evaluate(8,{...s,approvals:3}).visual.waiting>base.visual.waiting);
   assert.equal(E.evaluate(8,{...s,improvement:'typing'}).visual.waiting,base.visual.waiting);
+  assert.equal(E.evaluate(8,{...s,improvement:'typing'}).visual.growth,base.visual.growth);
+  assert.equal(E.evaluate(8,{...s,improvement:'typing'}).visual.inputMinutes,2);
 });
 test('adoption support must address the actual barrier and dashboard scope changes impression',()=>{
   const s={...E.initial(9),group:'access'};assert.equal(E.evaluate(9,{...s,help:'training'}).visual.supported,false);assert.equal(E.evaluate(9,{...s,help:'access'}).visual.supported,true);
@@ -56,6 +58,8 @@ test('all fifty alternatives stay concise and avoid systematic length clues',()=
   const questions=Object.values(course.questions).flat();let correct=0,alternatives=0;
   for(const q of questions){correct+=q.options[q.answer].text.length;alternatives+=q.options.filter((_,i)=>i!==q.answer).reduce((n,o)=>n+o.text.length,0);}
   assert.ok(correct/50<(alternatives/100)*1.3);
+  const longest=questions.filter(q=>q.options[q.answer].text.length>Math.max(...q.options.filter((_,i)=>i!==q.answer).map(o=>o.text.length)));
+  assert.ok(longest.length<=20);
   assert.equal(Object.values(pedagogy.topics).flatMap(t=>t.blocks).length,30);
 });
 test('navigator distinguishes resource conflict from unclear handoff without asking for a model name',()=>{

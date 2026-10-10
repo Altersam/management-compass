@@ -31,5 +31,6 @@ window.CourseUI=(()=>{
   }
   function adizes(note){return `<details class="another-view"><summary>Другой взгляд · Адизес</summary><h3>${esc(note.title)}</h3><p>${esc(note.text)}</p><a href="${link(note.page)}">Подробнее об этой рамке →</a></details>`;}
   function scrollToTop(){window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});}
+  window.addEventListener('storage',()=>{if(!S.profiles().some(p=>p.id===active)){const url=new URL(location.href);url.searchParams.set('user',S.active());location.replace(url.href);}});
   return {S,U,M,esc,active,data,link,lesson,save,mount,settings,question,feedback,resultSummary,adizes,scrollToTop};
 })();

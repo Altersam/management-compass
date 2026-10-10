@@ -6,21 +6,22 @@ test('all reference pages render offline assets and links without errors',async(
   expect(errors).toEqual([]);
 });
 test('profiles isolate working drafts, cases and editable diary, including nested pages',async({page})=>{
-  await page.goto('/workspace.html');page.once('dialog',d=>d.accept('Профиль А'));await page.locator('#addProfile').click();
+  await page.goto('/workspace.html');await page.locator('.working-settings summary').click();page.once('dialog',d=>d.accept('Профиль А'));await page.locator('#addProfile').click();
   const a=await page.locator('#profileSelect').inputValue();
   await page.locator('[data-view-link=practice]').click();
   await page.locator('#taskForm [name=result]').fill('Результат А');
   await page.locator('.practice-tabs a[href="#cases"]').click();
   await page.locator('[data-case=focus] input[value="1"]').check();await page.locator('[data-case=focus] .check-case').click();
-  await expect(page.locator('[data-case=focus] .case-feedback')).toContainText('Логика обоснована');
+  await expect(page.locator('[data-case=focus] .case-feedback')).toContainText('Что произойдёт дальше');
   await page.locator('[data-case=focus] textarea').fill('Уточнить конфликт приоритетов');await page.locator('[data-case=focus] .save-case-note').click();
   await page.locator('[data-view-link=journal]').click();
+  await page.locator('.notes-archive summary').click();
   await page.locator('#diaryList .edit-entry').first().click();await page.locator('#diaryForm [name=action]').fill('Согласовать срок завтра');await page.locator('#diaryForm [type=submit]').click();
   await expect(page.locator('#diaryList')).toContainText('Согласовать срок завтра');
   await page.goto(`/modules/module-08.html?user=${a}#process`);await page.locator('.worksheet summary').click();await page.locator('form[data-tool=process] [name=field0]').fill('Вход: обращение, выход: принятый ответ');
   await page.reload();await expect(page.locator('form[data-tool=process] [name=field0]')).toHaveValue('Вход: обращение, выход: принятый ответ');
   await page.locator('.worksheet summary').click();await page.locator('form[data-tool=process] [type=submit]').click();await page.goto(`/workspace.html?user=${a}#diary`);await expect(page.locator('#diaryList')).toContainText('Карта процесса');
-  page.once('dialog',d=>d.accept('Профиль Б'));await page.locator('#addProfile').click();const b=await page.locator('#profileSelect').inputValue();
+  await page.locator('.working-settings summary').click();page.once('dialog',d=>d.accept('Профиль Б'));await page.locator('#addProfile').click();const b=await page.locator('#profileSelect').inputValue();
   expect(b).not.toBe(a);await expect(page.locator('#statNotes')).toHaveText('0');await expect(page.locator('#taskForm [name=result]')).toHaveValue('');await expect(page.locator('[data-case=focus] textarea')).toHaveValue('');
   await page.goto(`/modules/module-08.html?user=${b}#process`);await expect(page.locator('form[data-tool=process] [name=field0]')).toHaveValue('');
   await page.goto(`/workspace.html?user=${a}#practice`);await expect(page.locator('#taskForm [name=result]')).toHaveValue('Результат А');await expect(page.locator('#statNotes')).toHaveText('2');
@@ -43,9 +44,9 @@ test('mobile reference has no document overflow and searchable sections',async({
   await page.locator('#capacityForm [name=flow]').fill('100');await page.locator('#capacityForm button').click();await expect(page.locator('#capacityResult')).toContainText('очередь будет расти');
 });
 test('unsaved diary draft survives navigation and starts empty in a different profile',async({page})=>{
-  await page.goto('/workspace.html#diary');await page.locator('#diaryForm [name=title]').fill('Черновик наблюдения');await page.locator('#diaryForm [name=situation]').fill('Нужно восстановить факты передачи');
+  await page.goto('/workspace.html#diary');await page.locator('.notes-archive summary').click();await page.locator('#diaryForm [name=title]').fill('Черновик наблюдения');await page.locator('#diaryForm [name=situation]').fill('Нужно восстановить факты передачи');
   await page.reload();await expect(page.locator('#diaryForm [name=title]')).toHaveValue('Черновик наблюдения');
-  page.once('dialog',d=>d.accept('Новая тетрадь'));await page.locator('#addProfile').click();await expect(page.locator('#diaryForm [name=title]')).toHaveValue('');
+  await page.locator('.working-settings summary').click();page.once('dialog',d=>d.accept('Новая тетрадь'));await page.locator('#addProfile').click();await expect(page.locator('#diaryForm [name=title]')).toHaveValue('');
 });
 test('focused navigation exposes one task at a time and supports direct links and history',async({page})=>{
   await page.goto('/workspace.html');await expect(page.locator('[data-view-link]')).toHaveCount(4);

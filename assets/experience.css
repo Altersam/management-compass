@@ -86,6 +86,8 @@ body:has(.experience-page){background:#fcfcfd}
 .day-tasks .activity-field{font-size:11px}
 .workday .activity-conditions{padding:0 18px}
 .time-budget{height:34px;border:1px solid #c9d8e5;background:#eef3f8;border-radius:7px;overflow:hidden;margin:20px 0}
+.time-budget{position:relative;height:42px}
+.time-limit{position:absolute;left:41.66%;top:0;bottom:0;border-left:2px dashed #20496f;color:#173f65;background:#ffffffbc;padding:8px 5px;font-size:11px;pointer-events:none}
 .time-budget>div{height:100%;background:#6c89aa;color:#fff;padding:5px 10px;font-size:12px;white-space:nowrap}
 .day-plan{display:flex;flex-wrap:wrap;gap:8px}
 .day-plan span{font-size:11px;border-left:3px solid #769ac1;padding:7px;background:#f4f7fb;border-radius:0 5px 5px 0}
@@ -185,10 +187,13 @@ body:has(.experience-page){background:#fcfcfd}
 .settings-section{max-width:780px;padding:25px 0;border-top:1px solid #dce5ed;margin-top:30px}
 .settings-section>label{display:grid;gap:7px;max-width:400px;font-size:14px;color:#6b8093;margin:15px 0}
 .settings-section select{font:15px Segoe UI,sans-serif;padding:10px;border:1px solid #cddbe5;border-radius:7px;background:#fff}
+.settings-section select{width:100%;min-width:0}
+.experience-page{overflow-wrap:break-word}
 .settings-section button{margin:8px 9px 8px 0}
 .experiment-list ul{list-style:none;padding:0;margin:20px 0 35px}
 .experiment-list>h2{font-size:24px;margin:30px 0 10px}
 .experiment-row{display:grid;grid-template-columns:1fr 180px;gap:22px;align-items:start;padding:23px 0;border-bottom:1px solid #dde5ec}
+.experiment-row{grid-template-columns:minmax(0,1fr) 180px}.experiment-row>div,.experiment-row>details{min-width:0}
 .experiment-row time{font-size:12px;color:#6e8a9d}
 .experiment-row h3{font-size:21px;margin:8px 0}
 .experiment-row p{font-size:14px;margin:8px 0}
@@ -218,6 +223,8 @@ body:has(.experience-page){background:#fcfcfd}
 .route-workbench{grid-template-columns:1fr;max-width:850px}
 .route-result{grid-column:1;grid-row:auto;background:#fff;border:0;padding:20px 0}
 .scene-live{min-width:0}
+.activity-metrics span,.message-piece small,.message-preview>span,.order-timeline span,.department-map small,.day-tasks span,.process-stations span,.delivery-chain span{color:#5c7184}
+.case-feedback{background:#f1f5f9;border-left:3px solid #a1b7cb}
 .button:disabled{cursor:default;opacity:.5;transform:none}
 @media(max-width:760px){
   .experience-page{padding:24px 15px 45px}.experience-page h1{font-size:31px}.experience-page h2{font-size:25px}

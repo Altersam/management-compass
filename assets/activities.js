@@ -8,6 +8,7 @@ window.Activities=(()=>{
   const names={context:'Контекст',fact:'Факт',request:'Запрос',options:'Варианты',recommendation:'Рекомендация',deadline:'Срок'};
   function mount(container,topic,saved,settings={}){
     const state={...E.initial(topic,settings.practice),...(saved||{})};
+    if(topic===3)state.level=Math.min(4,Math.max(0,Number(state.level)||0));
     if(topic===5)state.parts=Array.isArray(state.parts)?[...new Set(state.parts.filter(p=>Object.hasOwn(fragments,p)))]:Object.keys(fragments);
     if(topic===4)state.path=Array.isArray(state.path)?state.path.slice(0,3).filter((id,i)=>E.ethics[i].choices.some(c=>c.id===id)):[];
     function changed(){state.explored=true;settings.onChange?.(JSON.parse(JSON.stringify(state)));update();}
@@ -26,12 +27,12 @@ window.Activities=(()=>{
     }
     function visuals(result){
       const v=result.visual;
-      if(topic===1)return `<div class="time-budget"><div style="width:${Math.min(100,v.used/300*100)}%">${v.used} мин. запланировано</div></div><div class="day-plan">${v.segments.map(t=>`<span class="${t.choice}">${escape(t.title)} · ${t.choice==='today'?'сегодня':t.choice==='delegate'?'передача':'перенос'}</span>`).join('')}</div>`;
+      if(topic===1)return `<div class="time-budget" role="img" aria-label="Запланировано ${v.used} минут, доступно 300"><div style="width:${Math.min(100,v.used/720*100)}%">${v.used} мин. запланировано</div><span class="time-limit">5 часов</span></div><div class="day-plan">${v.segments.map(t=>`<span class="${t.choice}">${escape(t.title)} · ${t.choice==='today'?'сегодня':t.choice==='delegate'?'передача':'перенос'}</span>`).join('')}</div>`;
       if(topic===2)return `<div class="dependency-view"><span>Сведения нужны: день ${v.dependency}</span><span>Проверка: день ${v.point}</span><span class="${v.timely?'useful':'late'}">Задержка обнаружена: день ${v.discovered}</span></div>`;
       if(topic===3)return `<div class="autonomy-effect"><span>Ручные обращения</span><div style="width:${v.requests/12*100}%">${v.requests}</div><span>${v.unsupported?'Новый случай потребует пересмотра границ':'Поддержка соответствует этому случаю'}</span></div>`;
       if(topic===6)return `<div class="resource-result"><span>Эксперт → ${v.decision?'получил согласованный приоритет':'продолжает прежнее поручение'}</span><span>Общий запуск → ${v.decision?'план можно обновить':'ресурсный конфликт остался'}</span></div>`;
       if(topic===7)return `<ol class="delivery-chain">${['Решение','Документ','Версия','Получено','Понято','Исполнено','Принято'].map((label,i)=>`<li class="${v.chain[i]?'evidence-present':'evidence-missing'}"><b>${label}</b><span>${v.chain[i]?'Есть подтверждение':'Пока не подтверждено'}</span></li>`).join('')}</ol>`;
-      if(topic===8)return `<div class="queue-chart"><div><b>Поток с возвратами: ${v.load.toFixed(1)}</b><span style="width:${Math.min(100,v.load/120*100)}%"></span></div><div><b>Мощность: ${v.capacity.toFixed(1)}</b><span style="width:${Math.min(100,v.capacity/120*100)}%"></span></div><p>Накапливается за день: ${v.growth} запросов</p></div>`;
+      if(topic===8)return `<div class="queue-chart"><div><b>Поток с возвратами: ${v.load.toFixed(1)}</b><span style="width:${Math.min(100,v.load/150*100)}%"></span></div><div><b>Мощность: ${v.capacity.toFixed(1)}</b><span style="width:${Math.min(100,v.capacity/150*100)}%"></span></div><p>Накапливается за день: ${v.growth} запросов</p></div>`;
       if(topic===9)return `<div class="adoption-people" aria-label="${v.active} из 20 участников действуют по-новому">${Array.from({length:20},(_,i)=>`<span class="${i<v.active?'using-new':''}" aria-hidden="true">●</span>`).join('')}</div>`;
       return '';
     }
@@ -40,10 +41,10 @@ window.Activities=(()=>{
       live.innerHTML=`<div class="activity-metrics">${result.metrics.map(m=>`<div><span>${escape(m.label)}</span><b>${escape(m.value)} <small>${escape(m.unit)}</small></b></div>`).join('')}</div>${visuals(result)}<div class="teacher-consequences" aria-live="polite">${topic!==4&&(state.done||state.explored)?result.story.map(t=>`<p>${escape(t)}</p>`).join(''):''}</div>`;
       if(topic===3)container.querySelectorAll('[data-autonomy-level]').forEach(el=>el.classList.toggle('selected',Number(el.dataset.autonomyLevel)===Number(state.level)));
       if(topic===2)container.querySelectorAll('.order-timeline li').forEach((el,i)=>{el.classList.toggle('selected-point',i+1===Number(state.point));el.querySelector('b').textContent=['Отправить запрос','Следить за входом','Подготовить ответ','Обычная сверка','Обещанный результат'][i]+(i+1===Number(state.dependency)?' · нужны сведения':'');});
-      if(topic===8)container.querySelector('#processWaiting').textContent=`${result.visual.waiting/60} часов ожидания`;
+      if(topic===8){container.querySelector('#processWaiting').textContent=`${result.visual.waiting/60} часов ожидания`;container.querySelector('.process-stations li:first-child span').textContent=`${result.visual.inputMinutes} минут работы`;}
       if(topic===9)container.querySelector('#groupQuote').textContent={purpose:'«Не вижу, какую проблему это решает»',skill:'«Не могу выполнить этот сценарий без подсказки»',access:'«Инструкцию знаю, но права в системе нет»',leader:'«Начальник быстрее отвечает в личных письмах»',convenience:'«В реальной заявке нужный случай не помещается в форму»'}[state.group];
       if(topic===5){const pieces=container.querySelector('#messagePieces');pieces.innerHTML=state.parts.map((part,i)=>`<div class="message-piece" data-part="${part}"><small>${names[part]}</small><p>${part==='request'&&state.tone==='pressure'?'Если вы снова не ответите, ответственность за весь срыв останется на вашей команде.':fragments[part]}</p><div><button type="button" data-move="${i}:up" ${i===0?'disabled':''} aria-label="Переместить ${names[part]} выше">↑</button><button type="button" data-move="${i}:down" ${i===state.parts.length-1?'disabled':''} aria-label="Переместить ${names[part]} ниже">↓</button></div></div>`).join('')+(state.extra?'<p class="message-extra">До этого было шесть писем, два обсуждения и несколько смен ответственных. Полная история занимает ещё несколько абзацев…</p>':'');pieces.querySelectorAll('[data-move]').forEach(b=>b.onclick=()=>{const [value,direction]=b.dataset.move.split(':');const from=Number(value),to=from+(direction==='up'?-1:1);const part=state.parts[from];[state.parts[from],state.parts[to]]=[state.parts[to],state.parts[from]];changed();container.querySelector(`[data-part="${part}"] button[data-move="${to}:${direction}"]`)?.focus();});}
-      container.querySelectorAll('[data-range-value]').forEach(output=>output.value=state[output.dataset.rangeValue]);
+      container.querySelectorAll('[data-range-value]').forEach(output=>{const name=output.dataset.rangeValue,labels={experience:{1:'Первый опыт',2:'С поддержкой',3:'Типовые случаи уверенно'},risk:{1:'Небольшая',2:'Заметная',3:'Высокая'}};output.value=labels[name]?.[state[name]]||state[name];});
     }
     function render(){
       container.innerHTML=`<div class="activity activity-${topic}">${controls()}<div class="scene-live"></div>${topic===4&&state.path.length<3?'':`<button type="button" class="button primary activity-decide">${settings.practice?'Посмотреть, что изменилось':'Увидеть последствия'}</button>`}</div>`;
@@ -58,7 +59,9 @@ window.Activities=(()=>{
       container.querySelector('[data-tree-back]')?.addEventListener('click',()=>{state.path=state.path.slice(0,-1);settings.onChange?.(JSON.parse(JSON.stringify(state)));render();});
       container.querySelector('.activity-decide')?.addEventListener('click',decide);
       update();
+      if(topic===1){const label=document.createElement('label');label.className='activity-check';label.innerHTML=`<input type="checkbox" name="persistent" ${state.persistent?'checked':''}>Такой поток повторяется четвёртую неделю`;container.querySelector('.activity-conditions').append(label);label.querySelector('input').oninput=e=>{state.persistent=e.target.checked;changed();};}
     }
+    container.addEventListener('click',event=>{const button=event.target.closest?.('[data-move]');if(!button)return;const part=button.closest('[data-part]').dataset.part;queueMicrotask(()=>{if(!container.contains(document.activeElement))container.querySelector(`[data-part="${part}"] button:not([disabled])`)?.focus();});});
     render();return {read:()=>JSON.parse(JSON.stringify(state)),evaluate:()=>E.evaluate(topic,state)};
   }
   return {mount};
