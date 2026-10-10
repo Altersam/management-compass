@@ -11,15 +11,12 @@ import * as WorkingNavigator from './navigator.js';
   const href=p=>`${p}?user=${encodeURIComponent(active)}`;
   const modulePath=n=>`modules/module-${String(n).padStart(2,'0')}.html`;
   const modeLink=document.querySelector('.mode-link');
-  function status(){const ok=S.persistent;$('saveState').textContent=ok?'● Автосохранение на этом устройстве':'● Хранилище недоступно: используйте экспорт перед закрытием';if(modeLink)modeLink.href=`index.html?user=${encodeURIComponent(active)}`;}
+  function status(){}
   function save(mutate){S.update(active,mutate);status();stats();}
-  function profiles(){ $('profileSelect').innerHTML=S.profiles().map(p=>`<option value="${esc(p.id)}" ${p.id===active?'selected':''}>${esc(p.name)}</option>`).join('');$('profileNameLabel').textContent=S.profile(active).name;const url=new URL(location.href);url.searchParams.set('user',active);history.replaceState(null,'',url);$('navigatorLink').href=href('navigator.html');document.querySelectorAll('.resource-card, .faq-list a').forEach(a=>{const url=new URL(a.href);url.searchParams.set('user',active);a.href=url;});status(); }
-  function stats(){const d=data();$('statModules').textContent=d.favorites.length;$('statNotes').textContent=d.journal.length;$('statCases').textContent=Object.keys(d.caseAnswers).filter(k=>HANDBOOK.cases.some(c=>c.id===k)).length;const last=[...d.journal].sort((a,b)=>b.date.localeCompare(a.date))[0];$('statDate').textContent=last?new Date(`${last.date}T00:00:00`).toLocaleDateString('ru-RU',{day:'numeric',month:'short'}):'Пока нет';}
+  function profiles(){const url=new URL(location.href);url.searchParams.set('user',active);history.replaceState(null,'',url);$('navigatorLink').href=href('navigator.html');document.querySelectorAll('a[href]').forEach(a=>{if(a.getAttribute('href').startsWith('#'))return;const url=new URL(a.href);if(url.origin===location.origin){url.searchParams.set('user',active);a.href=url;}});}
+  function stats(){}
   function resetDiary(){editing=null;$('diaryForm').reset();$('diaryForm').elements.date.value=U.today();$('ratingValue').value='3';$('diaryForm').querySelector('[type=submit]').textContent='Сохранить запись';$('cancelEdit')?.remove();}
   function switchTo(id){S.select(id);active=id;profiles();renderModules();route();cases();diary();resetDiary();restoreDrafts();stats();}
-  $('profileSelect').onchange=e=>switchTo(e.target.value);
-  $('addProfile').onclick=()=>{const name=prompt('Имя личного профиля:');if(name?.trim()){switchTo(S.add(name));U.notify('Новый профиль создан.');}};
-  $('deleteProfile').onclick=()=>{if(S.profiles().length<2){U.notify('Оставьте хотя бы один профиль.');return;}if(confirm(`Удалить «${S.profile(active).name}» вместе с записями?`)){switchTo(S.remove(active));U.notify('Профиль удалён.');}};
   let libraryMode='chapters';
   function renderModules(){
     const grid=$('moduleGrid');
@@ -82,10 +79,6 @@ import * as WorkingNavigator from './navigator.js';
   generated('taskForm','taskOutput',[['Результат','result'],['Ответственный','owner'],['Срок','deadline'],['Качество / приёмка','quality'],['Ресурс / зависимость','dependency']]);generated('talkForm','talkOutput',[['Факт','fact'],['Общий результат','goal'],['Интересы и ограничения','interests'],['Варианты','options']]);
   document.querySelectorAll('.save-generated').forEach(b=>b.onclick=()=>{S.journal(active,{type:'План действия',title:b.dataset.kind,situation:b.closest('.generated').querySelector('p').textContent,action:'Согласовать следующий шаг и способ проверки результата.'});diary();stats();status();U.notify('Черновик добавлен в дневник.');});
   document.querySelectorAll('.copy-generated').forEach(b=>b.onclick=async()=>{try{await navigator.clipboard.writeText(b.closest('.generated').querySelector('p').textContent);U.notify('Скопировано.');}catch(_){U.notify('Выделите текст и скопируйте его вручную.');}});
-  $('exportProfile').onclick=()=>U.download('management-compass-profile.json',JSON.stringify(S.export(active),null,2));
-  $('exportDiary').onclick=()=>U.download('management-compass-diary.json',JSON.stringify({format:'management-compass-diary',version:1,journal:data().journal},null,2));
-  $('importProfileButton').onclick=()=>$('importProfile').click();
-  $('importProfile').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;try{if(file.size>5*1024*1024)throw new Error('Размер резервной копии превышает 5 МБ.');const p=JSON.parse(await file.text());if(p.format==='management-compass-diary'){S.importDiary(active,p);diary();stats();status();}else switchTo(S.import(p));U.notify('Данные импортированы.');}catch(err){U.notify(`Импорт отменён: ${err.message}`);}finally{e.target.value='';}};
   const faq=document.querySelector('.faq-list');chapters.forEach(c=>c.faq.forEach(([q,a])=>{const el=document.createElement('details');el.innerHTML=`<summary>${esc(q)}</summary><p>${esc(a)} <a href="${href(modulePath(c.id))}">Подробнее →</a></p>`;el.dataset.extraFaq='true';faq.append(el);}));
   window.addEventListener('storage',()=>{if(!S.profiles().some(p=>p.id===active)){switchTo(S.active());return;}stats();diary();});
   profiles();renderModules();route();cases();diary();resetDiary();restoreDrafts();stats();

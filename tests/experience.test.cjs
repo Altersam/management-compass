@@ -63,7 +63,7 @@ test('all fifty alternatives stay concise and avoid systematic length clues',()=
   assert.equal(Object.values(pedagogy.topics).flatMap(t=>t.blocks).length,30);
 });
 test('navigator distinguishes resource conflict from unclear handoff without asking for a model name',()=>{
-  assert.equal(N.situations.length,12);assert.ok(N.situations.every(s=>s.questions.length>=2));
+  assert.equal(N.situations.length,16);assert.ok(N.situations.every(s=>s.questions.length>=2));
   assert.equal(N.choose('other-team',{q0:'busy',q1:'yes'}).technique,'deviation');
   assert.equal(N.choose('other-team',{q0:'input',q1:'no'}).technique,'handoff');
   assert.equal(N.choose('overload',{q0:'system',q1:'work'}).topic,8);

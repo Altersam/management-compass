@@ -1,5 +1,5 @@
 (() => {
-  const titles={start:'С чего начать в рабочей ситуации?',reference:'Теория и техники',practice:'Практика без лишних шагов',journal:'Моя рабочая тетрадь',help:'Помощь и частые вопросы'};
+  const titles={start:'Что сейчас мешает работе?',reference:'Инструменты',practice:'Рабочие упражнения',journal:'Архив заметок',help:'Помощь'};
   function navigate(){
     const hash=location.hash.slice(1);
     const view=['modules','library','favorites'].includes(hash)?'reference':['practice','cases'].includes(hash)?'practice':['diary','decisions'].includes(hash)?'journal':hash==='faq'?'help':'start';

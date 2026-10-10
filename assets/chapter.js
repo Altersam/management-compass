@@ -9,8 +9,8 @@ import {Workspace,WorkspaceUI} from './runtime.js';
   const link=n=>`module-${String(n).padStart(2,'0')}.html?user=${encodeURIComponent(active)}`;
   const root=document.getElementById('chapterRoot');
   root.innerHTML=`
-    <div class="reading-bar"><a href="${home}#modules">← Все разделы</a><span>Профиль: ${esc(profile.name)}</span><a href="${home}#diary">Дневник</a></div>
-    <span class="eyebrow">Административная практика · ${chapter.id}</span>
+    <div class="reading-bar"><a href="${home}#modules">← Инструменты</a><a href="../experiments.html?user=${encodeURIComponent(active)}">Мои действия</a></div>
+    <span class="eyebrow">Практика управления · ${chapter.id}</span>
     <h1>${esc(chapter.title)}</h1><p class="lead">${esc(chapter.short)}</p>
     <div class="learning-callout"><span>Хотите освоить тему по учебному маршруту?</span><a href="../learn.html?module=${chapter.id}&user=${encodeURIComponent(active)}">Открыть модуль курса →</a></div>
     <nav class="reading-nav chapter-tabs" aria-label="Содержание раздела"><a href="#theory">Теория</a><a href="#techniques">Техники</a><a href="#case">Кейс и рефлексия</a></nav>
@@ -30,7 +30,7 @@ import {Workspace,WorkspaceUI} from './runtime.js';
     </section>
     <section id="case" class="chapter-pane" hidden><div class="section-heading"><h2>Разобрать решение и собственную практику</h2><p>Выберите первый ход, прочитайте последствия и запишите, что это меняет в вашей работе.</p></div><div class="case-grid"></div></section>
     <details class="reference-details related-details"><summary>Связанные ракурсы и дальнейшее чтение</summary><div class="route-steps">${chapter.related.map(n=>`<a href="${link(n)}">${esc(HANDBOOK.chapters[n-1].title)}</a>`).join('')}</div><a href="../sources.html?user=${encodeURIComponent(active)}">Модели и литература →</a></details>
-    <footer class="footer"><a href="${home}#modules">← Каталог справочника</a><a href="${home}#diary">Личные записи</a><button class="text-button" id="printPage">Печать открытого раздела</button></footer>`;
+    <footer class="footer"><a href="${home}#modules">← Каталог инструментов</a><a href="${home}#diary">Архив заметок</a><button class="text-button" id="printPage">Печать открытого раздела</button></footer>`;
 
   function renderTechnique(t) {
     const holder=document.getElementById('techniquePanel');

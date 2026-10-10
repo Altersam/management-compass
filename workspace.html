@@ -4,50 +4,21 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#142b4a">
-  <meta name="description" content="Локальный справочник администратора: что делать в рабочей ситуации, пошаговые техники, примеры, кейсы и личный дневник.">
+  <meta name="description" content="Практика управления: уточните рабочую ситуацию, проверьте гипотезу и выберите первый инструмент.">
   <title>Разобрать рабочую ситуацию — Практика управления</title>
   <link rel="stylesheet" href="assets/styles.css">
   <link rel="stylesheet" href="assets/experience.css">
 </head>
 <body>
-  <div class="app-shell">
-    <aside class="sidebar">
-      <a class="brand" href="#top" aria-label="На главную">
-        <span class="brand-mark">У</span>
-        <span>Практика управления<small>рабочий навигатор</small></span>
-      </a>
-      <a class="mode-link" href="index.html">← Перейти к курсу</a>
-      <details class="working-settings"><summary>Настройки профиля</summary><div class="profile-box">
-        <label for="profileSelect">Личный профиль</label>
-        <select id="profileSelect" aria-label="Выбрать профиль"></select>
-        <div class="profile-actions"><button class="text-button" id="addProfile">＋ Новый</button><button class="text-button" id="deleteProfile">Удалить</button></div>
-        <span class="save-state" id="saveState">● Данные хранятся на этом устройстве</span>
-      </div></details>
-      <nav class="side-nav" aria-label="Основные разделы">
-        <a href="#route" data-view-link="start"><span>01</span> Ситуация</a>
-        <a href="#modules" data-view-link="reference"><span>02</span> Теория и техники</a>
-        <a href="#practice" data-view-link="practice"><span>03</span> Практика</a>
-        <a href="#diary" data-view-link="journal"><span>04</span> Мои записи</a>
-      </nav>
-      <a class="sidebar-help" href="#faq">Помощь и частые вопросы</a>
-      <div class="sidebar-note"><b>Как пользоваться</b><p>Возьмите актуальную рабочую ситуацию, выберите маршрут, примените технику и запишите наблюдение в дневник.</p></div>
-    </aside>
-
-    <main id="top">
+  <div>
+    <main id="top" class="workspace-page">
       <header class="topbar">
-        <div><span class="eyebrow">Рабочий справочник · <span id="profileNameLabel">Мои записи</span></span><h1 id="viewTitle">С чего начать в рабочей ситуации?</h1></div>
-        <details class="data-menu"><summary>Данные профиля</summary><div class="top-actions"><button class="button quiet" id="exportProfile">Экспорт данных</button><button class="button quiet" id="importProfileButton">Импорт</button></div></details><input id="importProfile" type="file" accept="application/json,.json" hidden>
+        <h1 id="viewTitle">Что сейчас мешает работе?</h1>
       </header>
-
-      <section class="stats-grid" aria-label="Моя рабочая тетрадь" data-screen="journal" hidden>
-        <article class="stat-card"><span>Избранные разделы</span><b id="statModules">0</b><small>быстрый доступ к нужному</small></article>
-        <article class="stat-card"><span>Записей в дневнике</span><b id="statNotes">0</b><small>личные наблюдения и планы</small></article>
-        <article class="stat-card"><span>Разобрано ситуаций</span><b id="statCases">0</b><small>ответы и размышления для себя</small></article>
-        <article class="stat-card"><span>Последняя запись</span><b class="stat-date" id="statDate">Пока нет</b><small>вернитесь к своему плану действий</small></article>
-      </section>
+      <nav class="workspace-links" aria-label="Рабочие инструменты"><a href="#modules" data-view-link="reference">Все инструменты</a><a href="experiments.html">Мои действия</a><a href="settings.html">Настройки →</a></nav>
 
       <section class="section-block" id="route" data-screen="start">
-        <div class="section-heading"><div><h2>Что сейчас мешает работе?</h2><p>Выберите похожую ситуацию и уточните два условия.</p></div></div>
+        <p>Выберите похожую ситуацию и уточните два условия. Начнём с рабочей гипотезы, которую можно проверить.</p>
         <div class="route-workbench panel">
           <label for="problemSelect">Что происходит сейчас?</label><select id="problemSelect"></select>
           <div id="routeResult" class="route-result" aria-live="polite"></div>
@@ -55,7 +26,7 @@
       </section>
 
       <section class="section-block" id="modules" data-screen="reference" hidden>
-        <div class="section-heading heading-with-action"><div><span class="eyebrow">Полный справочник</span><h2>Теория, модели и визуальные техники</h2><p>10 разделов и 30 техник. Читайте объяснение, изучайте схему, затем применяйте к своей ситуации. Можно искать по теме или сразу по названию инструмента.</p></div><a class="button quiet" href="navigator.html" id="navigatorLink">Карта ситуаций ↗</a></div>
+        <div class="section-heading heading-with-action"><div><h2>Каталог инструментов</h2><p>10 тем и 30 техник. Можно использовать как справочник: искать по задаче или названию инструмента.</p></div><a class="button quiet" href="navigator.html" id="navigatorLink">Рабочие ситуации →</a></div>
         <div class="module-grid" id="moduleGrid"></div>
       </section>
 
@@ -78,8 +49,8 @@
       </section>
 
       <section class="section-block" id="diary" data-screen="journal" hidden>
-        <div class="section-heading"><h2>Мои действия</h2></div><div id="workingExperiments"></div>
-        <details class="notes-archive"><summary>Прежние записи и подробные заметки</summary><button class="button quiet" id="exportDiary">Скачать дневник</button>
+        <p>Основные изменения и эксперименты — в <a href="experiments.html">Моих действиях</a>. Здесь остаются подробные заметки и свободная запись.</p>
+        <details class="notes-archive"><summary>Архив заметок</summary>
         <div class="diary-layout"><form id="diaryForm" class="panel diary-form"><div class="form-row"><label>Дата<input type="date" name="date" required></label><label>Тип записи<select name="type"><option>Рефлексия</option><option>Решение</option><option>Кейс</option><option>План действия</option><option>Итог недели</option></select></label></div><label>Короткий заголовок<input name="title" required placeholder="Например: поздняя эскалация риска"></label><label>Ситуация и факты<textarea name="situation" required placeholder="Что произошло? Что вы знаете точно?"></textarea></label><label>Мой вывод / чему научился<textarea name="learning" placeholder="Какие причины обнаружились? Что оказалось важным?"></textarea></label><label>Следующий шаг<textarea name="action" placeholder="Что, кто и к какому сроку сделает иначе?"></textarea></label><label>Насколько я доволен своим способом действия? <output id="ratingValue">3</output> / 5<input type="range" name="rating" min="1" max="5" value="3" id="ratingRange"></label><button class="button primary" type="submit">Сохранить запись</button></form>
           <div class="diary-list-wrap"><div class="diary-controls"><label class="search-label">Поиск по дневнику<input id="diarySearch" type="search" placeholder="Слово, тема или решение"></label><select id="diaryFilter" aria-label="Фильтр записей"><option value="all">Все записи</option></select></div><button class="text-button" id="weeklyPrompt">Начать рефлексию недели</button><div class="diary-list" id="diaryList"></div></div></div>
         </details>

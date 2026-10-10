@@ -14,12 +14,12 @@ export function random(state){
   let t=state.rng;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);
   return ((t^(t>>>14))>>>0)/4294967296;
 }
-export function createState(seed='service-20'){
+export function createState(seed='service-20',{balanceVersion=2}={}){
   const rng={rng:seedNumber(seed)};
   const externalPlan={requirementsDay:3.5+Math.floor(random(rng)*5)/4,illnessDay:7+Math.floor(random(rng)*9)/4,illPerson:people[Math.floor(random(rng)*people.length)].id,itDay:6.5+Math.floor(random(rng)*5)/4};
   return {
-    revision,seed:String(seed),rng:rng.rng,externalPlan,time:0,phase:'planning',spent:0,budget:project.budget,deadline:project.deadline,
-    people:people.map(p=>({...structuredClone(p),fatigue:0,overloadTime:0,absentUntil:0,trainingUntil:0})),
+    revision,balanceVersion,preferences:{autoPause:true},seed:String(seed),rng:rng.rng,externalPlan,time:0,phase:'planning',spent:0,budget:project.budget,deadline:project.deadline,
+    people:people.map(p=>({...structuredClone(p),capacity:balanceVersion===2?0.82:1,fatigue:0,overloadTime:0,absentUntil:0,trainingUntil:0})),
     tasks:tasks.map(t=>({...structuredClone(t),assigned:t.id==='requirements'?[...t.assigned]:[],effort:t.duration,progress:0,quality:0.72,qualityWeight:0,checkpoint:'none',checkpointPaid:false,autonomy:'bounded',priority:1,paused:false,awaitingDecision:false,manualReviewed:false,startedAt:null,completedAt:null,completionCount:0})),
     it:{contacted:false,ready:false,readyAt:10,riskAccepted:false},scope:'full',leaderExample:false,supportCut:false,
     adoption:0,launchedAt:null,formalLaunch:false,metricsInvestigated:false,flags:{},events:[],delayed:[],decisions:[],history:[],
@@ -37,8 +37,10 @@ export function resumeState(saved){
   if(saved.events.some(e=>!eventDefinitions[e.definition])||saved.delayed.some(e=>!['rework','learn','support','metrics'].includes(e.effect)))return null;
   if(!saved.people.some(p=>p.id===saved.externalPlan.illPerson))return null;
   const copy=structuredClone(saved);
+  copy.balanceVersion=copy.balanceVersion||1;
+  copy.preferences={autoPause:true,...copy.preferences};
   // Descriptions/identities come from authored data, while developed skills and history are retained.
-  copy.people=copy.people.map(p=>{const def=[...people,contractor].find(d=>d.id===p.id);return {...p,...structuredClone(def),skills:p.skills};});
+  copy.people=copy.people.map(p=>{const def=[...people,contractor].find(d=>d.id===p.id);return {...p,...structuredClone(def),capacity:p.capacity??1,skills:p.skills};});
   copy.tasks=copy.tasks.map((t,i)=>{
     const task={...t,name:tasks[i].name,skills:[...tasks[i].skills],dependencies:[...tasks[i].dependencies]};
     if(tasks[i].external)task.external=tasks[i].external;else delete task.external;

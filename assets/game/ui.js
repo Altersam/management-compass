@@ -1,8 +1,10 @@
-import {advance,act,workloads,dailyCost,forecast,taskStatus,blockers,reliability,risk} from './engine.js';
+import {advance,act,workloads,dailyCost,forecast,taskStatus,blockers,reliability,risk,advanceToEvent,stopReason,alternative} from './engine.js';
 import {dayLabel,finished} from './state.js';
 import {complete,project} from './project.js';
 import {level,serviceMetrics,report} from './scoring.js';
 import {eventDefinitions,actionLabels} from './events.js';
+import {mountPointerDrag} from './pointer-drag.js';
+import {skillFit} from './people.js';
 
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=n=>Math.round(n).toLocaleString('ru-RU')+' ₽';
@@ -16,6 +18,7 @@ export function mountGame({container,state:initial,onSave,onRestart,link,notify}
   if(!['project','team','events'].includes(tab))tab='project';
   const persist=()=>{state.view={selected,tab};onSave(state);};
   const focusMemory={selectedTaskHeading:'selectedTaskHeading'};
+  let pickedPerson=null,linkedEvent=null;
   container.innerHTML=`<div class="game-title"><div><span class="game-eyebrow">20 рабочих дней · управленческая игра</span><h1>Проект под давлением</h1><p>${project.title}</p></div><div class="game-time-controls"><button type="button" class="button primary" id="gameClock" data-focus="clock">Запустить время</button><label>Темп<select id="gameSpeed" data-focus="speed"><option value="8000">Обычный</option><option value="4000">×2</option><option value="2000">×4</option></select></label></div></div>
     <div class="game-brief" id="gameBrief">Срок и бюджет уже обещаны. Исследование начала Анна; остальные назначения — ваш выбор. Выберите задачу на плане, назначьте людей и запустите время. Пауза доступна в любой момент.</div>
     <div class="game-metrics" id="gameMetrics"></div><p class="game-status" id="gameStatus" role="status" aria-live="polite"></p>
@@ -25,15 +28,19 @@ export function mountGame({container,state:initial,onSave,onRestart,link,notify}
     <section id="panel-events" data-game-panel="events" aria-labelledby="eventsHeading"><h2 id="eventsHeading">События <span id="eventCount"></span></h2><div id="gameEvents"></div></section></div>
     <section id="gameResult" hidden></section><dialog id="gameExplanation" aria-labelledby="explanationHeading"><h2 id="explanationHeading"></h2><p id="explanationText"></p><div class="game-dialog-actions"><button type="button" class="button primary" id="returnToGame">Вернуться в игру</button><a id="explanationCourse" target="_blank" rel="noopener">Разобрать тему подробнее →</a></div></dialog>`;
   const $=id=>container.querySelector('#'+id);
+  container.querySelector('.game-time-controls').insertAdjacentHTML('beforeend','<button type="button" class="button quiet" id="skipToEvent">⏭ До события</button>');
+  $('gameBrief').insertAdjacentHTML('afterend',`<label class="autopause-setting"><input type="checkbox" id="autoPause" ${state.preferences?.autoPause!==false?'checked':''}> Останавливать время на важных событиях</label>`);
+  $('autoPause').onchange=e=>{state.preferences={...state.preferences,autoPause:e.target.checked};persist();};
+  $('skipToEvent').onclick=()=>{pause();const result=advanceToEvent(state);state=result.state;persist();render();$('gameStatus').textContent=result.reason;};
   function pause(){running=false;clearInterval(timer);timer=null;$('gameClock').textContent=finished(state)?'Проект завершён':state.time>0?'Продолжить время':'Запустить время';$('gameClock').setAttribute('aria-pressed','false');}
   function play(){
     if(finished(state))return;
     running=true;$('gameClock').textContent='Пауза';$('gameClock').setAttribute('aria-pressed','true');clearInterval(timer);
-    timer=setInterval(()=>{state=advance(state);persist();if(finished(state))pause();render();},period);
+    timer=setInterval(()=>{const before=state;state=advance(state);persist();const changed=stopReason(before,state),important=state.events.slice(before.events.length).some(e=>['external'].includes(eventDefinitions[e.definition].kind)||['authority','rework','metrics','support'].includes(e.definition));if(finished(state)||state.preferences?.autoPause!==false&&(important||changed==='Сервис запущен'||changed==='Бюджет близок к пределу'))pause();render();if(!running&&changed)$('gameStatus').textContent=changed+' · время остановлено';},period);
     $('gameBrief').hidden=true;
   }
   function decide(command){
-    try{state=act(state,command);persist();render();$('gameStatus').textContent=decisionMessage(command);}
+    try{const old=state,before=forecast(old),loads=workloads(old);state=act(state,command);persist();render();const after=forecast(state),change=state.spent-old.spent;const loadChange=Object.entries(workloads(state)).filter(([id,n])=>loads[id]!==n).map(([id,n])=>`${state.people.find(p=>p.id===id).name}: ${loads[id]||0} → ${n}`).join(' · ');$('gameStatus').textContent=[decisionMessage(command),change?'−'+money(change):'',before.day!==after.day?`Прогноз: ${before.day||'>20'} → ${after.day||'>20'}`:'',loadChange].filter(Boolean).join(' · ');}
     catch(error){notify(error.message);}
   }
   function decisionMessage(command){
@@ -70,6 +77,7 @@ export function mountGame({container,state:initial,onSave,onRestart,link,notify}
     container.querySelectorAll('[data-game-panel]').forEach(panel=>panel.classList.toggle('is-active',panel.dataset.gamePanel===tab));
     container.querySelectorAll('[data-tab]').forEach(button=>{button.setAttribute('aria-selected',String(button.dataset.tab===tab));button.tabIndex=button.dataset.tab===tab?0:-1;});
     if(finished(state)&&!resultShown){resultShown=true;renderResult();if(state.time>initial.time)$('gameResult').scrollIntoView({behavior:'instant',block:'start'});}
+    decorateProject(prediction);
     if(focus==='selectedTaskHeading')$('selectedTaskHeading').focus({preventScroll:true});
     else if(focus)container.querySelector(`[data-focus="${focus}"]`)?.focus({preventScroll:true});
   }
@@ -77,6 +85,16 @@ export function mountGame({container,state:initial,onSave,onRestart,link,notify}
     const result=report(state);$('gameResult').hidden=false;
     $('gameResult').innerHTML=`<div class="result-heading"><span>Проект завершён · ${state.endReason==='budget'?'бюджет исчерпан':'20 рабочих дней'}</span><h2>Что получилось в этой игре</h2></div><dl class="game-result-grid"><div><dt>Срок запуска</dt><dd>${result.launchDay===null?'Не запущен':result.launchDay+' / 20 дней'}</dd></div><div><dt>Бюджет</dt><dd>${money(result.spent)} / ${money(state.budget)}</dd></div><div><dt>Переделка</dt><dd>${state.stats.rework.toFixed(1)} дня · ${money(state.stats.reworkCost)}</dd></div><div><dt>Перегрузка</dt><dd>${state.stats.overloadDays.toFixed(1)} человеко-дня</dd></div><div><dt>Использование сервиса</dt><dd>${result.metrics.adoption}% · ${result.metrics.resolved}/100 потребностей решено</dd></div><div><dt>Ручные решения</dt><dd>${state.stats.manualDecisions} · ${state.stats.manualWaiting.toFixed(1)} дня ожидания</dd></div></dl><ol class="game-insights">${result.insights.map(text=>`<li>${text}</li>`).join('')}</ol><p>${state.scope==='lean'?'Выпущен ограниченный пилот. Полный объём ещё требует отдельного решения.':'Полный объём: '+result.completed+' из 7 задач готовы.'} Надёжность: ${result.quality}.</p><form id="newProjectForm"><label>Сценарий для повторной игры<input name="seed" value="${escape(state.seed)}" maxlength="80" required></label><button class="button primary">Попробовать другой план</button></form><div class="result-links"><a href="${link('experiments.html')}">Выбрать одно действие в своей работе →</a><a href="${link('index.html#courseMapTitle')}">Курс по темам →</a></div>`;
     $('newProjectForm').onsubmit=e=>{e.preventDefault();onRestart(new FormData(e.currentTarget).get('seed').trim()||'service-20');};
+    const keyDecisions=state.decisions.map((d,i)=>({...d,index:i})).filter(d=>d.before&&['scope','clarify','coordinateIT','itBurst','itWindow','sponsorTransfer','acceptIT','checkpoint','cutSupport','alignLeaders','formalLaunch'].includes(d.type)).slice(-3);
+    $('gameResult').querySelector('.game-insights').insertAdjacentHTML('beforebegin',`<section class="key-decisions"><h3>Три решения, которые сильнее всего изменили проект</h3>${keyDecisions.length?keyDecisions.map(d=>`<p>День ${Math.floor(d.at)+1} · ${escape(actionLabels[d.type]||decisionMessage(d))}</p>`).join(''):'<p>Назначения сохранились без отдельных ресурсных решений.</p>'}<h3>Что было бы, если выбрать иначе?</h3>${keyDecisions.map(d=>`<button type="button" class="button quiet" data-alternative="${d.index}">День ${Math.floor(d.at)+1} · сравнить решение</button>`).join('')}<div id="alternativeResult" aria-live="polite"></div></section>`);
+    $('gameResult').querySelectorAll('[data-alternative]').forEach(button=>button.onclick=()=>{
+      const i=Number(button.dataset.alternative),d=state.decisions[i];let command;
+      if(['coordinateIT','itBurst','itWindow','sponsorTransfer','acceptIT'].includes(d.type))command={type:d.type==='itWindow'?'itBurst':'itWindow'};
+      else if(d.type==='checkpoint')command={type:'checkpoint',task:d.task,value:d.value==='early'?'none':'early'};
+      else if(d.type==='cutSupport')command={type:'inspectMetrics'};
+      else command={type:'pauseTask',task:d.type==='formalLaunch'?'training':'requirements',value:false};
+      try{const result=alternative(state,i,command),other=report(result.state);$('alternativeResult').innerHTML=`<h4>Ваш путь / Альтернатива</h4><p>Запуск: ${report(state).launchDay||'нет'} / ${other.launchDay||'нет'} · Расход: ${money(state.spent)} / ${money(other.spent)} · Принятие: ${Math.round(state.adoption)}% / ${other.metrics.adoption}%</p><p>Меняется одно решение; остальные повторены в прежние дни. Неприменимых после изменения действий: ${result.skipped}. Это условное сравнение, не новый результат вашего проекта.</p>`;}catch(error){notify(error.message);}
+    });
   }
   function explanation(id){
     const def=eventDefinitions[id];if(!def)return;pause();
@@ -85,7 +103,10 @@ export function mountGame({container,state:initial,onSave,onRestart,link,notify}
   }
   function click(event){
     const button=event.target.closest('button');if(!button)return;
-    if(button.dataset.task){selected=button.dataset.task;persist();render();$('selectedTaskHeading').focus({preventScroll:true});}
+    if(button.dataset.pickPerson){pickedPerson=button.dataset.pickPerson;tab='project';render();$('gameStatus').textContent='Выберите задачу для '+state.people.find(p=>p.id===pickedPerson).name;}
+    else if(button.dataset.linkEvent){linkedEvent=state.events.find(e=>e.id===button.dataset.linkEvent);tab='project';render();}
+    else if(button.dataset.priority){decide({type:'priority',task:selected,value:Number(button.dataset.priority)});}
+    else if(button.dataset.task){selected=button.dataset.task;if(pickedPerson){drop(pickedPerson,selected);pickedPerson=null;}persist();render();$('selectedTaskHeading').focus({preventScroll:true});}
     else if(button.dataset.command){decide({type:button.dataset.command,...(button.dataset.taskId?{task:button.dataset.taskId}:{}),...(button.dataset.command==='pauseTask'?{value:button.dataset.value==='true'}:{})});}
     else if(button.dataset.coach)decide({type:'coach',person:button.dataset.coach,skill:button.dataset.skill});
     else if(button.dataset.explain)explanation(button.dataset.explain);
@@ -105,6 +126,25 @@ export function mountGame({container,state:initial,onSave,onRestart,link,notify}
     const tabs=['project','team','events'];tab=e.key==='Home'?'project':e.key==='End'?'events':tabs[(tabs.indexOf(tab)+(e.key==='ArrowRight'?1:2))%3];persist();render();container.querySelector(`[data-tab="${tab}"]`).focus();
   };
   if(state.time>0)$('gameBrief').textContent=`Продолжить проект — день ${dayLabel(state)}. Время на паузе: можно осмотреть план и события.`;
+  function drop(person,taskId){const t=state.tasks.find(t=>t.id===taskId);if(complete(t)||finished(state)){notify('Эта задача уже завершена.');return;}selected=taskId;decide({type:'assign',task:taskId,people:[...new Set([...t.assigned,person])]});}
+  function decorateProject(prediction){
+    for(const p of state.people){const card=[...container.querySelectorAll('.game-person')].find(el=>el.querySelector('[data-person-details]')?.dataset.personDetails===p.id);if(!card)continue;card.dataset.person=p.id;card.querySelector('.person-heading').insertAdjacentHTML('beforeend',`<button class="person-grip" data-drag-person="${p.id}" data-pick-person="${p.id}" aria-label="Выбрать ${p.name} для назначения" ${finished(state)?'disabled':''}>⠿</button>`);}
+    for(const t of state.tasks){
+      const row=container.querySelector(`.gantt-task-name[data-task="${t.id}"]`).closest('.gantt-row');row.dataset.dropTask=t.id;
+      const warnings=state.events.filter(e=>e.status==='open'&&(e.subject===t.id||t.assigned.includes(e.subject)||e.definition==='it'&&t.id==='integration'));
+      row.classList.toggle('task-warning',warnings.length>0);if(linkedEvent&&(linkedEvent.subject===t.id||t.assigned.includes(linkedEvent.subject)||linkedEvent.definition==='it'&&t.id==='integration'))row.classList.add('event-linked');
+      const end=prediction.tasks[t.id]?.end,start=prediction.tasks[t.id]?.start;
+      if(end!==null&&start!==null&&end!==undefined&&!complete(t))row.querySelector('.gantt-lane').insertAdjacentHTML('beforeend',`<span class="gantt-forecast" style="left:${start/20*100}%;width:${Math.max(0.5,end-start)/20*100}%" title="Прогноз до дня ${Math.ceil(end)}"></span>`);
+      row.querySelector('.gantt-task-name').insertAdjacentHTML('beforeend',`<span class="task-avatars">${t.assigned.map(id=>`<i title="${state.people.find(p=>p.id===id).name}">${state.people.find(p=>p.id===id).name[0]}</i>`).join('')}${warnings.length?' ⚠':''}${t.awaitingDecision?' ⏳':''}${t.external&&!state.it.ready?' 🔗':''}${state.events.some(e=>e.definition==='rework'&&e.subject===t.id)?' ↺':''}</span>`);
+      if(t.checkpoint!=='none')row.querySelector('.gantt-bar').insertAdjacentHTML('beforeend',`<span class="checkpoint-mark" style="left:${t.checkpoint==='early'?25:90}%" title="${t.checkpoint==='early'?'Ранняя':'Финальная'} сверка">◇</span>`);
+    }
+    for(const event of state.events){const card=container.querySelector(`[data-focus="explain-${CSS.escape(event.id)}"]`)?.closest('.game-event');if(!card)continue;card.querySelector('h3').insertAdjacentHTML('afterend',`<button class="game-text-button" data-link-event="${escape(event.id)}">Показать на проекте${event.relatedAt!==undefined?' · связано с днём '+(Math.floor(event.relatedAt)+1):''}</button>`);}
+    if(linkedEvent?.subject)container.querySelector(`[data-person="${CSS.escape(linkedEvent.subject)}"]`)?.classList.add('event-linked');
+    const priority=container.querySelector('[data-setting=priority]');priority.closest('label').insertAdjacentHTML('beforebegin',`<div class="priority-buttons" role="group" aria-label="Приоритет">${[['0','Фон'],['1','Обычно'],['2','Фокус']].map(([value,text])=>`<button data-priority="${value}" aria-pressed="${state.tasks.find(t=>t.id===selected).priority===Number(value)}" ${priority.disabled?'disabled':''}>${text}</button>`).join('')}</div>`);priority.closest('label').classList.add('priority-fallback');
+    const facts=container.querySelector('.task-facts');facts.insertAdjacentHTML('beforebegin','<details class="task-more"><summary>Подробнее</summary></details>');facts.previousElementSibling.append(facts);
+    $('skipToEvent').disabled=finished(state);
+  }
+  const removeDrag=mountPointerDrag({container,onDrop:drop,onPause:pause,preview:(person,taskId)=>{const p=state.people.find(p=>p.id===person),t=state.tasks.find(t=>t.id===taskId),fit=skillFit(p,t),load=workloads(state)[person];return `${p.name}: ${fit>=0.8?'сильное':fit>=0.5?'среднее':'слабое'} соответствие · ${t.skills.map(s=>skillNames[s]+' '+p.skills[s]+'/3').join(', ')}. ${load>0?'Уже ведёт '+load+' задач: внимание будет разделено.':'Есть резерв мощности.'}`;}});
   pause();render();
-  return {dispose(){pause();container.removeEventListener('click',click);container.removeEventListener('change',change);document.removeEventListener('visibilitychange',visibility);},getState:()=>structuredClone(state)};
+  return {dispose(){removeDrag();pause();container.removeEventListener('click',click);container.removeEventListener('change',change);document.removeEventListener('visibilitychange',visibility);},getState:()=>structuredClone(state)};
 }

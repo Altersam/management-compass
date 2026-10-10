@@ -20,7 +20,8 @@ export function rate(s,task,loads=workloads(s)){
     const weight=t=>t.priority===2?1.5:t.priority===0?0.6:1;
     const competing=s.tasks.filter(t=>taskStatus(s,t)==='active'&&t.assigned.includes(p.id));
     const priority=weight(task)/(competing.reduce((n,t)=>n+weight(t),0)/load||1);
-    return sum+(p.speed/2)*(0.45+0.75*skillFit(p,task))*focus*Math.max(0.4,1-p.fatigue*0.65)*priority*(task.autonomy==='free'?1.08:1)/(1+i*0.65);
+    const itBoost=task.id==='integration'&&s.it.boostUntil>s.time?1.5:1;
+    return sum+(p.speed/2)*(0.45+0.75*skillFit(p,task))*focus*Math.max(0.4,1-p.fatigue*0.65)*priority*(task.autonomy==='free'?1.08:1)*(p.capacity??1)*itBoost/(1+i*0.65);
   },0);
 }
 export function reliability(s){
@@ -38,6 +39,7 @@ function delayedEffects(s){
       const t=taskById(s,effect.payload.task),amount=effect.payload.amount;
       t.effort+=amount;t.completedAt=null;t.quality=clamp(t.quality-0.08);s.stats.rework+=amount;s.stats.reworkCost+=18000*amount;s.spent+=18000*amount;
       emit(s,'rework',{key:effect.key,subject:t.id,detail:`${t.name}: ещё ${amount.toFixed(1)} рабочего дня. Причина: ${effect.payload.reason}`});
+      const event=s.events.at(-1);event.relatedAt=effect.payload.sourceAt??effect.due-1.5;
     }else if(effect.effect==='learn'){
       const p=s.people.find(p=>p.id===effect.payload.person);p.skills[effect.payload.skill]=Math.min(3,(p.skills[effect.payload.skill]||0)+1);
     }else if(effect.effect==='support'){
@@ -51,7 +53,7 @@ function externalEvents(s){
     if(s.scope==='full'&&!s.flags.requirementsAligned){
       s.flags.requirementsChanged=true;emit(s,'requirements');
       const proto=taskById(s,'prototype');
-      if(complete(proto)&&proto.checkpoint!=='early')schedule(s,'rework',1.5,{task:proto.id,amount:1.25,reason:'изменённое условие после готового прототипа'},'requirements-return');
+      if(complete(proto)&&proto.checkpoint!=='early')schedule(s,'rework',1.5,{task:proto.id,amount:1.25,reason:'изменённое условие после готового прототипа',sourceAt:proto.completedAt},'requirements-return');
     }
   }
   if(s.time>=s.externalPlan.illnessDay&&!s.flags.illnessArrived){
@@ -69,9 +71,9 @@ function taskCompleted(s,t){
   closeEvents(s,'rework',t.id);
   if(t.id==='requirements'&&t.checkpoint==='early'&&t.quality>=0.65){s.flags.requirementsAligned=true;closeEvents(s,'requirements');}
   if(t.completionCount===1){
-    if(t.id==='prototype'&&t.checkpoint!=='early'&&s.flags.requirementsChanged&&!s.flags.requirementsAligned)schedule(s,'rework',1.5,{task:t.id,amount:1.25,reason:'несверенные требования'},'requirements-return');
-    else if(t.id!=='launch'&&t.quality<0.75&&t.checkpoint!=='early'&&random(s)<clamp(t.risk+(0.75-t.quality)*3.5,0.15,0.95))schedule(s,'rework',1.5,{task:t.id,amount:0.75,reason:'ошибка обнаружена на следующем этапе'},'quality-return-'+t.id);
-    if(t.id==='integration'&&s.it.riskAccepted)schedule(s,'rework',1.25,{task:t.id,amount:1.5,reason:'интеграция без подтверждённого доступа'},'it-return');
+    if(t.id==='prototype'&&t.checkpoint!=='early'&&s.flags.requirementsChanged&&!s.flags.requirementsAligned)schedule(s,'rework',1.5,{task:t.id,amount:1.25,reason:'несверенные требования',sourceAt:t.completedAt},'requirements-return');
+    else if(t.id!=='launch'&&t.quality<0.75&&t.checkpoint!=='early'&&random(s)<clamp(t.risk+(0.75-t.quality)*3.5,0.15,0.95))schedule(s,'rework',1.5,{task:t.id,amount:0.75,reason:'ошибка обнаружена на следующем этапе',sourceAt:t.completedAt},'quality-return-'+t.id);
+    if(t.id==='integration'&&s.it.riskAccepted)schedule(s,'rework',1.25,{task:t.id,amount:1.5,reason:'интеграция без подтверждённого доступа',sourceAt:t.completedAt},'it-return');
   }
   if(t.id==='launch'&&s.launchedAt===null){s.launchedAt=t.completedAt;s.phase='observing';}
 }
@@ -161,6 +163,13 @@ export function act(state,command){
     if(s.it.riskAccepted||s.it.ready)throw new Error('Это решение уже не требуется.');s.it.riskAccepted=true;closeEvents(s,'it');
   }else if(type==='approve'){
     if(!t?.awaitingDecision)throw new Error('Задача не ждёт решения.');t.manualReviewed=true;t.awaitingDecision=false;s.stats.manualDecisions++;closeEvents(s,'authority',t.id);
+  }else if(type==='itBurst'){
+    if(s.it.contacted||s.it.ready)throw new Error('Ресурсный выбор уже сделан.');pay(s,25000);s.it.ready=true;s.it.contacted=true;s.it.boostUntil=s.time+2;closeEvents(s,'it');
+  }else if(type==='itWindow'){
+    if(s.it.contacted||s.it.ready)throw new Error('Ресурсный выбор уже сделан.');pay(s,8000);s.it.contacted=true;s.it.readyAt=s.time+4;
+  }else if(type==='sponsorTransfer'){
+    if(s.flags.sponsorTransfer)throw new Error('Этот ресурс уже распределён.');s.flags.sponsorTransfer=true;s.stats.manualDecisions++;s.it.ready=true;s.it.boostUntil=s.time+3;
+    taskById(s,'training').effort+=1.25;s.flags.trainingResourceLost=true;closeEvents(s,'it');
   }else if(type==='hire'){
     if(s.people.some(p=>p.id===contractor.id))throw new Error('Эксперт уже в проекте.');pay(s,20000);s.people.push({...structuredClone(contractor),fatigue:0,overloadTime:0,absentUntil:0,trainingUntil:0});
   }else if(type==='coach'){
@@ -183,14 +192,38 @@ export function act(state,command){
     if(s.supportCut||s.launchedAt===null)throw new Error('Поддержка сейчас не может быть сокращена.');s.supportCut=true;schedule(s,'support',2,{},'support-'+s.time);closeEvents(s,'metrics');
   }else if(type==='restoreSupport'){s.supportCut=false;s.flags.supportEffective=false;closeEvents(s,'support');}
   else throw new Error('Неизвестное решение.');
-  s.decisions.push({...structuredClone(command),at:s.time});return s;
+  const before={...structuredClone(state),decisions:[],history:[]};
+  s.decisions.push({...structuredClone(command),at:s.time,before});return s;
 }
 export function forecast(state){
   // Run current allocations on a clone. This is a conditional forecast, not an oracle.
   const s=structuredClone(state);s.externalPlan={...s.externalPlan,requirementsDay:99,illnessDay:99,itDay:99};
   let probe=s;
   for(let i=0;i<Math.ceil((20-s.time)/tickSize);i++){if(probe.launchedAt!==null)break;if(finished(probe))break;probe=advance(probe);}
-  if(probe.launchedAt!==null)return {day:Math.ceil(probe.launchedAt),uncertain:true};
-  return {day:null,uncertain:true};
+  const tasks=Object.fromEntries(probe.tasks.map(t=>[t.id,{start:t.startedAt,end:t.completedAt}]));
+  if(probe.launchedAt!==null)return {day:Math.ceil(probe.launchedAt),tasks,uncertain:true};
+  return {day:null,tasks,uncertain:true};
+}
+export function stopReason(before,after){
+  if(after.phase==='ended')return 'Проект завершён';
+  if(before.launchedAt===null&&after.launchedAt!==null)return 'Сервис запущен';
+  if(after.events.length>before.events.length)return 'Новое событие';
+  if(after.tasks.some((t,i)=>complete(t)&&!complete(before.tasks[i])))return 'Задача завершена';
+  if(after.tasks.some((t,i)=>t.awaitingDecision&&!before.tasks[i].awaitingDecision))return 'Требуется решение';
+  if(before.budget-before.spent>180000&&after.budget-after.spent<=180000)return 'Бюджет близок к пределу';
+  return null;
+}
+export function advanceToEvent(state){let s=state;for(let i=0;i<80;i++){const next=advance(s),reason=stopReason(s,next);s=next;if(reason||finished(s))return {state:s,reason:reason||'Проект завершён'};}return {state:s,reason:'План обновлён'};}
+export function alternative(state,index,command){
+  if(!finished(state))throw new Error('Сравнение доступно после завершения.');
+  const decision=state.decisions[index];if(!decision?.before)throw new Error('Для старого решения нет снимка.');
+  let s=act(decision.before,command),skipped=0;
+  for(const next of state.decisions.slice(index+1)){
+    while(s.time<next.at&&!finished(s))s=advance(s);
+    if(finished(s))break;
+    const {before,at,...action}=next;try{s=act(s,action);}catch(_){skipped++;}
+  }
+  while(!finished(s))s=advance(s);
+  return {state:s,skipped};
 }
 export {blockers,taskStatus};

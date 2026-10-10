@@ -54,7 +54,7 @@ test('simulation branches on history, rewinds continuation, resumes and describe
   await page.locator('#simulationReflection').fill('Проверить ожидание передачи и не делать вывод о ресурсе по одному среднему.');await page.locator('#saveSimulationReflection').click();await page.reload();await expect(page.locator('.decision-profile')).toBeVisible();expect(await page.evaluate(()=>CourseUI.data().journal.filter(e=>e.type==='Решение').length)).toBe(1);
 });
 test('work navigator asks ordinary diagnostic questions and distinguishes resource from handoff',async({page})=>{
-  await page.goto('/workspace.html');await expect(page.locator('#problemSelect option')).toHaveCount(12);await page.locator('#problemSelect').selectOption('other-team');
+  await page.goto('/workspace.html');await expect(page.locator('#problemSelect option')).toHaveCount(16);await page.locator('#problemSelect').selectOption('other-team');
   await page.locator('input[name=q0][value=busy]').check();await page.locator('input[name=q1][value=yes]').check();await page.locator('#situationQuestions button').click();await expect(page.locator('#situationSuggestion')).toContainText('ресурсный выбор');await expect(page.locator('#situationSuggestion .button')).toHaveAttribute('href',/#deviation$/);
   await page.locator('input[name=q0][value=input]').check();await page.locator('input[name=q1][value=no]').check();await page.locator('#situationQuestions button').click();await expect(page.locator('#situationSuggestion .button')).toHaveAttribute('href',/#handoff$/);await page.reload();await expect(page.locator('#problemSelect')).toHaveValue('overload');
 });

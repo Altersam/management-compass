@@ -8,7 +8,7 @@ const {createStore}=require('../assets/store.js');
 const step=(s,n)=>{for(let i=0;i<n;i++)s=advance(s);return s;};
 const task=(s,id)=>s.tasks.find(t=>t.id===id);
 function allocated(seed='service-20'){
-  let s=createState(seed);for(const t of tasks)s=act(s,{type:'assign',task:t.id,people:t.assigned});return s;
+  let s=createState(seed,{balanceVersion:1});for(const t of tasks)s=act(s,{type:'assign',task:t.id,people:t.assigned});return s;
 }
 test('dependencies gate progress; a finished dependency opens its successor on a later tick',()=>{
   let s=allocated();const before=structuredClone(s);s=advance(s);

@@ -1,4 +1,5 @@
 const {test,expect}=require('@playwright/test');
+async function addProfile(page,name){await page.goto('/settings.html');page.once('dialog',d=>d.accept(name));await page.locator('#learningAddProfile').click();const id=await page.locator('#learningProfileSelect').inputValue();await page.goto(`/workspace.html?user=${id}#practice`);return id;}
 test('all reference pages render offline assets and links without errors',async({page})=>{
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   const pages=['/','/workspace.html','/learn.html?module=1','/navigator.html','/sources.html','/adizes.html','/adizes-paei.html','/adizes-capi.html','/adizes-lifecycle.html',...Array.from({length:10},(_,i)=>`/modules/module-${String(i+1).padStart(2,'0')}.html`)];
@@ -6,34 +7,32 @@ test('all reference pages render offline assets and links without errors',async(
   expect(errors).toEqual([]);
 });
 test('profiles isolate working drafts, cases and editable diary, including nested pages',async({page})=>{
-  await page.goto('/workspace.html');await page.locator('.working-settings summary').click();page.once('dialog',d=>d.accept('Профиль А'));await page.locator('#addProfile').click();
-  const a=await page.locator('#profileSelect').inputValue();
-  await page.locator('[data-view-link=practice]').click();
+  const a=await addProfile(page,'Профиль А');
   await page.locator('#taskForm [name=result]').fill('Результат А');
   await page.locator('.practice-tabs a[href="#cases"]').click();
   await page.locator('[data-case=focus] input[value="1"]').check();await page.locator('[data-case=focus] .check-case').click();
   await expect(page.locator('[data-case=focus] .case-feedback')).toContainText('Что произойдёт дальше');
   await page.locator('[data-case=focus] textarea').fill('Уточнить конфликт приоритетов');await page.locator('[data-case=focus] .save-case-note').click();
-  await page.locator('[data-view-link=journal]').click();
+  await page.goto(`/workspace.html?user=${a}#diary`);
   await page.locator('.notes-archive summary').click();
   await page.locator('#diaryList .edit-entry').first().click();await page.locator('#diaryForm [name=action]').fill('Согласовать срок завтра');await page.locator('#diaryForm [type=submit]').click();
   await expect(page.locator('#diaryList')).toContainText('Согласовать срок завтра');
   await page.goto(`/modules/module-08.html?user=${a}#process`);await page.locator('.worksheet summary').click();await page.locator('form[data-tool=process] [name=field0]').fill('Вход: обращение, выход: принятый ответ');
   await page.reload();await expect(page.locator('form[data-tool=process] [name=field0]')).toHaveValue('Вход: обращение, выход: принятый ответ');
   await page.locator('.worksheet summary').click();await page.locator('form[data-tool=process] [type=submit]').click();await page.goto(`/workspace.html?user=${a}#diary`);await expect(page.locator('#diaryList')).toContainText('Карта процесса');
-  await page.locator('.working-settings summary').click();page.once('dialog',d=>d.accept('Профиль Б'));await page.locator('#addProfile').click();const b=await page.locator('#profileSelect').inputValue();
-  expect(b).not.toBe(a);await expect(page.locator('#statNotes')).toHaveText('0');await expect(page.locator('#taskForm [name=result]')).toHaveValue('');await expect(page.locator('[data-case=focus] textarea')).toHaveValue('');
+  const b=await addProfile(page,'Профиль Б');
+  expect(b).not.toBe(a);expect(await page.evaluate(()=>Workspace.profile(Workspace.active()).data.journal.length)).toBe(0);await expect(page.locator('#taskForm [name=result]')).toHaveValue('');await expect(page.locator('[data-case=focus] textarea')).toHaveValue('');
   await page.goto(`/modules/module-08.html?user=${b}#process`);await expect(page.locator('form[data-tool=process] [name=field0]')).toHaveValue('');
-  await page.goto(`/workspace.html?user=${a}#practice`);await expect(page.locator('#taskForm [name=result]')).toHaveValue('Результат А');await expect(page.locator('#statNotes')).toHaveText('2');
+  await page.goto(`/workspace.html?user=${a}#practice`);await expect(page.locator('#taskForm [name=result]')).toHaveValue('Результат А');expect(await page.evaluate(a=>Workspace.profile(a).data.journal.length,a)).toBe(2);
 });
 test('export contains model parameters and import clones profile without overwriting',async({page})=>{
   await page.goto('/adizes-paei.html');await page.locator('input[data-index="0"]').evaluate(input=>{input.value='5';input.dispatchEvent(new Event('input',{bubbles:true}));});
   await page.locator('#reflectionForm [name=reflection]').fill('Чаще возвращаюсь к результату');await page.locator('#reflectionForm [name=action]').fill('Уточнить интересы участников');await page.locator('#reflectionForm button').click();
   await page.goto('/workspace.html');const backup=await page.evaluate(()=>Workspace.export(Workspace.profile(new URLSearchParams(location.search).get('user')).id));
   expect(backup.data.assessments.paei.values[0]).toBe(5);expect(backup.data.journal.length).toBe(1);
-  const original=await page.locator('#profileSelect').inputValue();await page.locator('#importProfile').setInputFiles({name:'backup.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(backup))});
-  await expect(page.locator('#statNotes')).toHaveText('1');expect(await page.locator('#profileSelect').inputValue()).not.toBe(original);
-  const optionsBefore=await page.locator('#profileSelect option').count();await page.locator('#importProfile').setInputFiles({name:'bad.json',mimeType:'application/json',buffer:Buffer.from('{"format":"management-compass-profile"}')});await expect(page.locator('#toast')).toContainText('Импорт отменён');expect(await page.locator('#profileSelect option').count()).toBe(optionsBefore);
+  await page.goto('/settings.html');const original=await page.locator('#learningProfileSelect').inputValue();await page.locator('#learningImport').setInputFiles({name:'backup.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(backup))});
+  await expect(page.locator('#learningProfileSelect option:checked')).toContainText('импорт');expect(await page.evaluate(()=>CourseUI.data().journal.length)).toBe(1);expect(await page.locator('#learningProfileSelect').inputValue()).not.toBe(original);
+  const optionsBefore=await page.locator('#learningProfileSelect option').count();await page.locator('#learningImport').setInputFiles({name:'bad.json',mimeType:'application/json',buffer:Buffer.from('{"format":"management-compass-profile"}')});await expect(page.locator('#toast')).toContainText('Не удалось открыть копию');expect(await page.locator('#learningProfileSelect option').count()).toBe(optionsBefore);
 });
 test('mobile reference has no document overflow and searchable sections',async({page})=>{
   await page.setViewportSize({width:390,height:844});await page.goto('/workspace.html');
@@ -46,10 +45,10 @@ test('mobile reference has no document overflow and searchable sections',async({
 test('unsaved diary draft survives navigation and starts empty in a different profile',async({page})=>{
   await page.goto('/workspace.html#diary');await page.locator('.notes-archive summary').click();await page.locator('#diaryForm [name=title]').fill('Черновик наблюдения');await page.locator('#diaryForm [name=situation]').fill('Нужно восстановить факты передачи');
   await page.reload();await expect(page.locator('#diaryForm [name=title]')).toHaveValue('Черновик наблюдения');
-  await page.locator('.working-settings summary').click();page.once('dialog',d=>d.accept('Новая тетрадь'));await page.locator('#addProfile').click();await expect(page.locator('#diaryForm [name=title]')).toHaveValue('');
+  await addProfile(page,'Новая тетрадь');await expect(page.locator('#diaryForm [name=title]')).toHaveValue('');
 });
 test('focused navigation exposes one task at a time and supports direct links and history',async({page})=>{
-  await page.goto('/workspace.html');await expect(page.locator('[data-view-link]')).toHaveCount(4);
+  await page.goto('/workspace.html');await expect(page.locator('.product-header>nav a')).toHaveCount(3);await expect(page.locator('.sidebar')).toHaveCount(0);await expect(page.locator('#profileSelect')).toHaveCount(0);
   await expect(page.locator('#route')).toBeVisible();await expect(page.locator('#modules')).toBeHidden();await expect(page.locator('#diary')).toBeHidden();
   await page.locator('[data-view-link=reference]').click();await expect(page.locator('#modules')).toBeVisible();await expect(page.locator('#route')).toBeHidden();
   await page.locator('[data-library-mode=techniques]').click();await expect(page.locator('.atlas-card')).toHaveCount(30);
