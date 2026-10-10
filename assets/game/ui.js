@@ -11,7 +11,10 @@ const statusNames={done:'Готово',active:'В работе',blocked:'Ожи�
 const percent=t=>Math.min(100,Math.round(t.progress/t.effort*100));
 
 export function mountGame({container,state:initial,onSave,onRestart,link,notify}){
-  let state=initial,selected='requirements',tab='project',running=false,period=8000,timer=null,latestEventCount=state.events.length;
+  let state=initial,selected=initial.view?.selected||'requirements',tab=initial.view?.tab||'project',running=false,period=8000,timer=null,latestEventCount=state.events.length,resultShown=false;
+  if(!state.tasks.some(t=>t.id===selected))selected='requirements';
+  if(!['project','team','events'].includes(tab))tab='project';
+  const persist=()=>{state.view={selected,tab};onSave(state);};
   container.innerHTML=`<div class="game-title"><div><span class="game-eyebrow">20 рабочих дней · управленческая игра</span><h1>Проект под давлением</h1><p>${project.title}</p></div><div class="game-time-controls"><button type="button" class="button primary" id="gameClock" data-focus="clock">Запустить время</button><label>Темп<select id="gameSpeed" data-focus="speed"><option value="8000">Обычный</option><option value="4000">×2</option><option value="2000">×4</option></select></label></div></div>
     <div class="game-brief" id="gameBrief">Срок и бюджет уже обещаны. Исследование начала Анна; остальные назначения — ваш выбор. Выберите задачу на плане, назначьте людей и запустите время. Пауза доступна в любой момент.</div>
     <div class="game-metrics" id="gameMetrics"></div><p class="game-status" id="gameStatus" role="status" aria-live="polite"></p>
@@ -25,11 +28,11 @@ export function mountGame({container,state:initial,onSave,onRestart,link,notify}
   function play(){
     if(finished(state))return;
     running=true;$('gameClock').textContent='Пауза';$('gameClock').setAttribute('aria-pressed','true');clearInterval(timer);
-    timer=setInterval(()=>{state=advance(state);onSave(state);if(finished(state))pause();render();},period);
+    timer=setInterval(()=>{state=advance(state);persist();if(finished(state))pause();render();},period);
     $('gameBrief').hidden=true;
   }
   function decide(command){
-    try{state=act(state,command);onSave(state);render();$('gameStatus').textContent=decisionMessage(command);}
+    try{state=act(state,command);persist();render();$('gameStatus').textContent=decisionMessage(command);}
     catch(error){notify(error.message);}
   }
   function decisionMessage(command){
@@ -37,6 +40,8 @@ export function mountGame({container,state:initial,onSave,onRestart,link,notify}
   }
   function render(){
     const focus=document.activeElement?.dataset.focus,task=state.tasks.find(t=>t.id===selected),loads=workloads(state),prediction=forecast(state);
+    const timelineScroll=container.querySelector('.gantt-scroll')?.scrollLeft||0,levers=container.querySelector('.game-levers');
+    const leversOpen=levers?levers.open:state.time===0;
     $('gameMetrics').innerHTML=`<div><span>День</span><b>${dayLabel(state)} <small>/ 20</small></b><i class="game-day-track"><i style="width:${state.time/20*100}%"></i></i></div><div><span>Осталось бюджета</span><b class="${state.budget-state.spent<200000?'game-pressure':''}">${money(Math.max(0,state.budget-state.spent))}</b><small>Из ${money(state.budget)}</small></div><div><span>Прогноз запуска</span><b>${prediction.day===null?'За пределами срока':'День '+prediction.day}</b><small>При текущих назначениях</small></div><div><span>Надёжность</span><b>${level(reliability(state))}</b><small>Навык · нагрузка · проверка</small></div><div><span>Общий риск</span><b class="${risk(state)>0.35?'game-pressure':''}">${risk(state)>0.35?'высокий':risk(state)>0.2?'средний':'низкий'}</b><small>${state.launchedAt!==null?'Наблюдаем применение':'До запуска'}</small></div>`;
     $('gamePeople').innerHTML=state.people.map(p=>{
       const unavailable=state.time<p.absentUntil||state.time<p.trainingUntil,load=loads[p.id],trainSkill=task.skills.find(skill=>p.skills[skill]<3);
@@ -46,9 +51,10 @@ export function mountGame({container,state:initial,onSave,onRestart,link,notify}
       const start=t.startedAt===null?t.start-1:t.startedAt,width=t.startedAt===null?t.duration:Math.max(0.45,(t.completedAt??state.time)-t.startedAt),status=taskStatus(state,t);
       return `<div class="gantt-row ${selected===t.id?'is-selected':''}"><button type="button" class="gantt-task-name" data-task="${t.id}" data-focus="task-${t.id}" aria-pressed="${selected===t.id}"><b>${t.name}</b><span>${statusNames[status]} · ${percent(t)}%</span></button><div class="gantt-lane"><span class="gantt-plan" style="left:${(t.start-1)/20*100}%;width:${t.duration/20*100}%"></span><button type="button" class="gantt-bar ${status}" data-task="${t.id}" data-focus="bar-${t.id}" style="left:${Math.min(97,start/20*100)}%;width:${Math.min(100-start/20*100,width/20*100)}%" aria-label="${t.name}: ${percent(t)}%, ${statusNames[status]}"><i style="width:${percent(t)}%"></i><span>${percent(t)}%</span></button></div></div>`;
     }).join('')}</div></div>`;
+    container.querySelector('.gantt-scroll').scrollLeft=timelineScroll;
     const blocked=blockers(state,task),done=complete(task),disabled=done||finished(state);
     $('gameTask').innerHTML=`<section class="game-task-editor" aria-labelledby="selectedTaskHeading"><div class="task-editor-heading"><h3 id="selectedTaskHeading" tabindex="-1">${task.name}</h3><span>${percent(task)}% · ${statusNames[taskStatus(state,task)]}</span></div><p class="task-facts">${task.duration} дня в исходном плане · Осталось ${Math.max(0,task.effort-task.progress).toFixed(1)} дня работы · Навыки: ${task.skills.map(k=>skillNames[k]).join(', ')}</p>${blocked.length&&!done?`<p class="task-blocker">Ждёт: ${blocked.join(' → ')}</p>`:''}<fieldset class="task-assignees" ${disabled?'disabled':''}><legend>Кто работает над этой задачей?</legend>${state.people.map(p=>`<label><input type="checkbox" data-assign="${p.id}" data-focus="assign-${p.id}" ${task.assigned.includes(p.id)?'checked':''}><span>${p.name}</span></label>`).join('')}</fieldset><div class="task-options"><label>Приоритет<select data-setting="priority" data-focus="priority" ${disabled?'disabled':''}>${[[0,'Второй план'],[1,'Обычный'],[2,'В первую очередь']].map(([id,text])=>`<option value="${id}" ${task.priority===id?'selected':''}>${text}</option>`).join('')}</select></label><label>Контрольная точка<select data-setting="checkpoint" data-focus="checkpoint" ${disabled?'disabled':''}>${[['none','Без отдельной сверки'],['early','Ранняя: +0,35 дня, 6 000 ₽'],['final','В конце: +0,15 дня, 6 000 ₽']].map(([id,text])=>`<option value="${id}" ${task.checkpoint===id?'selected':''}>${text}</option>`).join('')}</select></label><label>Право на решение<select data-setting="autonomy" data-focus="autonomy" ${disabled?'disabled':''}>${[['bounded','Сам в оговорённых границах'],['manual','Через моё разрешение'],['free','Полная самостоятельность']].map(([id,text])=>`<option value="${id}" ${task.autonomy===id?'selected':''}>${text}</option>`).join('')}</select></label></div><div class="task-bottom"><span>Надёжность: ${level(task.quality)} · Возврат: ${task.quality<0.65?'повышенный риск':task.risk>=0.15?'возможен':'умеренный риск'}</span><button class="game-text-button" data-command="pauseTask" data-value="${!task.paused}" data-task-id="${task.id}" data-focus="pause-task" ${disabled?'disabled':''}>${task.paused?'Возобновить задачу':'Приостановить задачу'}</button>${task.awaitingDecision?`<button class="button quiet" data-command="approve" data-task-id="${task.id}" data-focus="approve">Принять решение</button>`:''}</div></section>`;
-    $('gameLevers').innerHTML=`<details class="game-levers" ${state.time===0?'open':''}><summary>Ресурс и границы проекта</summary><p>Команда: ${money(dailyCost(state))}/день, включая резерв. Сокращённый пилот не включает дополнительные сценарии.</p><div class="game-lever-buttons"><button data-command="scope" data-focus="scope" ${state.scope==='lean'||finished(state)?'disabled':''}>Сократить объём до пилота</button><button data-command="hire" data-focus="hire" ${state.people.some(p=>p.id==='expert')||finished(state)?'disabled':''}>Эксперт IT · 20 000 ₽ + 22 000 ₽/день</button><button data-command="coordinateIT" data-focus="it" ${state.it.contacted||state.it.ready||finished(state)?'disabled':''}>Согласовать окно IT · 15 000 ₽</button><button data-command="clarify" data-focus="clarify" ${state.flags.requirementsAligned||finished(state)?'disabled':''}>Сверить требования · 12 000 ₽</button><button data-command="formalLaunch" data-focus="formal-launch" ${state.time<12||state.launchedAt!==null||!complete(state.tasks.find(t=>t.id==='integration'))||finished(state)?'disabled':''}>Формально запустить без готового обучения</button></div></details>`;
+    $('gameLevers').innerHTML=`<details class="game-levers" ${leversOpen?'open':''}><summary>Ресурс и границы проекта</summary><p>Команда: ${money(dailyCost(state))}/день, включая резерв. Сокращённый пилот не включает дополнительные сценарии.</p><div class="game-lever-buttons"><button data-command="scope" data-focus="scope" ${state.scope==='lean'||finished(state)?'disabled':''}>Сократить объём до пилота</button><button data-command="hire" data-focus="hire" ${state.people.some(p=>p.id==='expert')||finished(state)?'disabled':''}>Эксперт IT · 20 000 ₽ + 22 000 ₽/день</button><button data-command="coordinateIT" data-focus="it" ${state.it.contacted||state.it.ready||finished(state)?'disabled':''}>Согласовать окно IT · 15 000 ₽</button><button data-command="clarify" data-focus="clarify" ${state.flags.requirementsAligned||finished(state)?'disabled':''}>Сверить требования · 12 000 ₽</button><button data-command="formalLaunch" data-focus="formal-launch" ${state.time<12||state.launchedAt!==null||!complete(state.tasks.find(t=>t.id==='integration'))||finished(state)?'disabled':''}>Формально запустить без готового обучения</button></div></details>`;
     const metrics=serviceMetrics(state);
     $('gameService').innerHTML=state.launchedAt===null?'':`<section class="game-service"><h3>После запуска</h3><div class="service-numbers"><div><b>${metrics.adoption}%</b><span>Используют сервис</span></div><div><b>${metrics.visibleTime} мин.</b><span>Среднее в новой системе</span></div><div><b>${metrics.repeats}%</b><span>Повторные обращения</span></div>${state.metricsInvestigated?`<div><b>${metrics.allTime} мин.</b><span>С обходами и ожиданием</span></div><div><b>${metrics.resolved}/100</b><span>Решённые потребности</span></div>`:''}</div><p>${state.metricsInvestigated?'Проверка включает людей за пределами новой системы.':'Среднее учитывает только закрытые заявки новой системы.'}</p><button data-command="alignLeaders" data-focus="align" ${state.leaderExample||finished(state)?'disabled':''}>${state.leaderExample?'Руководители поддерживают единый канал':'Согласовать единый канал · 10 000 ₽'}</button></section>`;
     const open=state.events.filter(e=>e.status==='open');$('eventCount').textContent=open.length||'';
@@ -60,7 +66,7 @@ export function mountGame({container,state:initial,onSave,onRestart,link,notify}
     $('gameClock').disabled=finished(state);
     container.querySelectorAll('[data-game-panel]').forEach(panel=>panel.classList.toggle('is-active',panel.dataset.gamePanel===tab));
     container.querySelectorAll('[data-tab]').forEach(button=>{button.setAttribute('aria-selected',String(button.dataset.tab===tab));button.tabIndex=button.dataset.tab===tab?0:-1;});
-    if(finished(state))renderResult();
+    if(finished(state)&&!resultShown){resultShown=true;renderResult();if(state.time>initial.time)$('gameResult').scrollIntoView({behavior:'instant',block:'start'});}
     if(focus)container.querySelector(`[data-focus="${focus}"]`)?.focus({preventScroll:true});
   }
   function renderResult(){
@@ -75,11 +81,11 @@ export function mountGame({container,state:initial,onSave,onRestart,link,notify}
   }
   function click(event){
     const button=event.target.closest('button');if(!button)return;
-    if(button.dataset.task){selected=button.dataset.task;render();$('selectedTaskHeading').focus({preventScroll:true});}
+    if(button.dataset.task){selected=button.dataset.task;persist();render();$('selectedTaskHeading').focus({preventScroll:true});}
     else if(button.dataset.command){decide({type:button.dataset.command,...(button.dataset.taskId?{task:button.dataset.taskId}:{}),...(button.dataset.command==='pauseTask'?{value:button.dataset.value==='true'}:{})});}
     else if(button.dataset.coach)decide({type:'coach',person:button.dataset.coach,skill:button.dataset.skill});
     else if(button.dataset.explain)explanation(button.dataset.explain);
-    else if(button.dataset.tab){tab=button.dataset.tab;render();}
+    else if(button.dataset.tab){tab=button.dataset.tab;persist();render();}
   }
   function change(event){
     const field=event.target;
@@ -92,7 +98,7 @@ export function mountGame({container,state:initial,onSave,onRestart,link,notify}
   $('returnToGame').onclick=()=>$('gameExplanation').close();
   container.querySelector('.game-mobile-tabs').onkeydown=e=>{
     if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();
-    const tabs=['project','team','events'];tab=e.key==='Home'?'project':e.key==='End'?'events':tabs[(tabs.indexOf(tab)+(e.key==='ArrowRight'?1:2))%3];render();container.querySelector(`[data-tab="${tab}"]`).focus();
+    const tabs=['project','team','events'];tab=e.key==='Home'?'project':e.key==='End'?'events':tabs[(tabs.indexOf(tab)+(e.key==='ArrowRight'?1:2))%3];persist();render();container.querySelector(`[data-tab="${tab}"]`).focus();
   };
   if(state.time>0)$('gameBrief').textContent=`Продолжить проект — день ${dayLabel(state)}. Время на паузе: можно осмотреть план и события.`;
   pause();render();

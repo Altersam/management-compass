@@ -65,7 +65,7 @@ function externalEvents(s){
   if(s.flags.illnessArrived&&s.time>=s.people.find(p=>p.id===s.externalPlan.illPerson).absentUntil)closeEvents(s,'illness');
 }
 function taskCompleted(s,t){
-  t.completedAt=s.time;t.completionCount++;
+  t.completedAt=Math.min(s.deadline,s.time+tickSize);t.completionCount++;
   closeEvents(s,'rework',t.id);
   if(t.id==='requirements'&&t.checkpoint==='early'&&t.quality>=0.65){s.flags.requirementsAligned=true;closeEvents(s,'requirements');}
   if(t.completionCount===1){
@@ -73,7 +73,7 @@ function taskCompleted(s,t){
     else if(t.id!=='launch'&&t.quality<0.65&&t.checkpoint!=='early'&&random(s)<0.8)schedule(s,'rework',1.5,{task:t.id,amount:0.75,reason:'ошибка обнаружена на следующем этапе'},'quality-return-'+t.id);
     if(t.id==='integration'&&s.it.riskAccepted)schedule(s,'rework',1.25,{task:t.id,amount:1.5,reason:'интеграция без подтверждённого доступа'},'it-return');
   }
-  if(t.id==='launch'&&s.launchedAt===null){s.launchedAt=s.time;s.phase='observing';}
+  if(t.id==='launch'&&s.launchedAt===null){s.launchedAt=t.completedAt;s.phase='observing';}
 }
 function causalEvents(s,loads){
   for(const p of s.people){
@@ -102,7 +102,7 @@ export function advance(state,dt=tickSize){
   for(const p of s.people){
     const load=loads[p.id];
     if(load>1){p.overloadTime+=step;p.fatigue=clamp(p.fatigue+0.18*step*(load-1));s.stats.overloadDays+=step;}
-    else {p.overloadTime=Math.max(0,p.overloadTime-step*0.5);p.fatigue=clamp(p.fatigue-0.08*step);}
+    else {p.overloadTime=Math.max(0,p.overloadTime-step*0.5);p.fatigue=clamp(p.fatigue-(load===0?0.14:0.04)*step);}
     if(s.time<p.trainingUntil)s.stats.trainingDays+=step;
   }
   // Snapshot eligible tasks: completing a dependency opens its successor on the next tick.
@@ -113,7 +113,7 @@ export function advance(state,dt=tickSize){
     const amount=Math.min(t.effort-t.progress,rate(s,t,loads)*step);
     if(amount>0&&t.startedAt===null)t.startedAt=s.time;
     const team=t.assigned.map(id=>s.people.find(p=>p.id===id)).filter(p=>available(p,s.time));
-    const quality=clamp(team.reduce((sum,p)=>sum+0.35+0.13*p.quality+0.16*skillFit(p,t)-0.18*p.fatigue-0.07*Math.max(0,loads[p.id]-1),0)/team.length+(t.checkpoint==='early'?0.1:0)+(t.checkpoint==='final'?0.03:0)-(t.autonomy==='free'?0.07:0));
+    const quality=clamp(team.reduce((sum,p)=>sum+0.35+0.13*p.quality+0.16*skillFit(p,t)-0.18*p.fatigue-0.07*Math.max(0,loads[p.id]-1),0)/team.length+(t.checkpoint==='early'?0.1:0)+(t.checkpoint==='final'?0.03:0)-(t.autonomy==='free'?0.07:0)-(t.priority===2?0.025:0));
     t.quality=(t.quality*t.qualityWeight+quality*amount)/(t.qualityWeight+amount||1);t.qualityWeight+=amount;t.progress+=amount;
     if(complete(t))taskCompleted(s,t);
   }
@@ -121,7 +121,8 @@ export function advance(state,dt=tickSize){
   s.time=Math.round((s.time+step)*10000)/10000;
   externalEvents(s);delayedEffects(s);causalEvents(s,workloads(s));
   if(s.launchedAt!==null){
-    const trained=complete(taskById(s,'training')),target=(trained?78:32)+(s.leaderExample?12:-15)-(s.supportCut?25:0);
+    const training=taskById(s,'training'),trained=complete(training),trainingQuality=trained?(training.quality-0.7)*30:0;
+    const target=(trained?78:32)+trainingQuality+(s.leaderExample?12:-15)-(s.supportCut?25:0);
     s.adoption=clamp(s.adoption+(target-s.adoption)*step*0.45,0,100);
   }
   s.history.push({time:s.time,spent:s.spent,adoption:s.adoption,quality:reliability(s),completed:s.tasks.filter(complete).length});
