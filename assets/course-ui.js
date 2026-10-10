@@ -1,5 +1,8 @@
-window.CourseUI=(()=>{
-  const S=Workspace,U=WorkspaceUI,M=CourseModel,esc=U.escape;
+import {Workspace as S,WorkspaceUI as U} from './runtime.js';
+import * as M from './course-model.js';
+import * as Choices from './choices.js';
+const CourseUI=(()=>{
+  const esc=U.escape;
   const active=S.profile(new URLSearchParams(location.search).get('user')||S.active()).id;
   const data=()=>S.profile(active).data;
   function link(path){const url=new URL(path,location.href);url.searchParams.set('user',active);return url.pathname+url.search+url.hash;}
@@ -34,3 +37,5 @@ window.CourseUI=(()=>{
   window.addEventListener('storage',()=>{if(!S.profiles().some(p=>p.id===active)){const url=new URL(location.href);url.searchParams.set('user',S.active());location.replace(url.href);}});
   return {S,U,M,esc,active,data,link,lesson,save,mount,settings,question,feedback,resultSummary,adizes,scrollToTop};
 })();
+window.CourseUI=CourseUI;
+export {CourseUI};

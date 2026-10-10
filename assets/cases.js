@@ -1,3 +1,5 @@
+import {Workspace,WorkspaceUI} from './runtime.js';
+import * as Choices from './choices.js';
 window.CaseUI = {
   render(container, cases, profileId, onChange=()=>{}) {
     const S=Workspace,U=WorkspaceUI,esc=U.escape;

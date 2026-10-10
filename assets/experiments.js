@@ -1,4 +1,5 @@
-(function(root){
+import {WorkspaceUI} from './store.js';
+const root=globalThis;
   const labels={helped:'Помогло',partly:'Частично помогло','not-helped':'Не помогло'};
   function list(store,profile){
     const data=store.profile(profile).data,items=[...(data.experiments||[])];
@@ -45,5 +46,4 @@
     });
     container.querySelector('#newExperiment').onsubmit=event=>{event.preventDefault();try{save(store,profile,Object.fromEntries(new FormData(event.currentTarget)));render(container,store,profile);}catch(error){U.notify(error.message);}};
   }
-  root.Experiments={labels,list,save,review,render};if(typeof module!=='undefined'&&module.exports)module.exports=root.Experiments;
-})(typeof globalThis!=='undefined'?globalThis:window);
+export {labels,list,save,review,render};

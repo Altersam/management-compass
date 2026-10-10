@@ -1,4 +1,3 @@
-(function(root){
   'use strict';
   const tasks=[
     {id:'external',title:'Ответ по обязательному сроку',minutes:90},
@@ -139,6 +138,4 @@
       {id:'everything',text:'Разослать материалы целиком для прозрачности',effect:'Контекст стал полнее, но ненужные личные сведения вышли за круг рассмотрения. Прозрачность критерия не требовала такого раскрытия.'},
       {id:'silence',text:'Сообщить только, что решение принято',effect:'Сведения защищены, но очередность выглядит произвольной. Можно раскрыть основание и процедуру, не раскрывая личные детали.'}]}
   ];
-  root.SituationsEngine={tasks,initial,evaluate,ethics};
-  if(typeof module!=='undefined'&&module.exports)module.exports=root.SituationsEngine;
-})(typeof globalThis!=='undefined'?globalThis:window);
+export {tasks,initial,evaluate,ethics};

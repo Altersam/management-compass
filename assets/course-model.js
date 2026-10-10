@@ -1,4 +1,3 @@
-(function(root){
   'use strict';
   const plain=v=>v&&typeof v==='object'&&!Array.isArray(v);
   const emptyModule=()=>({visited:[],diagnostic:null,practice:{response:'',checks:[]},transfer:{},transferEntryId:null,answers:{},attempts:[]});
@@ -53,6 +52,4 @@
     if(!checked)missing.push('Мини-тест: не менее 4 из 5');
     return {progress:mastered?100:Math.min(99,Math.round(units/9*100)),mastered,last,missing,learned,checked,current:score(questions,m.answers)};
   }
-  root.CourseModel={course,moduleState,ensure,mark,score,submit,report,emptyCourse};
-  if(typeof module!=='undefined'&&module.exports)module.exports=root.CourseModel;
-})(typeof globalThis!=='undefined'?globalThis:window);
+export {course,moduleState,ensure,mark,score,submit,report,emptyCourse};

@@ -1,3 +1,4 @@
+import {Workspace,WorkspaceUI} from './runtime.js';
 (() => {
   const U=WorkspaceUI,esc=U.escape;
   const p=Workspace.profile(new URLSearchParams(location.search).get('user')||Workspace.active());

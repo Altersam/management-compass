@@ -1,3 +1,6 @@
+import {CourseUI} from './course-ui.js';
+import * as Activities from './activities.js';
+import * as Experiments from './experiments.js';
 (() => {
   const C=CourseUI,{M,esc}=C,id=Number(new URLSearchParams(location.search).get('module'))||1;
   const topic=PEDAGOGY.topics[id]?id:1,module=COURSE.modules[topic-1],p=PEDAGOGY.topics[topic],reference=HANDBOOK.chapters[topic-1],questions=COURSE.questions[topic];

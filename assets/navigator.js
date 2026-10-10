@@ -1,4 +1,4 @@
-(function(root){
+import {WorkspaceUI} from './store.js';
   const q=(label,options)=>({label,options});
   const situations=[
     {id:'overload',label:'Я ничего не успеваю',questions:[q('Это отдельный тяжёлый день или повторяется?',[['day','Сегодня много совпавших дел'],['system','Несколько недель приходит больше, чем успеваем']]),q('Куда чаще уходит время?',[['work','На сами задачи'],['switch','На отвлечения и ручные уточнения'],['wait','На ожидание чужих ответов']])]},
@@ -39,5 +39,4 @@
       form.onsubmit=e=>{e.preventDefault();const a=Object.fromEntries(new FormData(form));if(s.questions.some((_,i)=>!a['q'+i])){U.notify('Ответьте на два вопроса.');return;}const suggestion=choose(s.id,a);result.querySelector('#situationSuggestion').innerHTML=`<article class="navigator-suggestion"><h3>${esc(suggestion.title)}</h3><p>${esc(suggestion.reason)}</p><p><b>С чего начать:</b> ${esc(suggestion.first)}</p><a class="button quiet" href="modules/module-${String(suggestion.topic).padStart(2,'0')}.html?user=${encodeURIComponent(profile)}#${suggestion.technique}">Открыть пошаговый разбор →</a><a href="learn.html?module=${suggestion.topic}&user=${encodeURIComponent(profile)}">Разобраться в теме →</a></article>`;};
     }select.onchange=show;show();
   }
-  root.WorkingNavigator={situations,choose,mount};if(typeof module!=='undefined'&&module.exports)module.exports=root.WorkingNavigator;
-})(typeof globalThis!=='undefined'?globalThis:window);
+export {situations,choose,mount};

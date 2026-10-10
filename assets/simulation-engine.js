@@ -1,4 +1,3 @@
-(function(root){
   'use strict';
   const initial=()=>({queue:42,leaderHours:6,errors:8,waitHours:48,workMinutes:5,adoption:5,autonomy:0,bounds:false,priority:false,version:false,commonRule:false,message:'none',example:false,hidden:false,bottleneck:false,dataContext:false});
   const action=(id,text,appeal)=>({id,text,appeal});
@@ -66,5 +65,4 @@
       {title:'Изменение',text:has('align-example')?'Вы связали поддержку групп с причиной и примером руководителя.':'Общий инструктаж или запрет изменили видимость поведения, но не все причины старой практики.'}
     ];
   }
-  root.SimulationEngine={initial,scene,apply,replay,profile};if(typeof module!=='undefined'&&module.exports)module.exports=root.SimulationEngine;
-})(typeof globalThis!=='undefined'?globalThis:window);
+export {initial,scene,apply,replay,profile};

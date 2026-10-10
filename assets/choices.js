@@ -1,4 +1,4 @@
-(function(root){
+const root=globalThis;
   function shuffle(count,random=Math.random){const order=Array.from({length:count},(_,i)=>i);for(let i=count-1;i>0;i--){const j=Math.floor(random()*(i+1));[order[i],order[j]]=[order[j],order[i]];}return order;}
   function valid(order,count){return Array.isArray(order)&&order.length===count&&new Set(order).size===count&&order.every(i=>Number.isInteger(i)&&i>=0&&i<count);}
   function order(store,profile,key,count){
@@ -7,5 +7,4 @@
     const values=shuffle(count,random);
     store.update(profile,d=>{if(!d.course)d.course={};if(!d.course.optionOrders)d.course.optionOrders={};d.course.optionOrders[key]=values;});return values;
   }
-  root.Choices={shuffle,valid,order};if(typeof module!=='undefined'&&module.exports)module.exports=root.Choices;
-})(typeof globalThis!=='undefined'?globalThis:window);
+export {shuffle,valid,order};

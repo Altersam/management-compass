@@ -1,3 +1,6 @@
+import {Workspace,WorkspaceUI} from './runtime.js';
+import * as Experiments from './experiments.js';
+import * as WorkingNavigator from './navigator.js';
 (() => {
   'use strict';
   const S=Workspace,U=WorkspaceUI,esc=U.escape,chapters=HANDBOOK.chapters;

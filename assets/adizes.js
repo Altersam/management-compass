@@ -1,3 +1,4 @@
+import {Workspace,WorkspaceUI} from './runtime.js';
 (() => {
   'use strict';
   const S=Workspace,U=WorkspaceUI,esc=U.escape;

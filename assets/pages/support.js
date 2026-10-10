@@ -1,0 +1,1 @@
+import '../support-pages.js';
