@@ -10,7 +10,10 @@ export function topicsFromLegacy({handbook,course,pedagogy}){
       concepts:reference.terms.map(([name,meaning])=>({name,meaning})),misconceptions:[],
       scene:{title:learning.scene,lead:learning.lead},explanations:learning.blocks,
       activity:{kind:kinds[id-1]},techniques:reference.techniques,
-      cases:handbook.cases.filter(c=>c.chapter===id).map(c=>({...c,options:c.options.map((text,i)=>({text,appeal:c.appeals?.[i]||'',analysis:c.feedback[i]}))})),
+      cases:handbook.cases.filter(c=>c.chapter===id).map(c=>{
+        const {options,appeals,feedback,...rest}=c;
+        return {...rest,options:options.map((text,i)=>({text,appeal:appeals?.[i]||'',analysis:feedback[i]}))};
+      }),
       questions:course.questions[id],retrievalQuestions:[],navigatorSignals:[],
       requiredBehavior:[],incentives:[],informalActors:[],functionNeeds:[],simulationHooks:[],
       references:[{page:lesson.adizes.page,title:lesson.adizes.title}],bridge:learning.bridge,

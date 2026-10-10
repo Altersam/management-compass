@@ -25,7 +25,10 @@ function publicFiles(root){
       files.push(item.name);
     }
   }
-  for(const folder of folders)if(fs.existsSync(path.join(root,folder)))visit(path.join(root,folder),folder+'/');
+  for(const folder of folders)if(fs.existsSync(path.join(root,folder))){
+    if(fs.lstatSync(path.join(root,folder)).isSymbolicLink())throw new Error(`Public symlink is not allowed: ${folder}`);
+    visit(path.join(root,folder),folder+'/');
+  }
   return files.sort();
 }
 function resolvePublicFile(root,relative){

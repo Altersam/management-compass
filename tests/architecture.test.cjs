@@ -16,6 +16,12 @@ test('lightweight navigation catalog agrees with existing topic IDs and titles',
   const {moduleCatalog}=await load('catalog');
   assert.deepEqual(moduleCatalog,loadLegacy().course.modules.map(({id,title})=>({id,title})));
 });
+test('each HTML page has one native module entry rather than ordered service scripts',()=>{
+  for(const file of publicFiles(root).filter(f=>f.endsWith('.html'))){
+    const source=fs.readFileSync(path.join(root,file),'utf8'),scripts=[...source.matchAll(/<script\b[^>]*>/g)].map(m=>m[0]);
+    assert.equal(scripts.length,1,file);assert.match(scripts[0],/type="module"/,file);assert.match(scripts[0],/assets\/pages\//,file);
+  }
+});
 test('topic schema adapter preserves assembled content and canonical question and case order',async()=>{
   const {topicsFromLegacy,legacyViews}=await load('legacy-adapter'),{validateTopics}=await load('topic-schema');
   const legacy=loadLegacy(),topics=topicsFromLegacy(legacy),views=legacyViews(topics);

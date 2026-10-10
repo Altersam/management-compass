@@ -1,10 +1,11 @@
 import {CourseUI} from './course-ui.js';
 import * as Activities from './activities.js';
 import * as Experiments from './experiments.js';
-(() => {
-  const C=CourseUI,{M,esc}=C,id=Number(new URLSearchParams(location.search).get('module'))||1;
-  const topic=PEDAGOGY.topics[id]?id:1,module=COURSE.modules[topic-1],p=PEDAGOGY.topics[topic],reference=HANDBOOK.chapters[topic-1],questions=COURSE.questions[topic];
+export function mountLesson({topic:currentTopic}) {
+  const C=CourseUI,{M,esc}=C;
+  const topic=currentTopic.id,module=currentTopic.course,p={scene:currentTopic.scene.title,lead:currentTopic.scene.lead,blocks:currentTopic.explanations,bridge:currentTopic.bridge},reference=currentTopic.reference,questions=currentTopic.questions;
   const root=document.getElementById('lessonRoot');
+  let mountedActivity=null;
   C.mount();
   C.save(d=>{const old=M.report(d,topic,questions).mastered,m=M.ensure(d,topic);if(m.pedagogy!==2){m.legacyCompleted=old;m.pedagogy=2;}if(!m.microAnswers)m.microAnswers={};if(!m.activities)m.activities={};});
   const state=()=>M.moduleState(C.data(),topic);
@@ -14,6 +15,7 @@ import * as Experiments from './experiments.js';
   function go(hash){location.hash=hash;}
   function phase(){const hash=location.hash.slice(1)||'intro';if(/^theory-[0-2]$/.test(hash))return {step:'theory',block:Number(hash.slice(-1)),hash};return {step:['intro','practice','technique','transfer','check','connections'].includes(hash)?hash:'intro',block:0,hash};}
   function render(){
+    mountedActivity?.unmount();mountedActivity=null;
     const current=phase();C.save(d=>{const c=M.ensure(d);c.last={module:topic,step:current.hash};c.resume={kind:'lesson'};});
     document.title=`${module.title} — Практика управления`;
     root.innerHTML=`<div class="topic-top"><a href="${C.link('index.html')}">← Курс</a><span>${esc(module.title)}</span><details class="compact-topic-nav"><summary>В этой теме</summary><nav>${nav.map(([key,label])=>`<a href="#${key}" ${key===current.hash?'aria-current="location"':''}>${label}</a>`).join('')}</nav></details></div><div class="subtle-progress" role="progressbar" aria-label="Место в теме" aria-valuemin="0" aria-valuemax="100"><i id="topicProgress"></i></div><section id="lessonContent" class="lesson-body"></section>`;
@@ -24,7 +26,7 @@ import * as Experiments from './experiments.js';
   function activity(practice){
     const mode=practice?'practice':'intro',saved=state().activities?.[mode];
     content(`<h1>${practice?'А теперь изменим одно условие':esc(p.scene)}</h1><p class="story-lead">${practice?esc(practicePrompt(topic)):esc(p.lead)}</p><div id="topicActivity"></div><div class="natural-next" id="activityNext" ${saved?.done?'':'hidden'}><a class="button primary" href="#${practice?'technique':'theory-0'}">${practice?'Взять инструмент':'Разобраться, почему так'} →</a></div>`);
-    Activities.mount(document.getElementById('topicActivity'),topic,saved,{practice,onChange:s=>mutate(m=>m.activities[mode]=s),onDecide:s=>{mutate(m=>m.activities[mode]=s);document.getElementById('activityNext').hidden=false;}});
+    mountedActivity=Activities.mount(document.getElementById('topicActivity'),topic,saved,{practice,onChange:s=>mutate(m=>m.activities[mode]=s),onDecide:s=>{mutate(m=>m.activities[mode]=s);document.getElementById('activityNext').hidden=false;}});
   }
   function practicePrompt(n){return {
     1:'Добавьте внезапный запрос. Что он вытеснит и что произойдёт с важной несрочной работой?',
@@ -65,4 +67,4 @@ import * as Experiments from './experiments.js';
     content(`<h1>Что меняется дальше</h1><p class="story-lead">${esc(p.bridge)}</p><a class="button primary" href="${topic<10?C.lesson(topic+1):C.link('index.html#final')}">${topic<10?'Продолжить':'Попробовать управлять общим сервисом'} →</a><details class="reference-details"><summary>Если нужна другая сторона этой ситуации</summary>${module.connections.map(({id,reason})=>`<p><a href="${C.lesson(id)}">${esc(COURSE.modules[id-1].title)}</a><br>${esc(reason)}</p>`).join('')}</details><a href="${C.link('experiments.html')}">Вернуться к своему действию →</a>`);
   }
   window.addEventListener('hashchange',()=>{render();C.scrollToTop();});render();
-})();
+}

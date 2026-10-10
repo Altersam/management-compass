@@ -8,6 +8,19 @@ async function lint(){
   require('./check-conflicts.cjs').assertClean(root);
   const [{topicsFromLegacy},{validateTopics}]=await Promise.all(['legacy-adapter','topic-schema'].map(name=>import(pathToFileURL(path.join(root,`content/${name}.js`)))));
   const content=loadLegacy(),topics=topicsFromLegacy(content),errors=validateTopics(topics),warnings=[];
+  const simulation=await import(pathToFileURL(path.join(root,'assets/simulation-engine.js'))),actionIds=new Set();
+  let state=simulation.initial();
+  for(let turn=0;turn<10;turn++){
+    const scene=simulation.scene(turn,state);
+    if(!scene.title||!scene.text||!scene.actions?.length)errors.push(`simulation ${turn}: incomplete scene`);
+    for(const action of scene.actions||[]){
+      if(!action.id||!action.text||!action.appeal||actionIds.has(action.id))errors.push(`simulation ${turn}: invalid action ${action.id}`);
+      actionIds.add(action.id);
+      if(action.misconception!==undefined&&!Object.hasOwn((await import(pathToFileURL(path.join(root,'content/misconceptions.js')))).misconceptions,action.misconception))errors.push(`simulation ${turn}: unknown misconception`);
+      if(!simulation.apply(state,turn,action.id).consequence)errors.push(`simulation ${turn}: missing consequence`);
+    }
+    state=simulation.apply(state,turn,scene.actions[0].id).state;
+  }
   const files=publicFiles(root);
   for(const relative of files){
     if(!/\.(html|js)$/.test(relative))continue;
