@@ -7,17 +7,19 @@
   <link rel="stylesheet" href="assets/styles.css"><link rel="stylesheet" href="assets/course.css"><link rel="stylesheet" href="assets/experience.css">
 </head>
 <body>
-  <div id="courseHeader"><header class="learning-header"><a class="learning-brand" href="index.html">Практика управления</a><nav><a href="index.html">Учиться</a><a href="workspace.html#route">Рабочие ситуации</a><a href="settings.html">Настройки</a></nav></header></div>
+  <div id="courseHeader"><header class="learning-header"><a class="learning-brand" href="index.html">Практика управления</a><nav aria-label="Основная навигация"><a href="game.html">Игра</a><a href="index.html#courseMapTitle">Курс</a><a href="workspace.html#route">Рабочая ситуация</a></nav></header></div>
   <main class="experience-page" id="courseRoot">
     <div id="homeContent">
       <section class="welcome">
         <h1>Практика управления</h1>
-        <p>Интерактивный курс о том, как принимать решения, работать с людьми и улучшать систему, а не только тушить текущие проблемы.</p>
-        <div class="welcome-actions"><a class="button primary" id="startCourse" href="learn.html?module=1">Пройти курс</a><a class="button quiet" href="workspace.html#route">Разобрать рабочую ситуацию</a></div>
+        <p>Попробуйте управлять, а не только читать про управление.</p>
+        <p class="game-intro">«Проект под давлением»: команда, 20 рабочих дней и бюджет 1 200 000 ₽. Запустите сервис и посмотрите, что произойдёт с людьми, сроком и качеством. 10–20 минут.</p>
+        <div class="welcome-actions"><a class="button primary" id="startGame" href="game.html">Начать игру</a><a class="button quiet" href="workspace.html#route">Разобрать рабочую ситуацию</a></div>
         <p id="resumeCourse" class="resume-place" hidden></p>
       </section>
       <section class="course-stages" aria-labelledby="courseMapTitle">
-        <h2 id="courseMapTitle">От своего рабочего дня — к системе</h2>
+        <h2 id="courseMapTitle">Или пройти курс по темам</h2>
+        <p>Ситуации помогают учиться принимать решения, работать с людьми и улучшать систему. <a id="startCourse" href="learn.html?module=1">Начать с первой темы →</a></p>
         <section class="course-stage"><span>01</span><div><h3>Управлять собой и результатом</h3><p>Как перестать только реагировать и начать управлять результатом?</p><ol><li><a class="topic-link" data-topic="1" href="learn.html?module=1">Самоорганизация и устойчивость</a></li><li><a class="topic-link" data-topic="2" href="learn.html?module=2">Регулярный менеджмент</a></li></ol></div></section>
         <section class="course-stage"><span>02</span><div><h3>Управлять взаимодействием</h3><p>Как получать результат через людей без постоянного ручного контроля?</p><ol start="3"><li><a class="topic-link" data-topic="3" href="learn.html?module=3">Команда и самостоятельность</a></li><li><a class="topic-link" data-topic="4" href="learn.html?module=4">Этика и справедливость</a></li><li><a class="topic-link" data-topic="5" href="learn.html?module=5">Коммуникация</a></li><li><a class="topic-link" data-topic="6" href="learn.html?module=6">Работа между подразделениями</a></li></ol></div></section>
         <section class="course-stage"><span>03</span><div><h3>Управлять системой</h3><p>Почему люди могут всё делать правильно, а система всё равно работает плохо?</p><ol start="7"><li><a class="topic-link" data-topic="7" href="learn.html?module=7">Решения, документы и исполнение</a></li><li><a class="topic-link" data-topic="8" href="learn.html?module=8">Процессы и сервис</a></li></ol></div></section>

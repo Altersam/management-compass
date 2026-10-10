@@ -10,6 +10,9 @@ let renderId=0;
 function homeState(){
   const course=M.course(C.data()),last=course.last,element=document.getElementById('resumeCourse');
   const sim=course.simulation;
+  const game=course.projectGame,gameLink=document.getElementById('startGame');
+  if(game?.revision===1&&game.phase!=='ended'&&game.time>0){gameLink.textContent=`Продолжить проект — день ${Math.min(20,Math.floor(game.time)+1)}`;}
+  else gameLink.textContent='Начать игру';
   element.hidden=true;
   if(course.resume?.kind==='simulation'&&sim?.decisions?.length<10){
     element.hidden=false;element.innerHTML=`Вы остановились в истории общего сервиса. <a id="continueCourse" href="${C.link('index.html#final')}">Продолжить →</a>`;

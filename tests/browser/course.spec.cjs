@@ -4,7 +4,7 @@ async function ethics(page){for(const id of ['facts','independent','criteria'])a
 test('landing has meaningful static HTML with two entries and four stages without JavaScript',async({browser,baseURL})=>{
   const context=await browser.newContext({javaScriptEnabled:false,baseURL}),page=await context.newPage();await page.goto('/');
   await expect(page.locator('h1')).toHaveText('Практика управления');await expect(page.locator('.welcome-actions a')).toHaveCount(2);await expect(page.locator('.course-stage')).toHaveCount(4);await expect(page.locator('.topic-link')).toHaveCount(10);
-  await expect(page.locator('main')).toContainText('работать с людьми');await context.close();
+  await expect(page.locator('#startGame')).toHaveText('Начать игру');await expect(page.locator('#startGame')).toHaveAttribute('href','game.html');await expect(page.locator('main')).toContainText('работать с людьми');await context.close();
 });
 test('home loads a small entry and imports simulation only when requested',async({page})=>{
   const requests=[];page.on('request',request=>requests.push(new URL(request.url()).pathname));

@@ -1,5 +1,6 @@
 import {people} from './people.js';
 import {project,tasks} from './project.js';
+import {eventDefinitions} from './events.js';
 
 export const revision=1;
 export const tickSize=0.25;
@@ -30,6 +31,11 @@ export function resumeState(saved){
   if(!saved||saved.revision!==revision)return null;
   if(!Array.isArray(saved.tasks)||saved.tasks.length!==tasks.length||saved.tasks.some((t,i)=>t.id!==tasks[i].id||!Number.isFinite(t.progress)||!Number.isFinite(t.effort)||t.effort<=0||!Array.isArray(t.assigned)))return null;
   if(!Array.isArray(saved.people)||people.some(p=>!saved.people.some(x=>x.id===p.id))||!Number.isFinite(saved.time)||saved.time<0||saved.time>20||!Number.isFinite(saved.spent)||!Array.isArray(saved.events)||!Array.isArray(saved.delayed)||!saved.stats||!saved.it||!saved.flags||!saved.externalPlan)return null;
+  if(!['planning','running','observing','ended'].includes(saved.phase)||saved.deadline!==20||saved.budget!==1200000||!Number.isInteger(saved.rng)||!Array.isArray(saved.history)||!Array.isArray(saved.decisions))return null;
+  if(saved.people.some(p=>!p.skills||!Number.isFinite(p.fatigue)||!Number.isFinite(p.absentUntil)||!Number.isFinite(p.trainingUntil)||!Number.isFinite(p.cost)))return null;
+  if(saved.tasks.some(t=>t.assigned.some(id=>!saved.people.some(p=>p.id===id))||!Number.isFinite(t.quality)||!Array.isArray(t.dependencies)||t.dependencies.some(id=>!saved.tasks.some(x=>x.id===id))))return null;
+  if(saved.events.some(e=>!eventDefinitions[e.definition])||saved.delayed.some(e=>!['rework','learn','support','metrics'].includes(e.effect)))return null;
+  if(!saved.people.some(p=>p.id===saved.externalPlan.illPerson))return null;
   return structuredClone(saved);
 }
 export const finished=state=>state.phase==='ended';

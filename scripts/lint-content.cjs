@@ -22,6 +22,24 @@ async function lint(){
     state=simulation.apply(state,turn,scene.actions[0].id).state;
   }
   const files=publicFiles(root);
+  const [{eventDefinitions,actionLabels},{tasks:gameTasks},gameEngine]=await Promise.all(['events','project','engine'].map(name=>import(pathToFileURL(path.join(root,`assets/game/${name}.js`)))));
+  const {createState}=await import(pathToFileURL(path.join(root,'assets/game/state.js')));
+  const gameIds=new Set();
+  for(const task of gameTasks){
+    if(gameIds.has(task.id)||!task.name||task.duration<=0||!task.skills.length)errors.push(`game task: invalid ${task.id}`);
+    gameIds.add(task.id);
+  }
+  for(const task of gameTasks)for(const dependency of task.dependencies)if(!gameIds.has(dependency))errors.push(`game task ${task.id}: missing dependency ${dependency}`);
+  for(const [id,event] of Object.entries(eventDefinitions)){
+    if(!event.title||!event.text||!event.explanation||!['external','causal'].includes(event.kind))errors.push(`game event ${id}: incomplete content`);
+    if(!topics.some(t=>t.id===event.topic)||!/^theory-[0-2]$/.test(event.step))errors.push(`game event ${id}: invalid course fragment`);
+    for(const action of event.actions){
+      if(!actionLabels[action])errors.push(`game event ${id}: missing action label ${action}`);
+      try{gameEngine.act(createState(),{type:action,task:'requirements'});}catch(error){if(error.message==='Неизвестное решение.')errors.push(`game event ${id}: unknown engine action ${action}`);}
+    }
+  }
+  for(const file of files.filter(f=>f.startsWith('assets/game/')&&f.endsWith('.js')))if(/Math\.random\s*\(/.test(fs.readFileSync(path.join(root,file),'utf8')))errors.push(`${file}: game randomness must be seeded`);
+  console.log(`Game: ${gameTasks.length} tasks, ${Object.keys(eventDefinitions).length} event definitions; seeded engine and course links checked.`);
   for(const relative of files){
     if(!/\.(html|js)$/.test(relative))continue;
     const source=fs.readFileSync(path.join(root,relative),'utf8');

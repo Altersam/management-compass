@@ -70,7 +70,7 @@ function taskCompleted(s,t){
   if(t.id==='requirements'&&t.checkpoint==='early'&&t.quality>=0.65){s.flags.requirementsAligned=true;closeEvents(s,'requirements');}
   if(t.completionCount===1){
     if(t.id==='prototype'&&t.checkpoint!=='early'&&s.flags.requirementsChanged&&!s.flags.requirementsAligned)schedule(s,'rework',1.5,{task:t.id,amount:1.25,reason:'несверенные требования'},'requirements-return');
-    else if(t.id!=='launch'&&t.quality<0.65&&t.checkpoint!=='early'&&random(s)<0.8)schedule(s,'rework',1.5,{task:t.id,amount:0.75,reason:'ошибка обнаружена на следующем этапе'},'quality-return-'+t.id);
+    else if(t.id!=='launch'&&t.quality<0.75&&t.checkpoint!=='early'&&random(s)<clamp(t.risk+(0.75-t.quality)*3.5,0.15,0.95))schedule(s,'rework',1.5,{task:t.id,amount:0.75,reason:'ошибка обнаружена на следующем этапе'},'quality-return-'+t.id);
     if(t.id==='integration'&&s.it.riskAccepted)schedule(s,'rework',1.25,{task:t.id,amount:1.5,reason:'интеграция без подтверждённого доступа'},'it-return');
   }
   if(t.id==='launch'&&s.launchedAt===null){s.launchedAt=t.completedAt;s.phase='observing';}
@@ -172,9 +172,11 @@ export function act(state,command){
     s.flags.requirementsAligned=true;closeEvents(s,'requirements');
   }else if(type==='formalLaunch'){
     if(s.time<12||s.launchedAt!==null||!complete(taskById(s,'integration')))throw new Error('Для формального запуска нужна готовая интеграция и день 13.');
-    const launch=taskById(s,'launch');launch.progress=launch.effort;launch.completedAt=s.time;launch.quality=reliability(s);s.formalLaunch=true;s.launchedAt=s.time;s.phase='observing';
+    const launch=taskById(s,'launch');launch.progress=launch.effort;launch.startedAt=s.time;launch.completedAt=s.time;launch.quality=reliability(s);s.formalLaunch=true;s.launchedAt=s.time;s.phase='observing';
   }else if(type==='alignLeaders'){
-    if(s.leaderExample)throw new Error('Единый канал уже согласован.');pay(s,10000);s.leaderExample=true;closeEvents(s,'oldChannel');
+    if(s.leaderExample)throw new Error('Единый канал уже согласован.');pay(s,10000);s.leaderExample=true;
+    const coordinator=s.people.find(p=>p.id==='irina');coordinator.trainingUntil=Math.max(coordinator.trainingUntil,s.time+0.5);
+    closeEvents(s,'oldChannel');
   }else if(type==='inspectMetrics'){
     if(s.flags.metricsRequested)throw new Error('Проверка уже запрошена.');pay(s,12000);s.flags.metricsRequested=true;schedule(s,'metrics',1);closeEvents(s,'metrics');
   }else if(type==='cutSupport'){

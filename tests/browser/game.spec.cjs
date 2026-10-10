@@ -39,3 +39,26 @@ test('mobile focuses one area and timeline scroll never expands the document',as
   await page.setViewportSize({width:375,height:850});await page.locator('[data-tab=project]').focus();await page.keyboard.press('ArrowRight');await expect(page.locator('[data-tab=team]')).toHaveAttribute('aria-selected','true');
   await page.keyboard.press('ArrowRight');await expect(page.locator('#panel-events')).toBeVisible();
 });
+test('main entry offers game continuation and keeps course and legacy simulation reachable',async({page})=>{
+  await page.clock.install();await page.goto('/game.html');await page.locator('#gameClock').click();await page.clock.runFor(32000);await page.goto('/');
+  await expect(page.locator('#startGame')).toHaveText('Продолжить проект — день 2');await expect(page.locator('#startCourse')).toHaveAttribute('href',/learn\.html\?module=1/);
+  await expect(page.locator('.learning-header>nav a')).toHaveCount(3);await page.locator('a[href*="#final"]').last().click();await expect(page.locator('#makeSimulationDecision')).toBeVisible();
+});
+test('keyboard play and explanation return preserve focus and timeline position',async({page})=>{
+  await page.clock.install();await page.goto('/game.html');await page.setViewportSize({width:1024,height:900});
+  await page.locator('.gantt-task-name[data-task=prototype]').focus();await page.keyboard.press('Enter');await expect(page.locator('#selectedTaskHeading')).toBeFocused();
+  await page.locator('[data-assign=maxim]').focus();await page.keyboard.press('Space');await expect(page.locator('[data-assign=maxim]')).toBeChecked();await expect(page.locator('[data-assign=maxim]')).toBeFocused();
+  await page.locator('.gantt-scroll').evaluate(el=>el.scrollLeft=50);const scroll=await page.locator('.gantt-scroll').evaluate(el=>el.scrollLeft);
+  await page.locator('#gameClock').focus();await page.keyboard.press('Enter');await page.clock.runFor(128000);await page.keyboard.press('Enter');
+  expect(await page.locator('.gantt-scroll').evaluate(el=>el.scrollLeft)).toBe(scroll);
+  await page.locator('[data-explain=requirements]').focus();await page.keyboard.press('Enter');await expect(page.locator('#returnToGame')).toBeFocused();await page.keyboard.press('Escape');await expect(page.locator('[data-explain=requirements]')).toBeFocused();
+});
+test('game modules are not downloaded by the landing page and game images stay local',async({page})=>{
+  const requests=[];page.on('request',r=>requests.push(r.url()));await page.goto('/');expect(requests.some(url=>url.includes('/assets/game/'))).toBe(false);
+  await page.locator('#startGame').click();await expect(page.locator('.gantt-row')).toHaveCount(7);
+  expect(requests.filter(url=>new URL(url).origin!==new URL(page.url()).origin)).toEqual([]);
+  if(process.env.REFERENCE_SCREENSHOTS){
+    await page.setViewportSize({width:1440,height:1000});await page.screenshot({path:process.env.REFERENCE_SCREENSHOTS+'/project-game-desktop.png',fullPage:true});
+    await page.setViewportSize({width:375,height:850});await page.screenshot({path:process.env.REFERENCE_SCREENSHOTS+'/project-game-mobile.png',fullPage:true});
+  }
+});

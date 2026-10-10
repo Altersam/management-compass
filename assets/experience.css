@@ -15,6 +15,7 @@ body:has(.experience-page){background:#fcfcfd}
 .welcome{max-width:890px;padding:24px 0 50px}
 .welcome h1{font-size:clamp(39px,6vw,64px);margin:10px 0 22px}
 .welcome>p{font-size:21px;line-height:1.75;max-width:820px}
+.welcome>.game-intro{font-size:15px;line-height:1.8;max-width:740px;color:#516d7d;margin-top:20px}
 .welcome-actions{display:flex;gap:12px;flex-wrap:wrap;margin:28px 0 15px}
 .welcome-actions .button{font-size:15px;padding:13px 20px;border-radius:8px}
 .welcome .resume-place{font-size:13px;margin-top:21px;color:#6d8091}

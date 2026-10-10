@@ -76,7 +76,7 @@ test('training takes capacity now and improves a named skill one day later; extr
 });
 test('support cuts save immediately and harm later; formal launch does not prove adoption',()=>{
   let s=act(allocated(),{type:'clarify'});s=act(s,{type:'coordinateIT'});s=act(s,{type:'pauseTask',task:'training',value:true});
-  while(s.time<13)s=advance(s);
+  while(s.time<12||!complete(task(s,'integration')))s=advance(s);
   assert.ok(complete(task(s,'integration')));s=act(s,{type:'formalLaunch'});assert.equal(s.adoption,0);s=step(s,4);
   assert.ok(s.events.some(e=>e.definition==='training'));assert.ok(s.events.some(e=>e.definition==='oldChannel'));assert.ok(s.adoption<40);
   const cost=dailyCost(s);s=act(s,{type:'cutSupport'});assert.equal(dailyCost(s),cost*0.85);assert.equal(s.events.some(e=>e.definition==='support'),false);
@@ -93,4 +93,19 @@ test('game resume/export is isolated from existing simulation, archives and expe
   const clone=store.import(JSON.parse(JSON.stringify(store.export(id))));assert.deepEqual(resumeState(store.profile(clone).data.course.projectGame),s);
   assert.deepEqual(store.profile(clone).data.course.simulation,{revision:2,decisions:['tight-check']});assert.equal(store.profile(clone).data.course.simulationArchive[0].reflection,'Старый путь');
   assert.equal(resumeState({...s,revision:2}),null);assert.equal(resumeState({revision:1}),null);
+  assert.equal(resumeState({...s,events:[{definition:'unknown'}]}),null);
+});
+test('badly allocated expensive resource can exhaust budget before deadline',()=>{
+  let s=act(allocated(),{type:'hire'});s=step(s,80);
+  assert.equal(s.endReason,'budget');assert.ok(s.time<20);assert.ok(s.spent>=s.budget);
+});
+test('many seeds and allocations keep time, quality, capacity and costs finite',()=>{
+  for(let seed=0;seed<20;seed++){
+    let s=seed%2?allocated('seed-'+seed):createState('seed-'+seed);
+    if(seed%3===0){for(const t of tasks)s=act(s,{type:'assign',task:t.id,people:['maxim']});}
+    s=step(s,80);
+    assert.ok(s.time<=20&&s.spent>=0&&Number.isFinite(s.spent));
+    assert.ok(s.tasks.every(t=>t.progress>=0&&t.progress<=t.effort+0.00001&&t.quality>=0&&t.quality<=1));
+    assert.ok(s.people.every(p=>p.fatigue>=0&&p.fatigue<=1));assert.ok(resumeState(s));
+  }
 });
