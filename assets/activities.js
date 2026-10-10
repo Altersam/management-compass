@@ -1,4 +1,5 @@
 import * as E from './situations-engine.js';
+import {mountBehavior} from './activities/behavior-scenes.js';
   const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const select=(name,label,options,value)=>`<label class="activity-field">${label}<select name="${name}">${options.map(([id,text])=>`<option value="${id}" ${String(value)===String(id)?'selected':''}>${text}</option>`).join('')}</select></label>`;
   const range=(name,label,min,max,value)=>`<label class="activity-field">${label} <output data-range-value="${name}">${escape(value)}</output><input type="range" name="${name}" min="${min}" max="${max}" value="${escape(value)}"></label>`;
@@ -63,6 +64,6 @@ import * as E from './situations-engine.js';
     const restoreFocus=event=>{const button=event.target.closest?.('[data-move]');if(!button)return;const part=button.closest('[data-part]').dataset.part;queueMicrotask(()=>{if(!container.contains(document.activeElement))container.querySelector(`[data-part="${part}"] button:not([disabled])`)?.focus();});};
     container.addEventListener('click',restoreFocus);
     const getState=()=>JSON.parse(JSON.stringify(state));
-    render();return {getState,read:getState,evaluate:()=>E.evaluate(topic,state),renderFeedback:update,unmount(){container.removeEventListener('click',restoreFocus);container.replaceChildren();}};
+    render();if([3,5,6,9].includes(topic)){const additional=document.createElement('div');container.prepend(additional);mountBehavior(additional,topic,state.behavior,values=>{state.behavior=values;settings.onChange?.(getState());});}return {getState,read:getState,evaluate:()=>E.evaluate(topic,state),renderFeedback:update,unmount(){container.removeEventListener('click',restoreFocus);container.replaceChildren();}};
   }
 export {mount};
