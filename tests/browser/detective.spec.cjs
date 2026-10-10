@@ -24,7 +24,11 @@ test('investigation restart archives only its own game and completed evidence re
   const course=await page.evaluate(()=>CourseUI.data().course);expect(course.detectiveGameArchive).toHaveLength(1);expect(course.detectiveGame.seed).toBe('case-03');expect(course.projectGame.time).toBe(11);expect(course.simulation.decisions).toEqual(['tight-check']);
 });
 test('games catalog is engine-lazy and main menu reaches both working games',async({page})=>{
+<<<<<<< HEAD
   const requests=[];page.on('request',r=>requests.push(new URL(r.url()).pathname));await page.goto('/games.html');await expect(page.locator('.training-game')).toHaveCount(12);
+=======
+  const requests=[];page.on('request',r=>requests.push(new URL(r.url()).pathname));await page.goto('/games.html');await expect(page.locator('.training-game')).toHaveCount(2);
+>>>>>>> f975cf8a45f64941b9c5610bdec18930a289499e
   expect(requests.some(path=>path.includes('/assets/detective/'))).toBe(false);expect(requests.some(path=>path.includes('/assets/game/'))).toBe(false);
   await page.locator('#detectiveGameEntry').click();await expect(page.locator('.detective-chain')).toBeVisible();await page.locator('.product-header>nav a').first().click();await expect(page).toHaveURL(/games\.html/);await page.locator('#projectGameEntry').click();await expect(page.locator('.gantt-row')).toHaveCount(7);
 });
