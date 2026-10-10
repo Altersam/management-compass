@@ -6,6 +6,16 @@ test('landing has meaningful static HTML with two entries and four stages withou
   await expect(page.locator('h1')).toHaveText('Практика управления');await expect(page.locator('.welcome-actions a')).toHaveCount(2);await expect(page.locator('.course-stage')).toHaveCount(4);await expect(page.locator('.topic-link')).toHaveCount(10);
   await expect(page.locator('main')).toContainText('работать с людьми');await context.close();
 });
+test('home loads a small entry and imports simulation only when requested',async({page})=>{
+  const requests=[];page.on('request',request=>requests.push(new URL(request.url()).pathname));
+  await page.goto('/');await expect(page.locator('.learning-header .secondary-menu')).toBeVisible();
+  for(const file of ['content.js','knowledge.js','course-questions.js','learning-content.js','question-revision.js','activities.js','simulation-engine.js','visuals.js'])expect(requests.some(p=>p.endsWith('/'+file)),file).toBe(false);
+  await page.goto('/#trajectory');await expect(page.locator('.trajectory-timeline li')).toHaveCount(10);
+  expect(requests.some(p=>p.endsWith('/simulation-engine.js'))).toBe(false);
+  await page.goto('/#final');await expect(page.locator('#makeSimulationDecision')).toBeVisible();
+  expect(requests.some(p=>p.endsWith('/simulation-engine.js'))).toBe(true);
+  expect(requests.some(p=>p.endsWith('/course-questions.js'))).toBe(false);
+});
 test('learning starts in the day, changes its budget and replaces understood buttons with decisions',async({page})=>{
   await page.goto('/');await page.locator('#startCourse').click();await expect(page.locator('.activity-1')).toBeVisible();await expect(page.locator('#ackTheory')).toHaveCount(0);
   const before=await page.locator('.activity-metrics').textContent();await page.locator('[name=plan-meeting]').selectOption('delegate');await page.locator('[name=plan-requests]').selectOption('delegate');await page.locator('[name=plan-team]').selectOption('later');await page.locator('[name=focus]').check();await page.locator('[name=notify]').check();

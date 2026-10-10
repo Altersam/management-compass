@@ -45,11 +45,15 @@ test('every technique and chapter has a local, accessible visual explanation',()
 });
 test('all public JavaScript parses and all local HTML links/scripts exist',()=>{
   const files=[...fs.readdirSync(root).filter(f=>f.endsWith('.html')),...fs.readdirSync(path.join(root,'modules')).map(f=>'modules/'+f)];
-  for(const f of fs.readdirSync(path.join(root,'assets')).filter(f=>f.endsWith('.js')))new vm.Script(fs.readFileSync(path.join(root,'assets',f),'utf8'),{filename:f});
+  const {spawnSync}=require('node:child_process');
+  for(const f of require('../scripts/public-files.cjs').publicFiles(root).filter(f=>f.endsWith('.js'))){
+    const result=spawnSync(process.execPath,['--check','--input-type=module'],{input:fs.readFileSync(path.join(root,f),'utf8'),encoding:'utf8'});
+    assert.equal(result.status,0,`${f}: ${result.stderr}`);
+  }
   for(const f of files){const text=fs.readFileSync(path.join(root,f),'utf8');assert.match(text,/<html lang="ru"/);for(const match of text.matchAll(/(?:href|src)="([^"]+)"/g)){const link=match[1].split(/[?#]/)[0];if(!link||/^[a-z]+:/i.test(link))continue;assert.ok(fs.existsSync(path.resolve(path.dirname(path.join(root,f)),link)),`${f} -> ${link}`);}}
 });
 test('public content is generalised and has no PDF assets or external runtime dependency',()=>{
-  const publicFiles=[...fs.readdirSync(root).filter(f=>f.endsWith('.html')),...['assets','modules'].flatMap(dir=>fs.readdirSync(path.join(root,dir)).map(f=>dir+'/'+f))];
+  const publicFiles=require('../scripts/public-files.cjs').publicFiles(root);
   for(const f of publicFiles){assert.doesNotMatch(f,/\.(pdf|pptx?|docx)$/i);const text=fs.readFileSync(path.join(root,f),'utf8');assert.doesNotMatch(text,/Финансов[а-я]+ университет|DIRECTUM|регламент[а-я ]+университет/i);assert.doesNotMatch(text,/(?:src=["']https?:|@import\s+url|fetch\()/i);}
   for(const c of data.chapters)assert.ok(fs.existsSync(path.join(root,`modules/module-${String(c.id).padStart(2,'0')}.html`)));
 });
