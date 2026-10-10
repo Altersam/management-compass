@@ -25,8 +25,11 @@ test('event explanation pauses clock and links to a precise course fragment',asy
 test('full game produces a multidimensional result and restart archives only this game',async({page})=>{
   await page.clock.install();await page.goto('/game.html');await plan(page);
   await page.evaluate(()=>Workspace.update(CourseUI.active,d=>{d.course.simulation={revision:2,decisions:['tight-check']};d.course.simulationArchive=[{reflection:'Прежняя история'}];}));
-  await page.locator('[data-command=coordinateIT]').click();await page.locator('[data-command=clarify]').click();await page.locator('#gameClock').click();await page.clock.runFor(640000);
+  await page.locator('[data-command=coordinateIT]').click();await page.locator('[data-command=clarify]').click();await page.locator('#gameClock').click();await page.clock.runFor(320000);
+  if(process.env.REFERENCE_SCREENSHOTS){await page.setViewportSize({width:1440,height:1000});await page.screenshot({path:process.env.REFERENCE_SCREENSHOTS+'/project-game-day-11.png',fullPage:true});}
+  await page.clock.runFor(320000);
   await expect(page.locator('#gameResult')).toBeVisible();await expect(page.locator('#gameResult')).toContainText('Переделка');await expect(page.locator('#gameResult')).toContainText('Ручные решения');await expect(page.locator('.game-insights li')).toHaveCount(5);
+  if(process.env.REFERENCE_SCREENSHOTS)await page.screenshot({path:process.env.REFERENCE_SCREENSHOTS+'/project-game-result.png',fullPage:true});
   await page.locator('#newProjectForm button').click();await expect(page.locator('#gameClock')).toHaveText('Запустить время');
   const course=await page.evaluate(()=>Workspace.profile(CourseUI.active).data.course);expect(course.projectGameArchive).toHaveLength(1);expect(course.simulation.decisions).toEqual(['tight-check']);expect(course.simulationArchive[0].reflection).toBe('Прежняя история');
 });

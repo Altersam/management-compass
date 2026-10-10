@@ -1,9 +1,9 @@
 {
   "name": "management-compass",
-  "version": "1.0.0",
+  "version": "3.1.0",
   "private": true,
   "type": "module",
-  "description": "Локальный интерактивный справочник административной практики",
+  "description": "Management Compass: управленческая игра «Проект под давлением», курс и рабочие инструменты",
   "repository": { "type": "git", "url": "https://github.com/Altersam/management-compass.git" },
   "license": "MIT",
   "engines": { "node": ">=24" },

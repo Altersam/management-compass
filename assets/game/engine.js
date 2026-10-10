@@ -41,7 +41,7 @@ function delayedEffects(s){
     }else if(effect.effect==='learn'){
       const p=s.people.find(p=>p.id===effect.payload.person);p.skills[effect.payload.skill]=Math.min(3,(p.skills[effect.payload.skill]||0)+1);
     }else if(effect.effect==='support'){
-      if(s.supportCut){s.adoption=Math.max(0,s.adoption-15);emit(s,'support');}
+      if(s.supportCut){s.flags.supportEffective=true;s.adoption=Math.max(0,s.adoption-15);emit(s,'support',{key:'support-'+effect.key});}
     }else if(effect.effect==='metrics')s.metricsInvestigated=true;
   }
 }
@@ -122,7 +122,7 @@ export function advance(state,dt=tickSize){
   externalEvents(s);delayedEffects(s);causalEvents(s,workloads(s));
   if(s.launchedAt!==null){
     const training=taskById(s,'training'),trained=complete(training),trainingQuality=trained?(training.quality-0.7)*30:0;
-    const target=(trained?78:32)+trainingQuality+(s.leaderExample?12:-15)-(s.supportCut?25:0);
+    const target=(trained?78:32)+trainingQuality+(s.leaderExample?12:-15)-(s.flags.supportEffective?25:0);
     s.adoption=clamp(s.adoption+(target-s.adoption)*step*0.45,0,100);
   }
   s.history.push({time:s.time,spent:s.spent,adoption:s.adoption,quality:reliability(s),completed:s.tasks.filter(complete).length});
@@ -180,8 +180,8 @@ export function act(state,command){
   }else if(type==='inspectMetrics'){
     if(s.flags.metricsRequested)throw new Error('Проверка уже запрошена.');pay(s,12000);s.flags.metricsRequested=true;schedule(s,'metrics',1);closeEvents(s,'metrics');
   }else if(type==='cutSupport'){
-    if(s.supportCut||s.launchedAt===null)throw new Error('Поддержка сейчас не может быть сокращена.');s.supportCut=true;schedule(s,'support',2);closeEvents(s,'metrics');
-  }else if(type==='restoreSupport'){s.supportCut=false;closeEvents(s,'support');}
+    if(s.supportCut||s.launchedAt===null)throw new Error('Поддержка сейчас не может быть сокращена.');s.supportCut=true;schedule(s,'support',2,{},'support-'+s.time);closeEvents(s,'metrics');
+  }else if(type==='restoreSupport'){s.supportCut=false;s.flags.supportEffective=false;closeEvents(s,'support');}
   else throw new Error('Неизвестное решение.');
   s.decisions.push({...structuredClone(command),at:s.time});return s;
 }

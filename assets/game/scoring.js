@@ -3,7 +3,7 @@ import {reliability} from './engine.js';
 
 export const level=value=>value>=0.8?'высокая':value>=0.65?'средняя':'низкая';
 export function serviceMetrics(s){
-  const repeats=Math.round((1-reliability(s))*55+(s.supportCut?10:0)+(s.formalLaunch?6:0));
+  const repeats=Math.round((1-reliability(s))*55+(s.flags.supportEffective?10:0)+(s.formalLaunch?6:0));
   return {visibleTime:12,allTime:Math.round(12+(100-s.adoption)*0.32+repeats*0.25),repeats,adoption:Math.round(s.adoption),bypass:Math.round(100-s.adoption),resolved:Math.round(s.adoption*reliability(s)*(1-repeats/100))};
 }
 export function report(s){
