@@ -24,3 +24,19 @@ dialog{border:1px solid var(--border);border-radius:var(--radius);max-width:min(
 .hypothesis-details{margin:24px 0}.hypothesis-details dt{font-weight:700;margin:18px 0 5px;color:var(--text)}.hypothesis-details dd{margin:0;color:var(--muted-text);line-height:1.8}.navigator-suggestion h2{font-size:25px;line-height:1.4}
 .behavior-scene{margin:20px 0 30px;padding-bottom:20px;border-bottom:1px solid var(--border)}.behavior-scene>label,.function-map label{display:grid;gap:6px;margin:15px 0;font-size:14px}.behavior-scene select{width:100%;padding:10px}.behavior-scene details{margin-top:18px;font-size:14px}.role-transition{display:grid;grid-template-columns:1fr 1fr;gap:20px}.role-transition section{border-left:3px solid var(--accent);padding:15px;background:var(--surface-soft)}.function-map{display:grid;grid-template-columns:1fr 1fr;gap:0 20px}.behavior-result{padding:14px 18px;background:#edf4ef;border-left:3px solid var(--success);margin:20px 0}.behavior-result p{font-size:14px!important;margin:8px 0}.recipient-conversation{padding:20px;background:#eaf0f7;border-radius:20px 20px 20px 0}.organization-network{border-left:3px solid var(--accent);padding:15px;line-height:1.8;background:var(--surface-soft)}.incentive-chain{display:flex;flex-wrap:wrap;gap:12px}.incentive-chain span{padding:14px;background:#fbf3e7;border-bottom:3px solid var(--warning);font-size:14px}
 @media(max-width:760px){.function-map,.role-transition{grid-template-columns:1fr}}
+.new-experiment textarea{width:100%;min-height:85px;padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font:inherit}.experiment-row{grid-template-columns:minmax(0,1fr) minmax(220px,320px)}
+@media(max-width:760px){.experiment-row{grid-template-columns:1fr}}
+h1,h2,h3{font-family:inherit}.idea-location{margin:30px 0;padding-top:24px;border-top:1px solid var(--border)}.idea-location a{color:var(--accent)}
+.quiet-note,.welcome .resume-place,.topic-top,.name-the-principle,.term-list dd,.atlas-context,.library-count,.module-meta span,.technique-picker span,.eyebrow{color:var(--muted-text)!important}
+.autonomy-effect>div{background:#456783}.experiment-row time,.new-experiment label,.settings-section>label{color:var(--muted-text)}
+.theory-card h2{font-size:21px;line-height:1.4}
+main p a:not(.button),main dd a{text-decoration:underline;text-underline-offset:3px}
+.time-budget>div{background:#456783}
+.game-time-controls .button.quiet{background:#f5f8fa;color:var(--accent);border:1px solid var(--border)}
+.autonomy-scale li{color:var(--muted-text)}
+.button{transition:none}
+.paper-document .paper-version,.dashboard-before{color:var(--muted-text)}
+:root{--muted:var(--muted-text)}
+.queue-chart b{color:var(--muted-text)}
+.notes-archive>summary,.new-experiment>summary{color:var(--muted-text)}
+.theory-card h2{font-size:21px;line-height:1.4}

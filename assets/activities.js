@@ -33,7 +33,7 @@ import {mountBehavior} from './activities/behavior-scenes.js';
       if(topic===6)return `<div class="resource-result"><span>Эксперт → ${v.decision?'получил согласованный приоритет':'продолжает прежнее поручение'}</span><span>Общий запуск → ${v.decision?'план можно обновить':'ресурсный конфликт остался'}</span></div>`;
       if(topic===7)return `<ol class="delivery-chain">${['Решение','Документ','Версия','Получено','Понято','Исполнено','Принято'].map((label,i)=>`<li class="${v.chain[i]?'evidence-present':'evidence-missing'}"><b>${label}</b><span>${v.chain[i]?'Есть подтверждение':'Пока не подтверждено'}</span></li>`).join('')}</ol>`;
       if(topic===8)return `<div class="queue-chart"><div><b>Поток с возвратами: ${v.load.toFixed(1)}</b><span style="width:${Math.min(100,v.load/150*100)}%"></span></div><div><b>Мощность: ${v.capacity.toFixed(1)}</b><span style="width:${Math.min(100,v.capacity/150*100)}%"></span></div><p>Накапливается за день: ${v.growth} запросов</p></div>`;
-      if(topic===9)return `<div class="adoption-people" aria-label="${v.active} из 20 участников действуют по-новому">${Array.from({length:20},(_,i)=>`<span class="${i<v.active?'using-new':''}" aria-hidden="true">●</span>`).join('')}</div>`;
+      if(topic===9)return `<div class="adoption-people" role="img" aria-label="${v.active} из 20 участников действуют по-новому">${Array.from({length:20},(_,i)=>`<span class="${i<v.active?'using-new':''}" aria-hidden="true">●</span>`).join('')}</div>`;
       return '';
     }
     function update(){

@@ -4,6 +4,9 @@ import {eventDefinitions} from './events.js';
 
 export const revision=1;
 export const tickSize=0.25;
+export function snapshot(state){
+  return structuredClone({...state,decisions:[],history:[],reviewPoints:{}});
+}
 export function seedNumber(seed){
   let value=2166136261;
   for(const char of String(seed))value=Math.imul(value^char.charCodeAt(0),16777619);
@@ -22,7 +25,7 @@ export function createState(seed='service-20',{balanceVersion=2}={}){
     people:people.map(p=>({...structuredClone(p),capacity:balanceVersion===2?0.82:1,fatigue:0,overloadTime:0,absentUntil:0,trainingUntil:0})),
     tasks:tasks.map(t=>({...structuredClone(t),assigned:t.id==='requirements'?[...t.assigned]:[],effort:t.duration,progress:0,quality:0.72,qualityWeight:0,checkpoint:'none',checkpointPaid:false,autonomy:'bounded',priority:1,paused:false,awaitingDecision:false,manualReviewed:false,startedAt:null,completedAt:null,completionCount:0})),
     it:{contacted:false,ready:false,readyAt:10,riskAccepted:false},scope:'full',leaderExample:false,supportCut:false,
-    adoption:0,launchedAt:null,formalLaunch:false,metricsInvestigated:false,flags:{},events:[],delayed:[],decisions:[],history:[],
+    adoption:0,launchedAt:null,formalLaunch:false,metricsInvestigated:false,flags:{},events:[],delayed:[],decisions:[],history:[],reviewPoints:{},
     stats:{rework:0,reworkCost:0,overloadDays:0,manualDecisions:0,manualWaiting:0,checks:0,trainingDays:0},endReason:null
   };
 }
@@ -39,6 +42,7 @@ export function resumeState(saved){
   const copy=structuredClone(saved);
   copy.balanceVersion=copy.balanceVersion||1;
   copy.preferences={autoPause:true,...copy.preferences};
+  copy.reviewPoints=copy.reviewPoints||{};
   // Descriptions/identities come from authored data, while developed skills and history are retained.
   copy.people=copy.people.map(p=>{const def=[...people,contractor].find(d=>d.id===p.id);return {...p,...structuredClone(def),capacity:p.capacity??1,skills:p.skills};});
   copy.tasks=copy.tasks.map((t,i)=>{

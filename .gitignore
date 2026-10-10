@@ -12,3 +12,4 @@ playwright-report/
 .env.*
 .DS_Store
 Thumbs.db
+.git-recovery-backup/

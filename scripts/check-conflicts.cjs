@@ -7,7 +7,7 @@ function markerLines(text){
 }
 
 function findConflicts(root){
-  const skip=new Set(['.git','node_modules','site','test-results','playwright-report']);
+  const skip=new Set(['.git','.git-recovery-backup','node_modules','site','test-results','playwright-report']);
   const problems=[];
   function visit(directory){
     for(const item of fs.readdirSync(directory,{withFileTypes:true})){
