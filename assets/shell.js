@@ -8,6 +8,7 @@ function applyTheme(theme){
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content',light?'#F4F0EA':'#191716');
 }
 export function productLink(path,profile){const url=new URL(path,base);if(profile)url.searchParams.set('user',profile);return url.pathname+url.search+url.hash;}
+export function setTheme(theme){applyTheme(theme);try{localStorage.setItem(themeKey,theme);}catch(_){}const select=document.getElementById('appearanceTheme');if(select)select.value=document.documentElement.dataset.theme;}
 export function mountShell(profile){
   let theme='light';try{const saved=localStorage.getItem(themeKey);if(['light','dark'].includes(saved))theme=saved;}catch(_){}applyTheme(theme);
   document.title=document.title.replace(/Практика управления/g,'Альманах менеджера');if(!document.title.includes('Альманах менеджера'))document.title+=' — Альманах менеджера';
@@ -29,7 +30,7 @@ export function mountShell(profile){
     </div></details></header>`;
   function currentSection(){slot.querySelectorAll('[data-section],[data-menu-section]').forEach(a=>Number(a.dataset.section??a.dataset.menuSection)===mode()?a.setAttribute('aria-current','page'):a.removeAttribute('aria-current'));}
   currentSection();window.addEventListener('hashchange',currentSection);applyTheme(theme);
-  document.getElementById('themeToggle').onclick=()=>{const next=document.documentElement.dataset.theme==='dark'?'light':'dark';applyTheme(next);try{localStorage.setItem(themeKey,next);}catch(_){}};
+  document.getElementById('themeToggle').onclick=()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
   window.addEventListener('storage',e=>{if(e.key===themeKey)applyTheme(e.newValue||'light');});
   if(!document.getElementById('productFooter')){
     const footer=document.createElement('footer');footer.id='productFooter';footer.className='product-footer';
