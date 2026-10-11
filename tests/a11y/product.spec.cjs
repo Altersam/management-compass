@@ -13,6 +13,17 @@ for(const theme of ['dark','light'])test.describe(theme+' theme',()=>{
     const violations=[];for(let id=1;id<=10;id++){await page.goto(`/learn.html?module=${id}`);await expect(page.locator('.activity-'+id)).toBeVisible();violations.push(...await check(page,'topic '+id));}
     await page.goto('/learn.html?module=5#theory-1');violations.push(...await check(page,'productive response'));expect(violations).toEqual([]);
   });
+  test('expanded theory and all diagram types retain accessible explanations in both sizes',async({page})=>{
+    test.setTimeout(180000);const violations=[];
+    for(let id=1;id<=10;id++){await page.goto(`/modules/module-${String(id).padStart(2,'0')}.html#theory`);await expect(page.locator('.depth-article')).toHaveCount(2);violations.push(...await check(page,'full theory '+id));}
+    for(const width of [1440,375]){await page.setViewportSize({width,height:1000});
+      for(const diagram of ['depth-fishbone','depth-decomposition','balance-wheel','focus-blocks','service-time','depth-data-maturity']){
+        await page.goto('/theory.html?view=schemes&diagram='+diagram);await expect(page.locator('#schemeCanvas [data-diagram]')).toHaveAttribute('data-diagram',diagram);
+        if(width===375)await page.locator('#schemeCanvas .diagram-graphic summary').click();
+        violations.push(...await check(page,'scheme '+diagram+' '+width));
+      }
+    }expect(violations).toEqual([]);
+  });
   test('mobile situation result and game dialog retain accessible controls',async({page})=>{
     await page.setViewportSize({width:375,height:850});await page.goto('/navigator.html');await page.locator('[name=q0]').first().check();await page.locator('[name=q1]').first().check();await page.locator('#situationQuestions button').click();expect(await check(page,'hypothesis')).toEqual([]);
     await page.goto('/game.html');for(let i=0;i<4;i++)await page.locator('#skipToEvent').click();await page.locator('[data-tab=events]').click();const why=page.locator('[data-explain]').first();await expect(why).toBeVisible();await why.click();expect(await check(page,'dialog')).toEqual([]);

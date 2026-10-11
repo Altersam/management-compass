@@ -161,6 +161,14 @@ window.Visuals = (() => {
       labels.forEach((l,i)=>drawing+=node(i,pos[i][0],pos[i][1],w,h,l));drawing+=text(324,160,'Учиться на фактах',22,15);
     } else if(d.kind==='ladder'){
       const step=635/n,rise=210/Math.max(1,n-1);labels.forEach((l,i)=>{const x=14+i*step,y=215-i*rise;drawing+=node(i,x,y,step-10,63,l);if(i<n-1)drawing+=arrow(x+step-6,y+30,x+step+8,y-rise+30,d.id);});
+    } else if(d.kind==='wheel'){
+      const fills=['#edf3ff','#edf8f2','#fff6e7','#f3efff'];labels.forEach((l,i)=>{const angle=i*Math.PI/2,x=335+125*Math.cos(angle),y=152+125*Math.sin(angle),next=angle+Math.PI/2,x2=335+125*Math.cos(next),y2=152+125*Math.sin(next);drawing+=`<g data-visual-node="${i}" class="${i===0?'selected':''}"><path d="M335 152 L${x} ${y} A125 125 0 0 1 ${x2} ${y2} Z" fill="${fills[i]}" stroke="#8098b8"/>${text(335+80*Math.cos(angle+Math.PI/4),152+80*Math.sin(angle+Math.PI/4),l,14,13)}</g>`;});
+    } else if(d.kind==='timeblocks'){
+      drawing+=text(335,30,'Два способа выделить 60 минут',45,15);
+      for(let i=0;i<4;i++)drawing+=`<rect x="${40+i*155}" y="72" width="115" height="40" rx="7" fill="#dde9fb" stroke="#8098b8"/>`+text(97+i*155,97,'15 мин.',12,13);
+      drawing+=node(0,40,127,580,42,labels[0])+`<rect x="40" y="195" width="580" height="40" rx="7" fill="#d5eddf" stroke="#8098b8"/>`+text(330,220,'60 минут: один принимаемый продукт',45,15)+text(330,265,'Проверка результата → пауза',45,14);
+    } else if(d.kind==='duration'){
+      const hours=[2,6,1],fills=['#b7cdef','#d4dce7','#e7b65e'];let x=40;labels.forEach((label,i)=>{const w=hours[i]/9*580;drawing+=`<g data-visual-node="${i}" class="${i===0?'selected':''}"><rect x="${x}" y="90" width="${w}" height="60" fill="${fills[i]}" stroke="#8098b8"/>${text(x+w/2,125,hours[i]+' ч.',9,16)}</g>`;x+=w;});drawing+=text(330,210,'Общий срок: 9 часов',35,18);labels.forEach((label,i)=>drawing+=text(120+i*213,265,label,22,13));
     } else if(d.kind==='tree'){
       drawing+=node(0,240,15,190,67,labels[0]);labels.slice(1).forEach((l,i)=>{const x=15+i*220;drawing+=node(i+1,x,202,190,76,l)+arrow(335,86,x+95,198,d.id);});
     } else if(d.kind==='fishbone'){

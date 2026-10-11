@@ -22,6 +22,15 @@ async function lint(){
     state=simulation.apply(state,turn,scene.actions[0].id).state;
   }
   const files=publicFiles(root);
+  const [{readings},{theoryGuide}]=await Promise.all(['theory-depth','theory-guide'].map(name=>import(pathToFileURL(path.join(root,`content/${name}.js`)))));
+  const readingIds=new Set();
+  for(const item of readings){
+    if(readingIds.has(item.id)||!topics.some(t=>t.id===item.topic)||!item.title||item.paragraphs.length<2||item.paragraphs.some(text=>text.length<150)||item.diagram.points.some(([label,detail])=>!label||!detail)||!item.diagram.note)errors.push(`theory reading ${item.id}: incomplete or duplicate`);
+    readingIds.add(item.id);
+  }
+  if(theoryGuide.length!==topics.length)errors.push('theory guide: incomplete topic map');
+  for(const guide of theoryGuide)if(!topics.some(t=>t.id===guide.id)||!guide.models.length||guide.readings.some(id=>!readings.some(item=>item.id===id&&item.topic===guide.id)))errors.push(`theory guide ${guide.id}: broken reading link`);
+  console.log(`Theory: ${readings.length} expanded readings and ${theoryGuide.reduce((n,g)=>n+g.diagrams.length,0)} discoverable diagrams.`);
   const [{eventDefinitions,actionLabels},{tasks:gameTasks},gameEngine]=await Promise.all(['events','project','engine'].map(name=>import(pathToFileURL(path.join(root,`assets/game/${name}.js`)))));
   const {createState}=await import(pathToFileURL(path.join(root,'assets/game/state.js')));
   const gameIds=new Set();

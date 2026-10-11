@@ -1,5 +1,6 @@
 import {Workspace,WorkspaceUI} from './runtime.js';
 import {renderDepth} from './theory-depth.js';
+import {depthFor} from '../content/theory-depth.js';
 (() => {
   'use strict';
   const S=Workspace,U=WorkspaceUI,esc=U.escape;
@@ -17,8 +18,9 @@ import {renderDepth} from './theory-depth.js';
     <nav class="reading-nav chapter-tabs" aria-label="Содержание раздела"><a href="#theory">Теория</a><a href="#techniques">Техники</a><a href="#case">Кейс и рефлексия</a></nav>
     <section id="theory" class="chapter-pane">
       <div class="theory-introduction"><h2>Как устроена эта работа</h2><p>${esc(chapter.intro)}</p><a class="mode-link" href="../theory.html?user=${encodeURIComponent(active)}&view=schemes&topic=${chapter.id}">Все схемы этой темы →</a></div>
+      <details class="reference-details theory-contents" open><summary>Содержание полного разбора</summary><nav aria-label="Объяснения темы">${chapter.theory.map(([title],i)=>`<a href="#reading-base-${i+1}">${esc(title)} →</a>`).join('<br>')}${depthFor(chapter.id).map(item=>`<br><a href="#reading-${item.id}">${esc(item.title)} →</a>`).join('')}</nav></details>
       ${Visuals.render(chapter.overviewVisual)}
-      <div class="chapter-theory-grid">${chapter.theory.map(([title,text],i)=>`<article class="theory-article"><span class="eyebrow">${i+1} / 3 · основание действий</span><h2>${esc(title)}</h2><p>${esc(text)}</p><p>${esc(chapter.theoryDetails[i])}</p>${i===chapter.coreVisual[1]?Visuals.render(chapter.coreVisual[0]):''}</article>`).join('')}</div>
+      <div class="chapter-theory-grid">${chapter.theory.map(([title,text],i)=>`<article class="theory-article" id="reading-base-${i+1}"><span class="eyebrow">${i+1} / 3 · основание действий</span><h2>${esc(title)}</h2><p>${esc(text)}</p><p>${esc(chapter.theoryDetails[i])}</p>${i===chapter.coreVisual[1]?Visuals.render(chapter.coreVisual[0]):''}</article>`).join('')}</div>
       ${renderDepth(chapter.id,esc)}
       <section class="section-block"><h2>Понятия простыми словами</h2><dl class="term-list">${chapter.terms.map(([term,meaning])=>`<div><dt>${esc(term)}</dt><dd>${esc(meaning)}</dd></div>`).join('')}</dl></section>
       <div class="next-action panel"><div><h3>Перейти от объяснения к действию</h3><p>Выберите одну технику под вашу ситуацию, разберите схему и заполните свой рабочий шаблон.</p></div><a class="button primary" href="#techniques">Выбрать технику →</a></div>
@@ -68,12 +70,14 @@ import {renderDepth} from './theory-depth.js';
       root.querySelectorAll('[data-technique]').forEach(a=>{const on=a.dataset.technique===selected;a.classList.toggle('active',on);if(on)a.setAttribute('aria-current','true');else a.removeAttribute('aria-current');});
     }
   }
-  window.addEventListener('hashchange',()=>{navigate();document.querySelector('.chapter-tabs').scrollIntoView({block:'start'});});
+  function scrollToSection(){const target=location.hash.startsWith('#reading-')?document.getElementById(location.hash.slice(1)):document.querySelector('.chapter-tabs');target?.scrollIntoView({block:'start'});}
+  window.addEventListener('hashchange',()=>{navigate();scrollToSection();});
   CaseUI.render(root.querySelector('.case-grid'),HANDBOOK.cases.filter(c=>c.chapter===chapter.id),active);
   Visuals.bind(root);
   document.getElementById('printPage').onclick=()=>window.print();
   if(chapter.id===8)calculator();
   navigate();
+  if(location.hash.startsWith('#reading-'))scrollToSection();
 
   function calculator(){
     const slot=document.getElementById('calculatorSlot');
