@@ -1,13 +1,13 @@
 /* Shared semantic palette. Legacy workbenches keep their layout and adopt these surfaces. */
 :root {
   color-scheme: dark;
-  --background:#0b1428; --surface:#15243b; --surface-soft:#1b2e48;
-  --text:#e4edf8; --muted-text:#adc0d2; --border:#38506a;
-  --accent:#55dcca; --accent-ink:#092624; --accent-soft:#153d43;
-  --highlight:#ffad63; --highlight-soft:#342b2b;
-  --success:#75dea6; --success-soft:#183a35;
-  --warning:#ffbd7c; --warning-soft:#3a3028; --danger:#ffa6ac; --danger-soft:#432c3b;
-  --shadow:0 16px 40px #02081240;
+  --background:#191716; --surface:#252220; --surface-soft:#302B28;
+  --text:#F2EDE6; --muted-text:#C1B5AC; --border:#62564E;
+  --accent:#F2B56B; --accent-ink:#302A28; --accent-soft:#443326;
+  --highlight:#C4B5DE; --highlight-soft:#352E40;
+  --success:#C4B5DE; --success-soft:#352E40;
+  --warning:#F2B56B; --warning-soft:#443326; --danger:#ECA8A2; --danger-soft:#432D2D;
+  --shadow:0 16px 40px #100D0B40;
   --ink:var(--text); --muted:var(--muted-text); --line:var(--border); --paper:var(--background); --white:var(--surface);
   --blue:var(--accent); --blue-dark:var(--surface-soft); --blue-soft:var(--accent-soft);
   --violet:var(--highlight); --violet-soft:var(--highlight-soft);
@@ -15,13 +15,13 @@
 }
 :root[data-theme="light"] {
   color-scheme:light;
-  --background:#e7ecef; --surface:#f8fafb; --surface-soft:#dce5e9;
-  --text:#20303f; --muted-text:#4c6370; --border:#b7c7ce;
-  --accent:#9c315d; --accent-ink:#ffffff; --accent-soft:#f3e4ec;
-  --highlight:#22664b; --highlight-soft:#e4efe9;
-  --success:#22664b; --success-soft:#e3efe8;
-  --warning:#885000; --warning-soft:#f4ebdd; --danger:#a52f46; --danger-soft:#f6e3e7;
-  --shadow:0 16px 40px #233a4a12;
+  --background:#F4F0EA; --surface:#FFFCF8; --surface-soft:#EAE3DA;
+  --text:#302A28; --muted-text:#685B54; --border:#B9AAA0;
+  --accent:#842F49; --accent-ink:#FFFFFF; --accent-soft:#F2E2E7;
+  --highlight:#69507D; --highlight-soft:#EDE6F2;
+  --success:#69507D; --success-soft:#EDE6F2;
+  --warning:#865316; --warning-soft:#F4E7D5; --danger:#9B3732; --danger-soft:#F3E2DE;
+  --shadow:0 16px 40px #49372A12;
 }
 html body {background:var(--background)!important;color:var(--text)!important}
 /* Theme changes are immediate: do not interpolate legacy white surfaces and dark ink. */
@@ -67,5 +67,14 @@ html[data-theme] body :where(main,dialog) :is(.almanac-eyebrow,.path-symbol,.pat
 html[data-theme] body :where(main,dialog) :is(.title-spark,.mission-icon,.game-sigil,.path-play .path-symbol,.path-play .path-cta){color:var(--highlight)!important}
 html[data-theme] body :where(main,dialog) :is(.path-card h3,.theory-topic h2){color:var(--text)!important}
 /* Author diagrams use embedded ink colours; retain a light canvas, not inverted imagery. */
-html[data-theme] .diagram-viewport{background:#f4f7fc;border-radius:10px}
+html[data-theme] .diagram-viewport{background:#FFFCF8;border-radius:10px}
+/* Diagrams use the same paper, amber and plum family in both modes. */
+html[data-theme] .diagram-viewport svg [fill="#23415f"]{fill:#302A28}
+html[data-theme] .diagram-viewport svg :is([fill="#edf3ff"],[fill="#dde9fb"],[fill="#b7cdef"],[fill="#d4dce7"]){fill:#E8DDEA}
+html[data-theme] .diagram-viewport svg :is([fill="#edf8f2"],[fill="#d5eddf"],[fill="#80c7ae"],[fill="#eaf7fa"]){fill:#EDE6F2}
+html[data-theme] .diagram-viewport svg :is([fill="#fff6e7"],[fill="#e7b65e"]){fill:#F4E2C7}
+html[data-theme] .diagram-viewport svg [fill="#f3efff"]{fill:#F2E2E7}
+html[data-theme] .diagram-viewport svg :is([fill="#edf3fb"],[fill="#f4f7fb"]){fill:#F4F0EA}
+html[data-theme] .diagram-viewport svg :is([stroke="#8098b8"],[stroke="#cbd8e7"],[stroke="#b7cce4"],[stroke="#aec4de"],[stroke="#ccd9e8"]){stroke:#AA989F}
+html[data-theme] .diagram-viewport [data-visual-node].selected :is(rect,circle,polygon,path){stroke:#69507D;stroke-width:2.5}
 @media print{html body{background:white!important;color:#20303f!important}html[data-theme] body main :is(p,li,label,span,b,strong,h1,h2,h3,h4,dt,dd){color:#20303f!important}}
