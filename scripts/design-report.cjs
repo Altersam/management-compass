@@ -21,7 +21,7 @@ function report(revision){
   for(const file of files){const source=revision?execFileSync('git',['show',revision+':'+file],{cwd:root,encoding:'utf8'}):fs.readFileSync(path.join(root,file),'utf8');
     if(file.endsWith('.css')){for(const m of source.matchAll(/border-radius\s*:\s*([^;}]+)/g)){radii.add(m[1].trim());if(/(?:99|999|50%)/.test(m[1]))pills++;}continue;}
     if(!/\.(html|js)$/.test(file))continue;
-    for(const str of file.endsWith('.html')?[source]:strings(source)){const text=clean(str);if(text)texts.push(text);
+    for(const str of file.endsWith('.html')?[source.replace(/<head[\s\S]*?<\/head>/gi,'').replace(/<script[\s\S]*?<\/script>/gi,'')]:strings(source)){const text=clean(str);texts.push(...str.split(/<\/?(?:h[1-6]|p|li|dt|dd|label|button|a|summary|noscript|nav|section|div|main|article)[^>]*>/gi).map(clean).filter(t=>/[а-яё]/i.test(t)));
       for(const m of str.matchAll(/<h[23][^>]*>([^<]+)<\/h[23]>/g))headings.push(m[1]);
       for(const m of str.matchAll(/<p[^>]*class="[^"]*(?:lead|intro)[^"]*"[^>]*>([^<]+)<\/p>/g))leads.push(m[1]);
       if(/localStorage|dataVersion|revision|namespace|migration|storage key|JSON format|profile ID|\bseed\b|\bengine\b/i.test(text)&&!file.includes('course-ui'))technical.push({file,text:text.slice(0,180)});
