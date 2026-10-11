@@ -1,4 +1,19 @@
 const {test,expect}=require('@playwright/test');
+const routes=[['index','/'],['theory','/theory.html'],['games','/games.html'],['game','/game.html'],['detective','/detective.html'],['trainer','/trainer.html?game=hybrid'],['workspace','/workspace.html#route'],['chapter','/modules/module-01.html'],['learn','/learn.html?module=1'],['journal','/workspace.html#diary'],['settings','/settings.html']];
+test('editorial routes have one primary action, three mobile destinations and visual audit screenshots',async({page})=>{
+  test.setTimeout(180000);const observations=[];
+  for(const theme of ['light','dark']){
+    await page.addInitScript(theme=>localStorage.setItem('manager-almanac:theme',theme),theme);
+    for(const [width,height] of [[1440,1000],[1024,768],[390,844]]){await page.setViewportSize({width,height});
+      for(const [name,url] of routes){await page.goto(url);await expect(page.locator('main h1:visible')).toBeVisible();await expect(page.locator('html')).toHaveAttribute('data-theme',theme);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),theme+' '+name+' '+width).toBe(true);
+        const primary=await page.locator('main .button.primary:visible').count();expect(primary,theme+' '+name+' '+width).toBeLessThanOrEqual(1);
+        if(width===390){await expect(page.locator('.product-header>nav a:visible')).toHaveCount(3);await page.locator('.secondary-menu>summary').click();await expect(page.locator('[data-menu-section="3"]')).toBeVisible();await expect(page.locator('[data-menu-section="4"]')).toBeVisible();await page.locator('.secondary-menu>summary').click();}
+        if(theme==='light'&&width===1440)observations.push({name,primary,...await page.evaluate(()=>{const elements=[...document.querySelectorAll('main *')].filter(e=>e.getClientRects().length&&!e.closest('svg'));return {radii:[...new Set(elements.map(e=>getComputedStyle(e).borderTopLeftRadius).filter(r=>r!=='0px'))].sort(),pillObjects:elements.filter(e=>parseFloat(getComputedStyle(e).borderTopLeftRadius)>=99).length};})});
+        if(process.env.REFERENCE_SCREENSHOTS)await page.screenshot({path:process.env.REFERENCE_SCREENSHOTS+`/v4-${theme}-${name}-${width}.png`,fullPage:true,animations:'disabled'});
+      }
+    }
+  }console.log('V4 computed audit: '+JSON.stringify(observations));
+});
 test('mobile journal opens a three-question entry and preserves existing ratings and unknown fields',async({page})=>{
   await page.setViewportSize({width:390,height:844});await page.goto('/workspace.html#diary');await expect(page.locator('#diaryForm')).toBeHidden();await page.locator('#newDiary').click();await page.locator('#diaryForm [name=situation]').fill('Отчёт вернулся за уточнением');await page.locator('#diaryForm [name=learning]').fill('На входе нет образца');await page.locator('#diaryForm [name=action]').fill('Сверить образец до передачи');await page.locator('#diaryForm button[type=submit]').click();await expect(page.locator('#diaryList')).toContainText('Отчёт вернулся');await expect(page.locator('#diaryForm')).toBeHidden();
   await page.evaluate(()=>Workspace.update(Workspace.active(),d=>{d.journal[0].rating=5;d.journal[0].customFact='Сохранить';}));await page.reload();await page.locator('.edit-entry').click();await page.locator('#diaryForm [name=learning]').fill('Новый вывод');await page.locator('#diaryForm button[type=submit]').click();const entry=await page.evaluate(()=>Workspace.profile(Workspace.active()).data.journal[0]);expect(entry.rating).toBe(5);expect(entry.customFact).toBe('Сохранить');await expect(page.locator('#diaryList')).not.toContainText('самооценка');

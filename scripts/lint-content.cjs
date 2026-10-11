@@ -117,6 +117,9 @@ async function lint(){
   const exact=duplicates(editorial);
   console.log(`Content: ${topics.length} topics, ${topics.reduce((n,t)=>n+t.techniques.length,0)} techniques, ${questions.length} questions; answer positions ${positions.join('/')}; longest correct ${longest}.`);
   console.log(`Editorial candidates: ${exact.length} exact sentence groups, ${similar.length} similar pairs, ${warnings.length} generic appeals (legacy migration).`);
+  const design=require('./design-report.cjs').report();
+  console.log('UI copy (report-only): '+JSON.stringify(design.frequencies));
+  console.log(`UI copy (report-only): ${design.duplicateHeadings.length} repeated headings, ${design.duplicateLeads.length} repeated lead paragraphs, ${design.technical.length} technical-text candidates. See node scripts/design-report.cjs.`);
   if(process.argv.includes('--report')){
     for(const group of exact)console.log(`DUPLICATE: ${group[0].text}\n  ${group.map(s=>s.location).join('\n  ')}`);
     for(const pair of similar)console.log('SIMILAR: '+pair);

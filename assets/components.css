@@ -13,7 +13,7 @@
   :focus-visible{outline:2px solid var(--accent);outline-offset:4px}main:focus{outline:none}
   main{min-width:0;max-width:100%;overflow-wrap:break-word}
   .reading-page,.experience-page,.workspace-page{max-width:var(--content-width);margin:auto;padding:48px 28px 64px}
-  .button{display:inline-block;border:1px solid var(--rule);border-radius:var(--radius-xs);background:var(--paper-subtle);color:var(--ink);padding:10px 16px;font:600 14px/1.5 var(--font-body);box-shadow:none}
+  .button{display:inline-block;border:1px solid var(--rule);border-radius:var(--radius-xs);background:var(--paper-subtle);color:var(--ink);padding:10px 16px;font:600 14px/1.5 var(--font-body);box-shadow:none;transition:none}
   .button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}.button.quiet,.button.secondary{background:transparent;color:var(--ink);border-color:var(--rule)}.button:hover{transform:none}.button:disabled{opacity:.5;cursor:default}
   :where(main,dialog) button:not(.button):not(.gantt-bar){font-family:var(--font-body);color:var(--ink);background:var(--paper);border-color:var(--rule);border-radius:var(--radius-xs)}
   :where(main,dialog) :is(button[aria-pressed=true],button[aria-selected=true]){color:var(--accent);border-color:var(--accent);background:var(--accent-muted)}
@@ -38,6 +38,7 @@
   .diagram-viewport{background:#FFFCF8;border-radius:var(--radius-xs)}
   .diagram-graphic[open] .diagram-viewport{display:block}.diagram-graphic>summary{font-size:12px;cursor:pointer;padding:12px 0}
   .library-controls>*,.module-card,.module-head>div{min-width:0}.module-search{max-width:100%}
+  .topic-top,.compact-topic-nav,.autonomy-effect,.paper-heading,.dashboard-before,.plain-list{color:var(--ink)}.resource-card{background:none;border:0;border-bottom:1px solid var(--rule);border-radius:0;padding:18px 0;box-shadow:none}.resource-card small{color:var(--ink-muted)}.table-wrap :is(table,thead,tbody,tr,th,td){background:none;color:var(--ink);border-color:var(--rule)}
   .game-title h1{font-size:clamp(28px,3vw,42px);max-width:none}.game-title p{font-size:14px}.game-page .practice-cycle{margin:12px 0}.game-page .game-next-hint{margin:12px 0}
   .diagram-viewport svg [fill="#23415f"]{fill:#302A28}.diagram-viewport svg :is([fill="#edf3ff"],[fill="#dde9fb"],[fill="#b7cdef"],[fill="#d4dce7"]){fill:#E8DDEA}.diagram-viewport svg :is([fill="#edf8f2"],[fill="#d5eddf"],[fill="#80c7ae"],[fill="#eaf7fa"]){fill:#EDE6F2}.diagram-viewport svg :is([fill="#fff6e7"],[fill="#e7b65e"]){fill:#F4E2C7}.diagram-viewport svg [fill="#f3efff"]{fill:#F2E2E7}.diagram-viewport svg :is([fill="#edf3fb"],[fill="#f4f7fb"]){fill:#F4F0EA}.diagram-viewport svg :is([stroke="#8098b8"],[stroke="#cbd8e7"],[stroke="#b7cce4"],[stroke="#aec4de"],[stroke="#ccd9e8"]){stroke:#AA989F}.diagram-viewport [data-visual-node].selected :is(rect,circle,polygon,path){stroke:#69507D;stroke-width:2.5}
   @media(max-width:760px){.reading-page,.experience-page,.workspace-page{padding:28px 16px 48px}.practice-cycle{gap:8px 16px}.game-next-step{padding:20px 0}}
