@@ -11,7 +11,24 @@ test('Hybrid Lab ties approach to uncertainty and mandatory gate rather than a w
   assert.ok(Hybrid.evaluate(iterative,'discovery').rework<Hybrid.evaluate(linear,'discovery').rework);
   assert.equal(Hybrid.evaluate(iterative,'report').viable,false);assert.equal(Hybrid.evaluate(linear,'report').viable,true);
   assert.ok(Hybrid.evaluate([...iterative.slice(0,-1),'gate','release'],'integration').viable);
+  assert.equal(Hybrid.evaluate([...linear,'research'],'report').viable,false,'work after release cannot certify the route');
   let s=Hybrid.create();const before=structuredClone(s);s=Hybrid.act(s,{type:'move',index:1,delta:1});assert.deepEqual(before,Hybrid.create());assert.notDeepEqual(s.route,before.route);s=Hybrid.act(s,{type:'run'});s=Hybrid.act(s,{type:'run'});assert.equal(s.phase,'ended');
+});
+test('all completed games and isolated archives survive backup with the same result and authored notes',()=>{
+  const {ids,finishedGame}=require('./helpers/arcade-runs.cjs');
+  const map=new Map(),store=createStore({getItem:k=>map.get(k),setItem:(k,v)=>map.set(k,v)}),id=store.active();
+  const states=Object.fromEntries(ids.map(key=>[key,finishedGame(key)]));
+  for(const key of ids){assert.equal(states[key].phase,'ended',key);assert.ok(modules[key].validate(states[key]),key);}
+  store.update(id,d=>{d.course.arcadeGames=states;d.course.arcadeArchives=Object.fromEntries(ids.map(key=>[key,[states[key]]]));});
+  const clone=store.import(JSON.parse(JSON.stringify(store.export(id)))),copy=store.profile(clone).data.course;
+  for(const key of ids){
+    const game=modules[key],state=copy.arcadeGames[key];assert.ok(game.validate(state),key);
+    assert.deepEqual(game.report(state),game.report(states[key]),key);assert.equal(state.note,states[key].note,key);
+    assert.deepEqual(copy.arcadeArchives[key],[states[key]],key);assert.throws(()=>game.act(state,{type:'tick'}),/завершена/,key);
+  }
+  const untouched=structuredClone(copy.arcadeGames.meeting);store.update(clone,d=>{d.course.arcadeGames.hybrid=Hybrid.create('new-attempt');});
+  assert.deepEqual(store.profile(clone).data.course.arcadeGames.meeting,untouched);
+  assert.equal(store.profile(id).data.course.arcadeGames.hybrid.phase,'ended','imported profile remains isolated');
 });
 test('meeting must connect facts, budget, authority and an executable scope',()=>{
   let s=Meeting.create();for(const [person,question] of [['it','constraint'],['finance','constraint'],['ops','fact'],['legal','constraint'],['owner','authority']]){s=Meeting.act(s,{type:'person',value:person});s=Meeting.act(s,{type:'ask',value:question});}

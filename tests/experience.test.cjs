@@ -61,6 +61,7 @@ test('all fifty alternatives stay concise and avoid systematic length clues',()=
   const longest=questions.filter(q=>q.options[q.answer].text.length>Math.max(...q.options.filter((_,i)=>i!==q.answer).map(o=>o.text.length)));
   assert.ok(longest.length<=20);
   assert.equal(Object.values(pedagogy.topics).flatMap(t=>t.blocks).length,30);
+  const appeals=Object.values(pedagogy.topics).flatMap(t=>t.blocks.flatMap(b=>b.micro.options.map(o=>o.appeal)));assert.equal(appeals.length,90);assert.equal(new Set(appeals).size,90);assert.ok(appeals.every(text=>text.length>30&&!text.includes('Этот вариант опирается')));
 });
 test('navigator distinguishes resource conflict from unclear handoff without asking for a model name',()=>{
   assert.equal(N.situations.length,16);assert.ok(N.situations.every(s=>s.questions.length>=2));

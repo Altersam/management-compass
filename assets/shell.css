@@ -26,17 +26,3 @@ dialog{border:1px solid var(--border);border-radius:var(--radius);max-width:min(
 @media(max-width:760px){.function-map,.role-transition{grid-template-columns:1fr}}
 .new-experiment textarea{width:100%;min-height:85px;padding:10px;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font:inherit}.experiment-row{grid-template-columns:minmax(0,1fr) minmax(220px,320px)}
 @media(max-width:760px){.experiment-row{grid-template-columns:1fr}}
-h1,h2,h3{font-family:inherit}.idea-location{margin:30px 0;padding-top:24px;border-top:1px solid var(--border)}.idea-location a{color:var(--accent)}
-.quiet-note,.welcome .resume-place,.topic-top,.name-the-principle,.term-list dd,.atlas-context,.library-count,.module-meta span,.technique-picker span,.eyebrow{color:var(--muted-text)!important}
-.autonomy-effect>div{background:#456783}.experiment-row time,.new-experiment label,.settings-section>label{color:var(--muted-text)}
-.theory-card h2{font-size:21px;line-height:1.4}
-main p a:not(.button),main dd a{text-decoration:underline;text-underline-offset:3px}
-.time-budget>div{background:#456783}
-.game-time-controls .button.quiet{background:#f5f8fa;color:var(--accent);border:1px solid var(--border)}
-.autonomy-scale li{color:var(--muted-text)}
-.button{transition:none}
-.paper-document .paper-version,.dashboard-before{color:var(--muted-text)}
-:root{--muted:var(--muted-text)}
-.queue-chart b{color:var(--muted-text)}
-.notes-archive>summary,.new-experiment>summary{color:var(--muted-text)}
-.theory-card h2{font-size:21px;line-height:1.4}

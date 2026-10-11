@@ -2,6 +2,7 @@ import {CourseUI} from './course-ui.js';
 import * as Activities from './activities.js';
 import * as Experiments from './experiments.js';
 import {productive,scheduleReviews,reviewFor,contextualQuestion} from './learning-practice.js';
+import {catalog as arcadeCatalog} from './arcade/catalog.js';
 export function mountLesson({topic:currentTopic}) {
   const C=CourseUI,{M,esc}=C;
   const topic=currentTopic.id,module=currentTopic.course,p={scene:currentTopic.scene.title,lead:currentTopic.scene.lead,blocks:currentTopic.explanations,bridge:currentTopic.bridge},reference=currentTopic.reference,questions=currentTopic.questions;
@@ -58,6 +59,8 @@ export function mountLesson({topic:currentTopic}) {
     const t=reference.techniques.find(t=>t.id===state().selectedTechnique)||reference.techniques[0];
     content(`<h1>${esc(t.name)}</h1><p class="story-lead">${esc(t.when)}</p><ol class="step-list">${t.steps.map(step=>`<li>${esc(step)}</li>`).join('')}</ol><div class="example-box"><b>Как это выглядит в работе</b><p>${esc(t.example)}</p></div><details class="reference-details"><summary>Другие инструменты этой темы</summary>${reference.techniques.map(x=>`<a href="${C.link(`modules/module-${String(topic).padStart(2,'0')}.html#${x.id}`)}">${esc(x.name)} →</a>`).join('<br>')}</details>${[2,3,6,8,9].includes(topic)?C.adizes(module.adizes):''}<div class="natural-next"><a class="button primary" href="#transfer">Попробовать в своей работе →</a></div>`);
     if([7,8,10].includes(topic))document.getElementById('lessonContent').insertAdjacentHTML('beforeend',`<p><a href="${C.link('detective.html')}">Попробовать в детективе «Найди разрыв» →</a></p>`);
+    const choices=arcadeCatalog.filter(game=>game.topics.includes(topic)).slice(0,3);
+    document.getElementById('lessonContent').insertAdjacentHTML('beforeend',`<details class="reference-details"><summary>Попробовать другой игровой способ</summary>${choices.map(game=>`<p><a href="${C.link('trainer.html?game='+game.id)}">${esc(game.title)} →</a><br>${esc(game.mechanic)}</p>`).join('')}</details>`);
   }
   function transfer(){
     const m=state(),old=Experiments.list(C.S,C.active).find(e=>e.id===m.experimentId||e.journalEntryId===m.transferEntryId);

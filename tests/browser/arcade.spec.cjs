@@ -5,7 +5,10 @@ test('all ten games load separate working objects and preserve same product shel
   const errors=[];page.on('pageerror',e=>errors.push(e.message));for(const id of games){await page.goto('/trainer.html?game='+id);await expect(page.locator('#arcadeBoard')).not.toBeEmpty();await expect(page.locator('.product-header>nav a')).toHaveText(['Игра','Курс','Рабочая ситуация']);}expect(errors).toEqual([]);
 });
 test('Hybrid route can be rearranged and two trials reach a comparison result',async({page})=>{
-  await page.goto('/trainer.html?game=hybrid');await click(page,'add','research');await expect(page.locator('.route-builder li')).toHaveCount(6);await click(page,'run');await expect(page.locator('.trial-result')).toHaveCount(1);await click(page,'run');await expect(page.locator('#arcadeResult')).toBeVisible();
+  await page.goto('/trainer.html?game=hybrid');await click(page,'run');await expect(page.locator('.trial-result')).toHaveCount(1);await expect(page.locator('[name=context]')).toBeDisabled();
+  await click(page,'add','research');await expect(page.locator('.route-builder li')).toHaveCount(6);
+  for(let index=5;index>0;index--)await page.locator(`[data-action=move][data-index="${index}"][data-delta="-1"]`).click();
+  await expect(page.locator('.route-builder li').first()).toContainText('Исследование');await click(page,'run');await expect(page.locator('#arcadeResult')).toBeVisible();await expect(page.locator('#arcadeResult')).toContainText('Выпуск завершает маршрут');
 });
 test('meeting obtains facts and confirms an executable resource choice',async({page})=>{
   await page.goto('/trainer.html?game=meeting');for(const [person,question] of [['it','constraint'],['finance','constraint'],['ops','fact'],['legal','constraint'],['owner','authority']]){await click(page,'person',person);await click(page,'ask',question);}await page.locator('[name=owner]').selectOption('owner');await page.locator('[data-form=commit] button').click();await expect(page.locator('#arcadeResult')).toContainText('подтверждена');

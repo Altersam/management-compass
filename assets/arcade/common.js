@@ -7,7 +7,7 @@ export function initial(seed){return {revision:1,seed:String(seed).slice(0,80),r
 export function assertPlaying(state){if(state.phase!=='playing')throw new Error('Игра завершена. Можно начать новую попытку.');}
 export function record(state,action,text){state.history.push({turn:state.turn,type:action.type,text});}
 export const button=(type,text,extra='',disabled=false)=>`<button type="button" data-action="${type}" ${extra} ${disabled?'disabled':''}>${text}</button>`;
-export function select(name,label,options,value){return `<label>${label}<select name="${name}">${options.map(([id,text])=>`<option value="${id}" ${String(value)===String(id)?'selected':''}>${text}</option>`).join('')}</select></label>`;}
+export function select(name,label,options,value,disabled=false){return `<label>${label}<select name="${name}" ${disabled?'disabled':''}>${options.map(([id,text])=>`<option value="${id}" ${String(value)===String(id)?'selected':''}>${text}</option>`).join('')}</select></label>`;}
 export const noteField=(prompt,value='')=>`<label>${prompt}<textarea name="note" maxlength="2000">${esc(value)}</textarea></label>`;
 export function summary(metrics,insights,extra={}){return {metrics,insights,...extra};}
-export function basicValid(state){return state&&state.revision===1&&typeof state.seed==='string'&&Number.isInteger(state.rng)&&['playing','ended'].includes(state.phase)&&Array.isArray(state.history)&&Number.isInteger(state.turn)&&state.turn>=0;}
+export function basicValid(state){return state&&state.revision===1&&typeof state.seed==='string'&&typeof state.note==='string'&&Number.isInteger(state.rng)&&['playing','ended'].includes(state.phase)&&Array.isArray(state.history)&&state.history.every(item=>item&&Number.isInteger(item.turn)&&typeof item.type==='string'&&typeof item.text==='string')&&Number.isInteger(state.turn)&&state.turn>=0;}
