@@ -160,7 +160,12 @@ window.Visuals = (() => {
       drawing+=arrow(420,48,548,104,d.id)+arrow(550,184,420,246,d.id)+arrow(228,246,94,182,d.id)+arrow(92,106,228,48,d.id);
       labels.forEach((l,i)=>drawing+=node(i,pos[i][0],pos[i][1],w,h,l));drawing+=text(324,160,'Учиться на фактах',22,15);
     } else if(d.kind==='ladder'){
-      labels.forEach((l,i)=>{const x=14+i*160,y=215-i*58;drawing+=node(i,x,y,150,63,l);if(i<3)drawing+=arrow(x+154,y+30,x+180,y-18,d.id);});
+      const step=635/n,rise=210/Math.max(1,n-1);labels.forEach((l,i)=>{const x=14+i*step,y=215-i*rise;drawing+=node(i,x,y,step-10,63,l);if(i<n-1)drawing+=arrow(x+step-6,y+30,x+step+8,y-rise+30,d.id);});
+    } else if(d.kind==='tree'){
+      drawing+=node(0,240,15,190,67,labels[0]);labels.slice(1).forEach((l,i)=>{const x=15+i*220;drawing+=node(i+1,x,202,190,76,l)+arrow(335,86,x+95,198,d.id);});
+    } else if(d.kind==='fishbone'){
+      drawing+=`<line x1="35" y1="160" x2="530" y2="160" stroke="#8098b8" stroke-width="3"/>`+node(4,534,119,124,82,'Задержка');
+      labels.forEach((l,i)=>{const top=i<2,x=50+(i%2)*242,y=top?15:223;drawing+=node(i,x,y,185,65,l)+`<line x1="${x+92}" y1="${top?80:223}" x2="${x+162}" y2="160" stroke="#8098b8" stroke-width="2"/>`;});
     } else if(d.kind==='funnel'){
       labels.forEach((l,i)=>{const x=25+i*67,w=600-i*134,y=10+i*95;drawing+=`<g data-visual-node="${i}" class="${i===0?'selected':''}"><polygon points="${x},${y} ${x+w},${y} ${x+w-25},${y+76} ${x+25},${y+76}" fill="${['#edf3ff','#edf8f2','#fff6e7'][i]}" stroke="#cbd8e7"/>${text(325,y+44,l,30)}</g>`;});
     } else if(d.kind==='swimlane'){
@@ -201,7 +206,7 @@ window.Visuals = (() => {
     }
     return `<div class="mobile-model mobile-model-${classes}" aria-hidden="true">${content}</div>`;
   }
-  function render(id){const d=definitions[id];if(!d)return '';return `<figure class="visual-diagram" data-diagram="${id}"><figcaption><span class="eyebrow">Визуальная модель</span><h3>${escape(d.title)}</h3><p>${escape(d.note)}</p></figcaption><div class="diagram-viewport">${svg(d)}</div>${mobileDiagram(d)}<div class="diagram-controls" aria-label="Элементы схемы">${d.points.map((p,i)=>`<button type="button" data-point="${i}" aria-pressed="${i===0}">${escape(p.label)}</button>`).join('')}</div><p class="visual-explanation" aria-live="polite">${escape(d.points[0].detail)}</p></figure>`;}
+  function render(id){const d=definitions[id];if(!d)return '';const mobile=typeof matchMedia==='function'&&matchMedia('(max-width:760px)').matches;return `<figure class="visual-diagram" data-diagram="${id}"><figcaption><span class="eyebrow">Визуальная модель</span><h3>${escape(d.title)}</h3><p>${escape(d.note)}</p></figcaption><details class="diagram-graphic" ${mobile?'':'open'}><summary>Показать графическую схему</summary><div class="diagram-viewport" tabindex="0" role="region" aria-label="Графическая схема: ${escape(d.title)}">${svg(d)}</div></details>${mobileDiagram(d)}<div class="diagram-controls" aria-label="Элементы схемы">${d.points.map((p,i)=>`<button type="button" data-point="${i}" aria-pressed="${i===0}">${escape(p.label)}</button>`).join('')}</div><p class="visual-explanation" aria-live="polite">${escape(d.points[0].detail)}</p></figure>`;}
   function bind(container){container.querySelectorAll('[data-diagram]').forEach(figure=>{const d=definitions[figure.dataset.diagram];figure.querySelectorAll('[data-point]').forEach(button=>button.onclick=()=>{const i=Number(button.dataset.point);figure.querySelector('.visual-explanation').textContent=d.points[i].detail;figure.querySelectorAll('[data-point]').forEach(b=>b.setAttribute('aria-pressed',String(Number(b.dataset.point)===i)));figure.querySelectorAll('[data-visual-node]').forEach(g=>g.classList.toggle('selected',Number(g.dataset.visualNode)===i));});});}
-  return {definitions,render,bind};
+  return {definitions,render,bind,register:add};
 })();

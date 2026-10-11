@@ -1,4 +1,5 @@
 import {Workspace,WorkspaceUI} from './runtime.js';
+import {renderDepth} from './theory-depth.js';
 (() => {
   'use strict';
   const S=Workspace,U=WorkspaceUI,esc=U.escape;
@@ -9,15 +10,16 @@ import {Workspace,WorkspaceUI} from './runtime.js';
   const link=n=>`module-${String(n).padStart(2,'0')}.html?user=${encodeURIComponent(active)}`;
   const root=document.getElementById('chapterRoot');
   root.innerHTML=`
-    <div class="reading-bar"><a href="${home}#modules">← Инструменты</a><a href="../experiments.html?user=${encodeURIComponent(active)}">Мои действия</a></div>
+    <div class="reading-bar"><a href="../theory.html?user=${encodeURIComponent(active)}">← Все темы теории</a><a href="../experiments.html?user=${encodeURIComponent(active)}">Мои действия</a></div>
     <span class="eyebrow">Альманах менеджера · ${chapter.id}</span>
     <h1>${esc(chapter.title)}</h1><p class="lead">${esc(chapter.short)}</p>
     <div class="learning-callout"><span>Хотите освоить тему по учебному маршруту?</span><a href="../learn.html?module=${chapter.id}&user=${encodeURIComponent(active)}">Открыть модуль курса →</a></div>
     <nav class="reading-nav chapter-tabs" aria-label="Содержание раздела"><a href="#theory">Теория</a><a href="#techniques">Техники</a><a href="#case">Кейс и рефлексия</a></nav>
     <section id="theory" class="chapter-pane">
-      <div class="theory-introduction"><h2>Как устроена эта работа</h2><p>${esc(chapter.intro)}</p></div>
+      <div class="theory-introduction"><h2>Как устроена эта работа</h2><p>${esc(chapter.intro)}</p><a class="mode-link" href="../theory.html?user=${encodeURIComponent(active)}&view=schemes&topic=${chapter.id}">Все схемы этой темы →</a></div>
       ${Visuals.render(chapter.overviewVisual)}
       <div class="chapter-theory-grid">${chapter.theory.map(([title,text],i)=>`<article class="theory-article"><span class="eyebrow">${i+1} / 3 · основание действий</span><h2>${esc(title)}</h2><p>${esc(text)}</p><p>${esc(chapter.theoryDetails[i])}</p>${i===chapter.coreVisual[1]?Visuals.render(chapter.coreVisual[0]):''}</article>`).join('')}</div>
+      ${renderDepth(chapter.id,esc)}
       <section class="section-block"><h2>Понятия простыми словами</h2><dl class="term-list">${chapter.terms.map(([term,meaning])=>`<div><dt>${esc(term)}</dt><dd>${esc(meaning)}</dd></div>`).join('')}</dl></section>
       <div class="next-action panel"><div><h3>Перейти от объяснения к действию</h3><p>Выберите одну технику под вашу ситуацию, разберите схему и заполните свой рабочий шаблон.</p></div><a class="button primary" href="#techniques">Выбрать технику →</a></div>
       <details class="reference-details"><summary>Частые вопросы по разделу</summary><div class="faq-list">${chapter.faq.map(([q,a])=>`<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</div></details>
@@ -30,7 +32,7 @@ import {Workspace,WorkspaceUI} from './runtime.js';
     </section>
     <section id="case" class="chapter-pane" hidden><div class="section-heading"><h2>Разобрать решение и собственную практику</h2><p>Выберите первый ход, прочитайте последствия и запишите, что это меняет в вашей работе.</p></div><div class="case-grid"></div></section>
     <details class="reference-details related-details"><summary>Связанные ракурсы и дальнейшее чтение</summary><div class="route-steps">${chapter.related.map(n=>`<a href="${link(n)}">${esc(HANDBOOK.chapters[n-1].title)}</a>`).join('')}</div><a href="../sources.html?user=${encodeURIComponent(active)}">Модели и литература →</a></details>
-    <footer class="footer"><a href="${home}#modules">← Каталог инструментов</a><a href="${home}#diary">Архив заметок</a><button class="text-button" id="printPage">Печать открытого раздела</button></footer>`;
+    <footer class="footer"><a href="${home}#modules">← Техники</a><a href="${home}#diary">Мой дневник</a><button class="text-button" id="printPage">Печать открытого раздела</button></footer>`;
 
   function renderTechnique(t) {
     const holder=document.getElementById('techniquePanel');
