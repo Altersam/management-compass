@@ -62,7 +62,7 @@ test('each technique has an interactive diagram and drafts survive switching too
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   for(let n=1;n<=10;n++){
     await page.goto(`/modules/module-${String(n).padStart(2,'0')}.html`);
-    await expect(page.locator('#theory .visual-diagram')).toHaveCount(2);
+    await expect(page.locator('#theory .visual-diagram')).toHaveCount(4);
     await page.locator('.chapter-tabs a[href="#techniques"]').click();
     for(let i=0;i<3;i++){
       await page.locator('[data-technique]').nth(i).click();

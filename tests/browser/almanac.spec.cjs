@@ -1,7 +1,7 @@
 const {test,expect}=require('@playwright/test');
 test('five routes explain their purpose, search hides irrelevant materials and journal opens directly',async({page})=>{
   await page.goto('/');await expect(page.locator('.path-card')).toHaveCount(5);await page.locator('[data-path=theory]').click();await expect(page.locator('.theory-topic')).toHaveCount(10);
-  await page.locator('#theorySearch').fill('документы');await expect(page.locator('.theory-topic')).toHaveCount(1);await page.locator('.theory-topic').click();await expect(page).toHaveURL(/module-07.*#theory/);await expect(page.locator('#theory')).toBeVisible();
+  await page.locator('#theorySearch').fill('документы');await expect(page.locator('.theory-topic')).toHaveCount(1);await page.locator('.theory-topic .topic-read').click();await expect(page).toHaveURL(/module-07.*#theory/);await expect(page.locator('#theory')).toBeVisible();
   await page.locator('.product-header [data-section="1"]').click();await expect(page.locator('.training-game')).toHaveCount(12);await page.locator('[data-game-filter=project]').click();await expect(page.locator('.training-game:visible')).toHaveCount(3);await page.locator('#gameSearch').fill('Sprint');await expect(page.locator('.training-game:visible')).toHaveCount(1);
   await page.locator('.product-header [data-section="3"]').click();await expect(page.locator('.atlas-card')).toHaveCount(3);await page.locator('#moduleSearch').fill('SIPOC');await expect(page.locator('.atlas-card')).toHaveCount(1);
   await page.locator('.product-header [data-section="4"]').click();await expect(page.locator('#diaryForm')).toBeVisible();await expect(page.locator('#route')).toBeHidden();await expect(page.locator('.product-header [data-section="4"]')).toHaveAttribute('aria-current','page');
