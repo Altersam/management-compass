@@ -1,5 +1,5 @@
 (() => {
-  const titles={start:'Рабочие ситуации',reference:'Техники под вашу задачу',practice:'Рабочие упражнения',journal:'Мой дневник',help:'Помощь'};
+  const titles={start:'Что произошло?',reference:'Техники под задачу',practice:'Рабочие упражнения',journal:'Мой дневник',help:'Помощь'};
   function navigate(){
     const hash=location.hash.slice(1);
     const view=['modules','library','favorites'].includes(hash)?'reference':['practice','cases'].includes(hash)?'practice':['diary','decisions'].includes(hash)?'journal':hash==='faq'?'help':'start';

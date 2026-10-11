@@ -9,7 +9,7 @@ test('both situation entries use the same questions, hypotheses and tools',async
   for(const url of ['/workspace.html','/navigator.html']){
     await page.goto(url);await expect(page.locator('#problemSelect option')).toHaveCount(16);await page.locator('#problemSelect').selectOption('informal-blocker');
     await page.locator('[name=q0][value=resource]').check();await page.locator('[name=q1][value=no]').check();await page.locator('#situationQuestions button').click();
-    await expect(page.locator('#situationSuggestion')).toContainText('Похоже, рабочая гипотеза');await expect(page.locator('#situationSuggestion')).toContainText('Если не подтвердится');await expect(page.locator('#situationSuggestion .button')).toHaveAttribute('href',/#interests$/);
+    await expect(page.locator('#situationSuggestion')).toContainText('Похоже на');await expect(page.locator('#situationSuggestion')).toContainText('Если нет');await expect(page.locator('#situationSuggestion .button')).toHaveAttribute('href',/#interests$/);
   }
 });
 test('pointer assignment previews skill and retains checkbox fallback',async({page})=>{
