@@ -37,7 +37,7 @@ test('export contains model parameters and import clones profile without overwri
 test('mobile reference has no document overflow and searchable sections',async({page})=>{
   await page.setViewportSize({width:390,height:844});await page.goto('/workspace.html');
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
-  await page.locator('[data-view-link=reference]').click();await page.locator('[data-library-mode=chapters]').click();await page.locator('#moduleSearch').fill('документы');await expect(page.locator('.module-card:visible')).toHaveCount(1);
+  await page.locator('.secondary-menu>summary').click();await page.locator('[data-menu-section="3"]').click();await page.locator('[data-library-mode=chapters]').click();await page.locator('#moduleSearch').fill('документы');await expect(page.locator('.module-card:visible')).toHaveCount(1);
   await page.goto('/modules/module-08.html#process');expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
   await page.locator('#capacityDetails summary').click();
   await page.locator('#capacityForm [name=flow]').fill('100');await page.locator('#capacityForm button').click();await expect(page.locator('#capacityResult')).toContainText('очередь будет расти');
@@ -50,7 +50,7 @@ test('unsaved diary draft survives navigation and starts empty in a different pr
 test('focused navigation exposes one task at a time and supports direct links and history',async({page})=>{
   await page.goto('/workspace.html');await expect(page.locator('.product-header>nav a')).toHaveCount(5);await expect(page.locator('.sidebar')).toHaveCount(0);await expect(page.locator('#profileSelect')).toHaveCount(0);
   await expect(page.locator('#route')).toBeVisible();await expect(page.locator('#modules')).toBeHidden();await expect(page.locator('#diary')).toBeHidden();
-  await page.locator('[data-view-link=reference]').click();await expect(page.locator('#modules')).toBeVisible();await expect(page.locator('#route')).toBeHidden();
+  await page.locator('.product-header>nav [data-section="3"]').click();await expect(page.locator('#modules')).toBeVisible();await expect(page.locator('#route')).toBeHidden();
   await page.locator('[data-library-mode=techniques]').click();await expect(page.locator('.atlas-card')).toHaveCount(3);await page.locator('#techniqueTopic').selectOption('');await expect(page.locator('.atlas-card')).toHaveCount(30);
   await page.locator('#moduleSearch').fill('SIPOC');await expect(page.locator('.atlas-card')).toHaveCount(1);
   await page.locator('.atlas-card .module-link').click();await expect(page).toHaveURL(/#sipoc$/);await expect(page.locator('#theory')).toBeHidden();
