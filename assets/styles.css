@@ -1,3 +1,4 @@
+@layer legacy, reset, tokens, shell, components, pages, utilities;
 @layer legacy {
 /* Legacy reference layout. Colours and typography are supplied by semantic components. */
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}*,*:before,*:after{animation:none!important;transition:none!important}}
