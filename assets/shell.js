@@ -30,6 +30,7 @@ export function mountShell(profile){
     </div></details></header>`;
   function currentSection(){slot.querySelectorAll('[data-section],[data-menu-section]').forEach(a=>Number(a.dataset.section??a.dataset.menuSection)===mode()?a.setAttribute('aria-current','page'):a.removeAttribute('aria-current'));}
   currentSection();window.addEventListener('hashchange',currentSection);applyTheme(theme);
+  slot.addEventListener('click',e=>{if(e.target.closest('.secondary-menu a')){slot.querySelector('.secondary-menu').open=false;requestAnimationFrame(()=>document.querySelector('main')?.focus({preventScroll:true}));}});
   document.getElementById('themeToggle').onclick=()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
   window.addEventListener('storage',e=>{if(e.key===themeKey)applyTheme(e.newValue||'light');});
   if(!document.getElementById('productFooter')){
