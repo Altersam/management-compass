@@ -24,10 +24,13 @@
   --shadow:0 16px 40px #233a4a12;
 }
 html body {background:var(--background)!important;color:var(--text)!important}
+/* Theme changes are immediate: do not interpolate legacy white surfaces and dark ink. */
+html[data-theme] body *{transition-property:transform,box-shadow!important}
 html :is(main,dialog,.game-page,.detective-page,.arcade-page,.drag-preview){color:var(--text)!important}
 html[data-theme] body :where(main,dialog,.drag-preview) :is(p,li,label,summary,legend,dt,dd,span,small,b,strong,h1,h2,h3,h4,output,caption,th,td){color:var(--text)!important}
 html[data-theme] body :where(main,dialog) :is(small,.eyebrow,.quiet-note,.game-catalog-kind,.game-catalog-topics,.atlas-context,.entry-meta,.topic-top,.game-eyebrow,.detective-eyebrow){color:var(--muted-text)!important}
 html[data-theme] body :where(main,dialog) a:not(.button){color:var(--accent)!important}
+html[data-theme] body :where(main,dialog) p a:not(.button){text-decoration:underline;text-underline-offset:3px}
 html[data-theme] body :where(main,dialog) :is(input:not([type=range]):not([type=checkbox]):not([type=radio]),select,textarea){color:var(--text)!important;background:var(--surface)!important;border-color:var(--border)!important;accent-color:var(--accent)}
 html[data-theme] body :where(main,dialog) :is(input[type=checkbox],input[type=radio],input[type=range]){accent-color:var(--accent)}
 html[data-theme] :is(dialog,.drag-preview,.task-drawer){background:var(--surface)!important;border-color:var(--border)!important;box-shadow:var(--shadow)}
@@ -43,6 +46,7 @@ html[data-theme] body :where(main,dialog) :is(.example-box,.teacher-reply,.saved
 html[data-theme] body :where(main,dialog) :is(.mistake-box,.task-blocker,.incentive-chain span,.message-current .lost,.dependency-view .late){background:var(--warning-soft)!important;border-color:var(--warning)!important;color:var(--text)!important}
 html[data-theme] body :where(main,dialog) :is(.teacher-consequences,.activity-metrics,.course-stage,.course-loop,.learning-question,.micro-action,.another-view,.diagnostic-questions,.experiment-row,.notes-archive,.case-ledger,.case-desk,.source-folder,.game-person,.game-event,.gantt-row,.game-service,.task-more,.cause-journal,.reading-bar,.chapter-tabs,.term-list>div,.day-tasks>li,.message-piece,.diary-entry){border-color:var(--border)!important}
 html[data-theme] .reading-nav.chapter-tabs{background:var(--background)!important}
+html[data-theme] body main :is(table,tbody,td){background:var(--surface)!important;border-color:var(--border)!important}html[data-theme] body main :is(thead,th){background:var(--surface-soft)!important;border-color:var(--border)!important}
 html[data-theme] .toast{background:var(--text);color:var(--background)}
 html[data-theme] .gantt-lane{background:repeating-linear-gradient(to right,transparent 0,transparent calc(5% - 1px),var(--border) calc(5% - 1px),var(--border) 5%)!important}
 html[data-theme] .gantt-bar{background:var(--surface-soft)!important;border-color:var(--accent)!important;color:var(--text)!important}
