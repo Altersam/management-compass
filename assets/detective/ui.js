@@ -2,6 +2,7 @@ import {sources,stages,interventions} from './data.js';
 import {createCasebook,metrics,trace,hoursPerDay} from './model.js';
 import {evidence} from './evidence.js';
 import {act,budget,maxPilots,finalReport} from './engine.js';
+import {practiceCycle,nextStepMarkup,readNextStep} from '../practice-cycle.js';
 
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const number=value=>Number(value).toLocaleString('ru-RU',{maximumFractionDigits:2});
@@ -17,6 +18,7 @@ export function mountDetective({container,state:initial,onSave,onRestart,link,no
     <div class="detective-layout"><section id="detective-sources" data-panel="sources" aria-labelledby="sourcesHeading"><h2 id="sourcesHeading">Где искать факты</h2><div id="sourceMenu"></div></section><section id="detective-project" data-panel="project" aria-labelledby="chainHeading"><h2 id="chainHeading">Путь запроса</h2><p class="detective-caption">Нажмите этап, где предполагаете основную потерю. Это гипотеза, которую нужно проверить.</p><div id="serviceChain"></div><div id="caseDesk"></div><div id="pilotResult"></div></section><section id="detective-facts" data-panel="facts" aria-labelledby="factsHeading"><h2 id="factsHeading">Доска фактов</h2><div id="evidenceBoard"></div><form id="hypothesisForm"><label>Как связаны выбранные факты?<textarea id="hypothesisNote" name="note" maxlength="3000" placeholder="Например: после передачи запрос возвращается за данными, поэтому…">${esc(state.hypothesis.note)}</textarea></label></form><p id="markedStage"></p><fieldset id="interventionChoices"><legend>Что проверить пилотом?</legend>${interventions.map(i=>`<label class="intervention-choice"><input type="radio" name="intervention" value="${i.id}" ${chosen===i.id?'checked':''}><span><b>${i.name}</b><small>${i.description}</small></span></label>`).join('')}</fieldset><p id="pilotHint" class="detective-caption"></p><button type="button" id="runPilot" class="button primary">Проверить на пяти случаях</button><button type="button" id="finishInvestigation" class="button quiet">Завершить расследование</button></section></div>
     <section id="investigationResult" hidden></section><dialog id="sourceDialog" aria-labelledby="sourceDialogTitle"><h2 id="sourceDialogTitle"></h2><p id="sourceProvenance" class="source-provenance"></p><div id="sourceDocument"></div><div class="source-dialog-actions"><button type="button" id="pinSource" class="button quiet">Прикрепить к гипотезе</button><button type="button" id="closeSource" class="button primary">Вернуться к цепочке</button></div></dialog>`;
   const $=id=>container.querySelector('#'+id);
+  container.querySelector('.detective-brief').insertAdjacentHTML('beforebegin','<div id="detectivePracticeCycle"></div><p id="detectiveNextHint" class="game-next-hint" role="status"></p>');
   function save(){onSave(state);}
   function perform(command){try{state=act(state,command);save();render();return true;}catch(error){notify(error.message);return false;}}
   function updatePilotControls(){
@@ -27,10 +29,13 @@ export function mountDetective({container,state:initial,onSave,onRestart,link,no
     $('interventionChoices').disabled=ended||state.pilots.length>=maxPilots;
     container.querySelectorAll('[name=intervention]').forEach(input=>input.disabled=state.pilots.some(p=>p.intervention===input.value));
     if(state.pilots.some(p=>p.intervention===chosen)){$('runPilot').disabled=true;}
-    $('pilotHint').textContent=state.pilots.length>=maxPilots?'Оба пилота проведены. Можно завершить разбор.':!ready?'Для пилота: отметьте этап, объясните связь и прикрепите два открытых источника.':'Сравним одно изменение с исходным процессом на тех же пяти случаях.';
+    const gaps=[!state.hypothesis.stage?'отметить этап':null,state.pinned.length<2?'прикрепить ещё '+(2-state.pinned.length)+' источника':null,state.hypothesis.note.trim().length<10?'объяснить связь фактов':null,!chosen?'выбрать изменение':null].filter(Boolean);
+    $('pilotHint').textContent=state.pilots.length>=maxPilots?'Оба пилота проведены. Можно завершить разбор.':state.pilots.some(p=>p.intervention===chosen)?'Эта мера уже испытана. Выберите другую меру для второго пилота.':!ready?'До пилота осталось: '+gaps.join(', ')+'.':'Сравним одно изменение с исходным процессом на тех же пяти случаях.';
   }
   function render(){
     const ended=state.phase==='ended',focus=document.activeElement?.dataset.focus;
+    $('detectivePracticeCycle').innerHTML=practiceCycle(ended?3:state.pilots.length?2:state.inspected.length?1:0);
+    $('detectiveNextHint').textContent=ended?'Следующий шаг: перенесите одну проверку в свой рабочий процесс.':state.pilots.length?'Наблюдение: сравните полный срок и пригодность тех же пяти случаев. Можно уточнить причину и испытать другую меру.':state.inspected.length?'Попытка: сопоставьте два источника, отметьте этап и объясните связь до пилота.':'Идея: начните с хронологии одного дела. Открытие стоит 1; повторное чтение бесплатно.';
     $('investigationBudget').innerHTML=`<span>Бюджет проверок</span> <b>${budget-state.spent} / ${budget}</b>`;
     $('pilotCount').innerHTML=`<span>Пилоты</span> <b>${state.pilots.length} / ${maxPilots}</b>`;
     $('sourceMenu').innerHTML=sources.map(source=>{
@@ -51,7 +56,7 @@ export function mountDetective({container,state:initial,onSave,onRestart,link,no
     container.querySelectorAll('.detective-pilot').forEach((section,index)=>{const result=state.pilots[index].result;section.querySelector('.pilot-measures').insertAdjacentHTML('beforeend',`<div><dt>Срок в прежней узкой выборке</dt><dd>${number(result.before.reportedDays)} → ${number(result.after.reportedDays)} дня</dd></div>`);if(index===state.pilots.length-1&&!ended)section.insertAdjacentHTML('beforeend',`<div class="pilot-next-actions">${state.pilots.length<maxPilots?'<button type="button" class="button quiet" data-refine>Уточнить гипотезу</button>':''}<button type="button" class="button primary" data-finish>Завершить расследование</button></div>`);});
     for(const panel of container.querySelectorAll('[data-panel]'))panel.classList.toggle('is-active',panel.dataset.panel===state.view.tab);
     for(const button of container.querySelectorAll('[data-tab]')){button.setAttribute('aria-selected',String(button.dataset.tab===state.view.tab));button.tabIndex=button.dataset.tab===state.view.tab?0:-1;}
-    updatePilotControls();if(ended)renderFinal();
+    updatePilotControls();if(ended&&$('investigationResult').hidden)renderFinal();
     if(focus)container.querySelector(`[data-focus="${CSS.escape(focus)}"]`)?.focus({preventScroll:true});
   }
   function caseTimeline(item){
@@ -68,7 +73,8 @@ export function mountDetective({container,state:initial,onSave,onRestart,link,no
     $('investigationResult').innerHTML=`<span class="detective-eyebrow">Расследование завершено</span><h2 tabindex="-1" id="investigationResultHeading">Что объясняют найденные факты</h2><dl class="investigation-outcome"><div><dt>Полный срок</dt><dd>${number(report.baseline.days)} → ${number(last.result.after.days)} дня</dd></div><div><dt>Возвраты</dt><dd>${report.baseline.returns} → ${last.result.after.returns}</dd></div><div><dt>Пригодный первый ответ</dt><dd>${report.baseline.usable}/5 → ${last.result.after.usable}/5</dd></div><div><dt>Бюджет проверок</dt><dd>${state.spent}/${budget}</dd></div></dl><div class="detective-cause"><h3>${report.scenario.title}</h3><p>${report.scenario.explanation}</p><p><b>Что подтверждает причину:</b> ${report.scenario.signal}</p><p>Вы отметили «${stageName(last.hypothesis.stage)}». ${report.stageMatched?'Место гипотезы совпало с основной причинной потерей.':'Основная потеря связана с этапом «'+stageName(report.scenario.stage)+'»; сравните его с выбранным вами местом.'}</p></div><ol class="detective-insights">${report.insights.map(text=>`<li>${esc(text)}</li>`).join('')}</ol><p><b>Следующая проверка в работе:</b> ${report.scenario.next}</p><div class="detective-final-links"><a class="button quiet" href="${link(`learn.html?module=${report.scenario.topic}#${report.scenario.step}`)}">Разобрать связанную тему →</a><a id="detectiveExperiment" href="${link('experiments.html?new=1')}">Запланировать одно изменение →</a><a href="${link('learn.html?module=10#theory-0')}">Почему отчёт показывал другой срок?</a></div><form id="nextInvestigation"><label>Следующее дело<select name="seed">${[['case-01','Дело №1'],['case-02','Дело №2'],['case-03','Дело №3']].map(([id,label])=>`<option value="${id}" ${id===nextSeed()?'selected':''}>${label}</option>`).join('')}</select></label><button type="submit" class="button primary">Начать расследование</button><button type="button" class="detective-text-button" id="retryInvestigation">Повторить то же дело</button></form>`;
     $('investigationResultHeading').insertAdjacentHTML('afterend','<p class="detective-caption">Разбор относится к последнему проведённому пилоту и его приложенным фактам. Непроверенный черновик гипотезы не заменяет результат испытания.</p>');
     $('nextInvestigation').onsubmit=e=>{e.preventDefault();onRestart(new FormData(e.currentTarget).get('seed'));};$('retryInvestigation').onclick=()=>onRestart(state.seed);
-    $('detectiveExperiment').onclick=()=>onExperiment({hypothesis:last.hypothesis.note,action:report.scenario.next,place:'Один процесс в моей работе'});
+    $('investigationResult').querySelector('.detective-final-links').insertAdjacentHTML('beforebegin',nextStepMarkup({hypothesis:last.hypothesis.note,action:report.scenario.next,place:'Один процесс в моей работе'}));
+    $('detectiveExperiment').onclick=()=>onExperiment(readNextStep($('investigationResult')));
   }
   function nextSeed(){const seeds=['case-01','case-02','case-03'];return seeds[(seeds.indexOf(state.seed)+1)%3]||seeds[0];}
   function inspect(key){

@@ -6,6 +6,7 @@ import {eventDefinitions,actionLabels} from './events.js';
 import {mountPointerDrag} from './pointer-drag.js';
 import {skillFit} from './people.js';
 import {causeReview,causeJournal,influentialDecisions,alternateCommand,gameDay} from './review.js';
+import {practiceCycle,nextStepMarkup,readNextStep} from '../practice-cycle.js';
 
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=n=>Math.round(n).toLocaleString('ru-RU')+' ₽';
@@ -13,7 +14,7 @@ const skillNames={analysis:'Аналитика',design:'Прототипиров
 const statusNames={done:'Готово',active:'В работе',blocked:'Ожидание',unassigned:'Нужен исполнитель',paused:'Приостановлено'};
 const percent=t=>Math.min(100,Math.round(t.progress/t.effort*100));
 
-export function mountGame({container,state:initial,onSave,onRestart,link,notify}){
+export function mountGame({container,state:initial,onSave,onRestart,link,notify,onExperiment=()=>{}}){
   let state=initial,selected=initial.view?.selected||'requirements',tab=initial.view?.tab||'project',running=false,period=4000,timer=null,latestEventCount=state.events.length,resultShown=false;
   if(!state.tasks.some(t=>t.id===selected))selected='requirements';
   if(!['project','team','events'].includes(tab))tab='project';
@@ -29,6 +30,7 @@ export function mountGame({container,state:initial,onSave,onRestart,link,notify}
     <section id="panel-events" data-game-panel="events" aria-labelledby="eventsHeading"><h2 id="eventsHeading">События <span id="eventCount"></span></h2><div id="gameEvents"></div></section></div>
     <section id="gameResult" hidden></section><dialog id="gameExplanation" aria-labelledby="explanationHeading"><h2 id="explanationHeading"></h2><p id="explanationText"></p><div class="game-dialog-actions"><button type="button" class="button primary" id="returnToGame">Вернуться в игру</button><a id="explanationCourse" target="_blank" rel="noopener">Разобрать тему подробнее →</a></div></dialog>`;
   const $=id=>container.querySelector('#'+id);
+  $('gameBrief').insertAdjacentHTML('beforebegin','<div id="projectPracticeCycle"></div><details class="game-help"><summary>Как начать и что считать результатом</summary><ol><li>Откройте задачу на плане: сравните нужный навык с командой и назначьте людей.</li><li>Выберите момент проверки и границы самостоятельности. Один человек на нескольких задачах делит внимание.</li><li>Запустите время или нажмите «До события». Важные изменения ставят проект на паузу.</li><li>Проверяйте не только запуск: принятие сервиса и полезный эффект наблюдаются после него.</li></ol></details><p id="projectNextHint" class="game-next-hint" role="status"></p>');
   container.insertAdjacentHTML('beforeend',`<aside class="task-drawer" id="taskDrawer" hidden aria-labelledby="selectedTaskHeading"><button type="button" class="drawer-close" id="closeTaskDrawer" aria-label="Закрыть задачу">×</button></aside>`);
   $('taskDrawer').append($('gameTask'));
   $('closeTaskDrawer').onclick=()=>{drawerOpen=false;$('taskDrawer').hidden=true;container.querySelector(`.gantt-task-name[data-task="${selected}"]`)?.focus({preventScroll:true});};
@@ -46,7 +48,7 @@ export function mountGame({container,state:initial,onSave,onRestart,link,notify}
     $('gameBrief').hidden=true;
   }
   function decide(command){
-    try{const old=state,before=forecast(old),loads=workloads(old);state=act(state,command);persist();render();const after=forecast(state),change=state.spent-old.spent;const loadChange=Object.entries(workloads(state)).filter(([id,n])=>loads[id]!==n).map(([id,n])=>`${state.people.find(p=>p.id===id).name}: ${loads[id]||0} → ${n}`).join(' · ');$('gameStatus').textContent=[decisionMessage(command),change?'−'+money(change):'',before.day!==after.day?`Прогноз: ${before.day||'>20'} → ${after.day||'>20'}`:'',loadChange].filter(Boolean).join(' · ');}
+    try{pause();const old=state,before=forecast(old),loads=workloads(old);state=act(state,command);persist();render();const after=forecast(state),change=state.spent-old.spent;const loadChange=Object.entries(workloads(state)).filter(([id,n])=>loads[id]!==n).map(([id,n])=>`${state.people.find(p=>p.id===id).name}: ${loads[id]||0} → ${n}`).join(' · ');$('gameStatus').textContent=[decisionMessage(command),change?'−'+money(change):'',before.day!==after.day?`Прогноз: ${before.day||'>20'} → ${after.day||'>20'}`:'',loadChange].filter(Boolean).join(' · ');}
     catch(error){notify(error.message);}
   }
   function decisionMessage(command){
@@ -55,6 +57,9 @@ export function mountGame({container,state:initial,onSave,onRestart,link,notify}
   function render(){
     const focus=document.activeElement?.dataset.focus||focusMemory[document.activeElement?.id],task=state.tasks.find(t=>t.id===selected),loads=workloads(state),prediction=forecast(state);
     const timelineScroll=container.querySelector('.gantt-scroll')?.scrollLeft||0,levers=container.querySelector('.game-levers');
+    const latestOpen=state.events.findLast(e=>e.status==='open');
+    $('projectPracticeCycle').innerHTML=practiceCycle(finished(state)?3:state.events.length?2:state.time>0?1:0);
+    $('projectNextHint').innerHTML=finished(state)?'Попытка завершена. Сопоставьте решения, отложенные последствия и выберите один следующий шаг.':latestOpen?`Наблюдение: ${escape(eventDefinitions[latestOpen.definition].title)}. <button type="button" class="game-text-button" data-open-observation="${escape(latestOpen.id)}">Открыть событие и варианты →</button>`:state.time===0?'Идея: выберите назначения для будущих задач, затем испытайте план. Прогноз условный: он изменится после решений и событий.':'Попытка: время движется только после запуска. Посмотрите, какие зависимости удерживают следующую задачу.';
     const leversOpen=levers?levers.open:state.time===0;
     const expandedPeople=new Set([...container.querySelectorAll('[data-person-details][open]')].map(el=>el.dataset.personDetails));
     const taskMoreOpen=container.querySelector('.task-more')?.open||false;
@@ -100,6 +105,8 @@ export function mountGame({container,state:initial,onSave,onRestart,link,notify}
     const keyDecisions=influentialDecisions(state);
     const date=value=>value===null?'за сроком':'день '+value;
     $('gameResult').querySelector('.game-insights').insertAdjacentHTML('beforebegin',`<section class="key-decisions"><h3>Три решения, которые сильнее всего изменили ход проекта</h3><p class="review-hint">Выделены по изменению прогноза, расхода и наблюдаемым последствиям. Это разбор этой истории.</p><div class="decision-replay">${keyDecisions.length?keyDecisions.map(d=>`<article><h4>День ${gameDay(d.at)} · ${escape(d.label)}</h4><p><b>Сразу:</b> ${d.cost?'−'+money(d.cost)+' · ':''}${d.forecast.from!==d.forecast.to?'Прогноз '+date(d.forecast.from)+' → '+date(d.forecast.to):'Прогноз без изменения'}${d.loads.map(l=>' · '+escape(l.name)+': '+l.from+' → '+l.to+' задач').join('')}</p><p><b>Позже:</b> ${d.consequences.length?d.consequences.map(e=>`День ${gameDay(e.day)} — ${escape(eventDefinitions[e.definition].title)}`).join('; '):'Отдельное отложенное последствие к этому действию не установлено.'}</p></article>`).join(''):'<p>В старой истории нет снимков решений для сравнения.</p>'}</div><h3>Что было бы, если выбрать иначе?</h3>${keyDecisions.map(d=>`<button type="button" class="button quiet" data-alternative="${d.index}">День ${gameDay(d.at)} · ${escape(d.label)} → сравнить</button>`).join('')}${state.events.filter(e=>e.definition==='rework').map(e=>`<button class="button quiet" data-review-event="${escape(e.id)}">Разобрать ${escape(state.tasks.find(t=>t.id===e.subject)?.name||'переделку')}</button>`).join('')}<div id="alternativeResult" aria-live="polite"></div></section>`);
+    $('gameResult').querySelector('.result-links').insertAdjacentHTML('beforebegin',nextStepMarkup({hypothesis:result.insights[0],action:'Проверить одну критическую зависимость до начала связанной задачи',place:'Один рабочий проект'}));
+    const experimentLink=$('gameResult').querySelector('.result-links a');experimentLink.id='projectExperiment';experimentLink.href=link('experiments.html?new=1');experimentLink.onclick=()=>onExperiment(readNextStep($('gameResult')));
     $('gameResult').querySelectorAll('[data-alternative]').forEach(button=>button.onclick=()=>{
       const i=Number(button.dataset.alternative),d=state.decisions[i],command=alternateCommand(d);
       try{const result=alternative(state,i,command),other=report(result.state);$('alternativeResult').innerHTML=`<h4>Ваш путь / Альтернатива</h4><p>${command?escape(decisionMessage(command)):'Вариант: оставить прежние условия без этого действия.'}</p><dl class="comparison-grid"><div><dt>Запуск</dt><dd>${report(state).launchDay||'нет'} / ${other.launchDay||'нет'}</dd></div><div><dt>Расход</dt><dd>${money(state.spent)} / ${money(other.spent)}</dd></div><div><dt>Переделка</dt><dd>${state.stats.rework.toFixed(2)} / ${result.state.stats.rework.toFixed(2)} дня</dd></div><div><dt>Принятие</dt><dd>${Math.round(state.adoption)}% / ${other.metrics.adoption}%</dd></div></dl><p class="review-hint">Меняется одно решение; остальные повторены в прежние дни. Неприменимых после изменения действий: ${result.skipped}. Это условное сравнение, не новый результат вашего проекта.</p>`;}catch(error){notify(error.message);}
@@ -118,7 +125,8 @@ export function mountGame({container,state:initial,onSave,onRestart,link,notify}
   }
   function click(event){
     const button=event.target.closest('button');if(!button)return;
-    if(button.dataset.pickPerson){pickedPerson=button.dataset.pickPerson;tab='project';render();$('gameStatus').textContent='Выберите задачу для '+state.people.find(p=>p.id===pickedPerson).name;}
+    if(button.dataset.openObservation){pause();tab='events';linkedEvent=state.events.find(e=>e.id===button.dataset.openObservation);render();const target=container.querySelector(`[data-event-id="${CSS.escape(button.dataset.openObservation)}"]`);target?.focus();target?.scrollIntoView({block:'center',behavior:'instant'});}
+    else if(button.dataset.pickPerson){pickedPerson=button.dataset.pickPerson;tab='project';render();$('gameStatus').textContent='Выберите задачу для '+state.people.find(p=>p.id===pickedPerson).name;}
     else if(button.dataset.linkEvent){linkedEvent=state.events.find(e=>e.id===button.dataset.linkEvent);tab='project';render();}
     else if(button.dataset.priority){decide({type:'priority',task:selected,value:Number(button.dataset.priority)});}
     else if(button.dataset.task){pause();selected=button.dataset.task;drawerOpen=true;if(pickedPerson){drop(pickedPerson,selected);pickedPerson=null;}persist();render();$('selectedTaskHeading').focus({preventScroll:true});}

@@ -7,7 +7,7 @@ test('ten independent initial states validate and import without touching other 
   const clone=store.import(JSON.parse(JSON.stringify(store.export(id))));assert.deepEqual(store.profile(clone).data,store.profile(id).data);assert.equal(store.profile(clone).data.course.projectGame.time,10);
 });
 test('Hybrid Lab ties approach to uncertainty and mandatory gate rather than a winning label',()=>{
-  const linear=['plan','build','test','gate','release'],iterative=['research','prototype','build','review','test','pilot','release'];
+  const linear=['plan','build','test','gate','release'],iterative=['research','prototype','review','build','test','pilot','release'];
   assert.ok(Hybrid.evaluate(iterative,'discovery').rework<Hybrid.evaluate(linear,'discovery').rework);
   assert.equal(Hybrid.evaluate(iterative,'report').viable,false);assert.equal(Hybrid.evaluate(linear,'report').viable,true);
   assert.ok(Hybrid.evaluate([...iterative.slice(0,-1),'gate','release'],'integration').viable);

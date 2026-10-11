@@ -13,5 +13,5 @@ function restart(seed){
   });
   location.reload();
 }
-const game=mountGame({container:document.getElementById('gameRoot'),state,onSave:save,onRestart:restart,link:C.link,notify:C.U.notify});
+const game=mountGame({container:document.getElementById('gameRoot'),state,onSave:save,onRestart:restart,link:C.link,notify:C.U.notify,onExperiment:draft=>C.save(data=>data.worksheets.newExperiment=draft)});
 window.addEventListener('pagehide',()=>game.dispose(),{once:true});

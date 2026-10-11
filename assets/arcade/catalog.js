@@ -1,5 +1,5 @@
 export const catalog=[
-  {id:'hybrid',title:'Проектный подход',subtitle:'Agile / Waterfall / Hybrid Lab',mechanic:'Соберите маршрут из блоков и испытайте его на разных изменениях.',time:'7–10 минут',topics:[2,8,9],storage:'hybrid'},
+  {id:'hybrid',title:'Проектный подход',subtitle:'Agile / Waterfall / Hybrid Lab',mechanic:'Соберите маршрут под неопределённость и цену ошибки. Сравните два плана на одинаковых условиях.',time:'7–10 минут',topics:[2,8,9],storage:'hybrid'},
   {id:'meeting',title:'Совещание без решения',subtitle:'Стол переговоров',mechanic:'Выясните ограничения участников и получите выбор, который можно исполнить.',time:'5–8 минут',topics:[5,6],storage:'meeting'},
   {id:'ethics',title:'Этическая развилка',subtitle:'Факты до выбора',mechanic:'Исследуйте две заявки, отделите личную связь от критерия и объясните решение.',time:'5–7 минут',topics:[4],storage:'ethics'},
   {id:'change',title:'Change Lab',subtitle:'Лаборатория принятия',mechanic:'Выбирайте меры для четырёх групп и наблюдайте реальные барьеры и отложенное подкрепление.',time:'6–10 минут',topics:[3,6,9],storage:'change'},
