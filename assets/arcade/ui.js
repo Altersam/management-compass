@@ -1,7 +1,7 @@
 import {esc} from './common.js';
 import {practiceCycle,nextStepMarkup,readNextStep} from '../practice-cycle.js';
 export function mountTrainer({root,meta,game,state:initial,onSave,onRestart,link,notify,onExperiment}){
-  let state=initial,timer=null,running=false;
+  let state=initial,timer=null,running=false,interaction=null;
   root.innerHTML=`<div class="arcade-heading"><div><span>${esc(meta.subtitle)}</span><h1>${esc(meta.title)}</h1><p>${esc(meta.mechanic)}</p></div><a href="${link('games.html')}">Все тренажёры →</a></div><p class="arcade-status" id="arcadeStatus" role="status" aria-live="polite"></p>${game.ticker?'<div class="arcade-clock"><button type="button" id="arcadeClock" class="button primary" aria-pressed="false">Запустить поток</button><p>Время движется по обычным интервалам; любое изменение ставит его на паузу.</p></div>':''}<div id="arcadeBoard" class="arcade-board"></div><section id="arcadeResult" hidden></section><details class="arcade-history"><summary>Что повлияло на попытку</summary><ol id="arcadeHistory"></ol></details>`;
   const board=root.querySelector('#arcadeBoard'),result=root.querySelector('#arcadeResult'),status=root.querySelector('#arcadeStatus');
   if(game.ui?.history===false)root.querySelector('.arcade-history').remove();
@@ -13,10 +13,11 @@ export function mountTrainer({root,meta,game,state:initial,onSave,onRestart,link
   function restoreFocus(target){if(!target)return;let el;if(target.name)el=board.querySelector(`[name="${CSS.escape(target.name)}"]`);else{let selector=`[data-action="${CSS.escape(target.action)}"]`;for(const key of ['value','index','delta'])if(target[key]!==undefined)selector+=`[data-${key}="${CSS.escape(String(target[key]))}"]`;el=board.querySelector(selector);}el?.focus({preventScroll:true});}
   function render(target=focusDescriptor()){
     const cycle=root.querySelector('#arcadePracticeCycle'),history=root.querySelector('#arcadeHistory');if(cycle)cycle.innerHTML=practiceCycle(state.phase==='ended'?3:state.turn>0?2:state.history.length?1:0);
-    board.innerHTML=game.render(state);if(history)history.innerHTML=state.history.slice(-40).map(item=>`<li>${esc(item.text)}</li>`).join('')||'<li>Здесь появятся действия и наблюдаемые результаты.</li>';
+    board.innerHTML=interaction?.render?interaction.render():game.render(state);if(history)history.innerHTML=state.history.slice(-40).map(item=>`<li>${esc(item.text)}</li>`).join('')||'<li>Здесь появятся действия и наблюдаемые результаты.</li>';
     if(state.phase==='ended'){pause();board.querySelectorAll('input,select,textarea,button').forEach(el=>{el.disabled=true;el.classList.replace('primary','quiet');});renderResult();}
     restoreFocus(target);
     if(target&&game.ui?.focus)board.querySelector(typeof game.ui.focus==='function'?game.ui.focus(state):game.ui.focus)?.focus();
+    interaction?.afterRender();
   }
   function dispatch(action,{redraw=true,tick=false}={}){
     try{if(!tick)pause();const target=focusDescriptor(),oldPhase=state.phase;state=game.act(state,action);onSave(state);if(action.type==='move'&&target)target.index=Number(action.index)+Number(action.delta);if(redraw)render(target);status.textContent=state.phase==='ended'?'Попытка завершена — ниже результат и разбор.':state.history.at(-1)?.text||'Условия изменены.';if(oldPhase!=='ended'&&state.phase==='ended'){result.querySelector('h2').focus();result.scrollIntoView({block:'start',behavior:'instant'});}return true;}catch(error){notify(error.message);return false;}
@@ -37,6 +38,7 @@ export function mountTrainer({root,meta,game,state:initial,onSave,onRestart,link
   function escapePause(e){if(e.key==='Escape')pause();}
   board.addEventListener('click',click);board.addEventListener('change',change);board.addEventListener('input',input);board.addEventListener('submit',submit);document.addEventListener('visibilitychange',visibility);root.addEventListener('keydown',escapePause);
   if(game.ticker){root.querySelector('#arcadeClock').onclick=()=>{if(running){pause();return;}if(state.phase==='ended')return;running=true;root.querySelector('#arcadeClock').textContent='Пауза';root.querySelector('#arcadeClock').setAttribute('aria-pressed','true');timer=setInterval(()=>{if(!dispatch({type:game.ticker.type},{tick:true}))pause();},game.ticker.ms);};}
+  if(game.mountUI)interaction=game.mountUI({root,board,result,getState:()=>state,dispatch,redraw:()=>render(null),notify});
   render();pause();if(state.history.length&&state.phase!=='ended')status.textContent='Продолжить сохранённую попытку — условия восстановлены.';
-  return {dispose(){pause();board.removeEventListener('click',click);board.removeEventListener('change',change);board.removeEventListener('input',input);board.removeEventListener('submit',submit);document.removeEventListener('visibilitychange',visibility);root.removeEventListener('keydown',escapePause);},getState:()=>structuredClone(state)};
+  return {dispose(){interaction?.dispose();pause();board.removeEventListener('click',click);board.removeEventListener('change',change);board.removeEventListener('input',input);board.removeEventListener('submit',submit);document.removeEventListener('visibilitychange',visibility);root.removeEventListener('keydown',escapePause);},getState:()=>structuredClone(state)};
 }
