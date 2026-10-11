@@ -76,7 +76,7 @@ async function lint(){
   const {gameCatalog}=await import(pathToFileURL(path.join(root,'assets/game-catalog.js'))),catalogHtml=fs.readFileSync(path.join(root,'games.html'),'utf8');
   const staticGames=[...catalogHtml.matchAll(/data-game="([^"]+)"/g)].map(m=>m[1]);
   if(staticGames.length!==gameCatalog.length||new Set(staticGames).size!==gameCatalog.length||gameCatalog.some(meta=>!staticGames.includes(meta.id)||!catalogHtml.includes('href="'+meta.href+'"')))errors.push('games catalogue: static HTML and discovery metadata disagree');
-  if(gameCatalog.filter(meta=>meta.featured).length!==6)errors.push('games catalogue: expected six featured experiences');
+  if(gameCatalog.filter(meta=>meta.featured).length!==2)errors.push('games catalogue: expected two featured experiences');
   for(const relative of files){
     if(!/\.(html|js|css)$/.test(relative))continue;
     const source=fs.readFileSync(path.join(root,relative),'utf8');

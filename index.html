@@ -1,37 +1,26 @@
 <!doctype html>
-<html lang="ru" data-theme="dark">
+<html lang="ru" data-theme="light">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Альманах менеджера: понятная теория, управленческие игры, разбор рабочих ситуаций, техники и личный дневник.">
-  <meta name="theme-color" content="#191716"><title>Альманах менеджера — выберите свой следующий шаг</title>
+  <meta name="description" content="Альманах менеджера: теория, интерактивные модели и управленческие тренажёры.">
+  <meta name="theme-color" content="#F4F0EA"><title>Альманах менеджера</title>
   <link rel="stylesheet" href="assets/styles.css"><link rel="stylesheet" href="assets/course.css"><link rel="stylesheet" href="assets/experience.css"><link rel="stylesheet" href="assets/almanac.css"><link rel="stylesheet" href="assets/shell.css" data-shell-style>
 </head>
-<body>
-  <div id="courseHeader"></div>
-  <main class="experience-page almanac-home" id="courseRoot">
-    <div id="homeContent">
-      <section class="almanac-welcome">
-        <span class="almanac-eyebrow">Ваша площадка для управленческой практики</span>
-        <h1>Альманах<br> менеджера<span class="title-spark" aria-hidden="true">✳</span></h1>
-        <p class="almanac-lead">Разберитесь в идее. Испытайте решение. Сделайте один шаг в своей работе.</p>
-        <p class="almanac-intro">Здесь можно учиться управлению без длинного обязательного маршрута. Выберите, что нужно сейчас: понять, попробовать, разобраться, применить или записать вывод.</p>
-        <div class="practice-path" aria-label="Путь практики"><span>Идея</span><i aria-hidden="true">→</i><span>Попытка</span><i aria-hidden="true">→</i><span>Наблюдение</span><i aria-hidden="true">→</i><span>Следующий шаг</span></div>
-      </section>
-      <section aria-labelledby="choosePath" class="path-section">
-        <div class="path-heading"><h2 id="choosePath">С чего начнём?</h2><p>Пять способов найти свой следующий шаг.</p></div>
-        <div class="almanac-paths">
-          <a class="path-card" href="theory.html" data-path="theory"><span class="path-symbol" aria-hidden="true">▤</span><span class="path-number">01 · Понять</span><h3>Теория</h3><p>Подробные объяснения, схемы и примеры о решениях, людях и системе. Выберите тему или визуальную модель.</p><span class="path-cta">Выбрать тему <b aria-hidden="true">↗</b></span></a>
-          <a class="path-card path-play" href="games.html" data-path="games"><span class="path-symbol" aria-hidden="true">▶</span><span class="path-number">02 · Попробовать</span><h3>Игры</h3><p>Распределяйте ресурс, ищите причину, договаривайтесь. Наблюдайте последствия своих решений.</p><span class="path-cta">Выбрать игру <b aria-hidden="true">↗</b></span></a>
-          <a class="path-card" href="workspace.html#route" data-path="situations"><span class="path-symbol" aria-hidden="true">⌁</span><span class="path-number">03 · Разобраться</span><h3>Рабочие ситуации</h3><p>Что мешает работе? Уточните два условия и получите гипотезу, которую можно проверить.</p><span class="path-cta">Разобрать ситуацию <b aria-hidden="true">↗</b></span></a>
-          <a class="path-card" href="workspace.html#modules" data-path="techniques"><span class="path-symbol" aria-hidden="true">⌘</span><span class="path-number">04 · Применить</span><h3>Техники</h3><p>Выберите инструмент под задачу. Схема, шаги и пример помогут подготовить конкретное действие.</p><span class="path-cta">Найти технику <b aria-hidden="true">↗</b></span></a>
-          <a class="path-card path-journal" href="workspace.html#diary" data-path="diary"><span class="path-symbol" aria-hidden="true">✎</span><span class="path-number">05 · Сохранить</span><h3>Мой дневник</h3><p>Записывайте факты, выводы и следующий шаг. Собирайте собственный опыт, к которому можно вернуться.</p><span class="path-cta">Открыть дневник <b aria-hidden="true">↗</b></span></a>
-        </div>
-      </section>
-      <section class="quick-mission"><span class="mission-icon" aria-hidden="true">⚑</span><div><span class="almanac-eyebrow">Хотите сразу действовать?</span><h2>Проведите проект через срок и бюджет</h2><p>Назначайте людей и наблюдайте последствия. Курс перед игрой проходить не нужно.</p></div><a class="button primary" id="startGame" href="game.html">Начать игру</a></section>
-      <p id="resumeCourse" class="resume-place" hidden></p>
-      <details class="guided-route"><summary>Нужен последовательный учебный маршрут?</summary><p>Десять тем: от самоорганизации до улучшения системы. В каждой — ситуация, объяснение и одно действие в работе.</p><a id="startCourse" href="learn.html?module=1">Начать с первой темы →</a><a href="index.html#trajectory">Продолжить свой маршрут →</a></details>
-    </div>
-    <section id="secondaryContent" hidden></section>
-  </main>
-  <script type="module" src="assets/pages/home.js"></script>
-</body></html>
+<body><div id="courseHeader"></div>
+<main class="experience-page almanac-home" id="courseRoot">
+  <div id="homeContent">
+    <header class="almanac-cover"><span class="edition-label">Теория · модели · практика</span><h1>Альманах<br>менеджера</h1><p class="almanac-lead">Разобрать управленческую ситуацию, проверить решение в тренажёре и вернуться к результату в работе.</p></header>
+    <nav class="editorial-index" aria-label="Основные разделы">
+      <a class="index-row" href="theory.html" data-path="theory"><span class="index-number">01</span><h2>Теория</h2><p>Почему управленческие решения работают — и где перестают работать.</p></a>
+      <a class="index-row" href="games.html" data-path="games"><span class="index-number">02</span><h2>Игры</h2><p>Примите решение и посмотрите, к чему оно приведёт.</p></a>
+      <a class="index-row" href="workspace.html#route" data-path="situations"><span class="index-number">03</span><h2>Рабочая ситуация</h2><p>Разберите проблему, которая уже есть сегодня.</p></a>
+    </nav>
+    <div class="secondary-index"><p>Конкретный способ действия — <a href="workspace.html#modules" data-path="techniques">Техники</a></p><p>Записи о своём опыте — <a href="workspace.html#diary" data-path="diary">Дневник</a></p></div>
+    <section class="editorial-feature" aria-labelledby="featureTitle">
+      <figure class="feature-gantt"><figcaption>План запуска / 20 дней</figcaption><div class="mini-gantt" aria-label="Задачи запуска: исследование, прототип, интеграция, запуск"><span>Исследование<i style="--start:0%;--length:24%"></i></span><span>Прототип<i style="--start:20%;--length:30%"></i></span><span>Интеграция<i style="--start:45%;--length:35%"></i></span><span>Запуск<i style="--start:80%;--length:20%"></i></span></div></figure>
+      <div><span class="edition-label">Тренажёр / команда · срок · бюджет</span><h2 id="featureTitle">Проект под давлением</h2><p>Проведите запуск сервиса через реальные ограничения.</p><a class="button primary" id="startGame" href="game.html">Начать игру</a></div>
+    </section>
+    <p id="resumeCourse" class="resume-place" hidden></p>
+    <p class="course-entry-line">Темы по порядку: <a id="startCourse" href="learn.html?module=1">10 тем — начать с первой</a> · <a href="index.html#trajectory">Мой маршрут</a></p>
+  </div><section id="secondaryContent" hidden></section>
+</main><script type="module" src="assets/pages/home.js"></script></body></html>

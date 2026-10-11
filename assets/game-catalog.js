@@ -1,7 +1,7 @@
 import {catalog} from './arcade/catalog.js';
 // Discovery metadata only; no renderer or engine is imported by the catalogue.
 const categories={hybrid:'project',meeting:'people',ethics:'people',change:'people',telephone:'people',versions:'system',metrics:'system',flow:'system',sprint:'project',influence:'people'};
-const featured=['project','detective','hybrid','meeting','change','metrics'];
+const featured=['project','detective'];
 export const gameCatalog=[
   {id:'project',title:'Проект под давлением',category:'project',href:'game.html',storage:'projectGame',time:'8–12 минут'},
   {id:'detective',title:'Найди разрыв',category:'system',href:'detective.html',storage:'detectiveGame',time:'5–8 минут'},

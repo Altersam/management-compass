@@ -1,4 +1,5 @@
-/* Information first: quiet surfaces, meaningful controls, no repeated LMS cards. */
+@layer legacy {
+/* Established activities and working forms. */
 body:has(.experience-page){background:#fcfcfd}
 .experience-page{max-width:1080px;margin:0 auto;padding:36px 28px 70px;min-width:0}
 .experience-page h1{font-size:clamp(30px,4.2vw,48px);line-height:1.16;max-width:900px;margin:8px 0 24px}
@@ -251,3 +252,4 @@ body:has(.experience-page){background:#fcfcfd}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}}
 @media print{.learning-header,.topic-top,.natural-next,.secondary-menu{display:none!important}.experience-page{padding:0;max-width:none}.activity-conditions{break-inside:avoid}.experiment-row{break-inside:avoid}.compact-application{box-shadow:none}}
+}

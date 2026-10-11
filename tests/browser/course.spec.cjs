@@ -3,8 +3,8 @@ async function range(page,name,value){await page.locator(`input[name="${name}"]`
 async function ethics(page){for(const id of ['facts','independent','criteria'])await page.locator(`[data-ethics="${id}"]`).click();}
 test('landing explains five routes without requiring JavaScript or dumping all topics',async({browser,baseURL})=>{
   const context=await browser.newContext({javaScriptEnabled:false,baseURL}),page=await context.newPage();await page.goto('/');
-  await expect(page.locator('h1')).toContainText('Альманах');await expect(page.locator('.path-card')).toHaveCount(5);await expect(page.locator('.path-card h3')).toHaveText(['Теория','Игры','Рабочие ситуации','Техники','Мой дневник']);await expect(page.locator('.topic-link')).toHaveCount(0);
-  await expect(page.locator('#startGame')).toHaveText('Начать игру');await expect(page.locator('#startGame')).toHaveAttribute('href','game.html');await expect(page.locator('main')).toContainText('следующий шаг');await context.close();
+  await expect(page.locator('h1')).toContainText('Альманах');await expect(page.locator('.index-row')).toHaveCount(3);await expect(page.locator('.index-row h2')).toHaveText(['Теория','Игры','Рабочая ситуация']);await expect(page.locator('[data-path]')).toHaveCount(5);await expect(page.locator('.topic-link')).toHaveCount(0);
+  await expect(page.locator('#startGame')).toHaveText('Начать игру');await expect(page.locator('#startGame')).toHaveAttribute('href','game.html');await expect(page.locator('.feature-gantt')).toContainText('Прототип');await context.close();
 });
 test('home loads a small entry and imports simulation only when requested',async({page})=>{
   const requests=[];page.on('request',request=>requests.push(new URL(request.url()).pathname));
@@ -17,7 +17,7 @@ test('home loads a small entry and imports simulation only when requested',async
   expect(requests.some(p=>p.endsWith('/course-questions.js'))).toBe(false);
 });
 test('learning starts in the day, changes its budget and replaces understood buttons with decisions',async({page})=>{
-  await page.goto('/');await page.locator('.guided-route summary').click();await page.locator('#startCourse').click();await expect(page.locator('.activity-1')).toBeVisible();await expect(page.locator('#ackTheory')).toHaveCount(0);
+  await page.goto('/');await page.locator('#startCourse').click();await expect(page.locator('.activity-1')).toBeVisible();await expect(page.locator('#ackTheory')).toHaveCount(0);
   const before=await page.locator('.activity-metrics').textContent();await page.locator('[name=plan-meeting]').selectOption('delegate');await page.locator('[name=plan-requests]').selectOption('delegate');await page.locator('[name=plan-team]').selectOption('later');await page.locator('[name=focus]').check();await page.locator('[name=notify]').check();
   expect(await page.locator('.activity-metrics').textContent()).not.toBe(before);await page.locator('.activity-decide').click();await page.locator('#activityNext a').click();
   for(let i=0;i<3;i++){

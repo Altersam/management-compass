@@ -2,7 +2,7 @@ const {test,expect}=require('@playwright/test');
 const games=['hybrid','meeting','ethics','change','telephone','versions','metrics','flow','sprint','influence'];
 const click=(page,type,value)=>page.locator(`[data-action="${type}"]${value?`[data-value="${value}"]`:''}`).first().click();
 test('all ten games load separate working objects and preserve same product shell',async({page})=>{
-  const errors=[];page.on('pageerror',e=>errors.push(e.message));for(const id of games){await page.goto('/trainer.html?game='+id);await expect(page.locator('#arcadeBoard')).not.toBeEmpty();await expect(page.locator('.product-header>nav a')).toHaveText(['Теория','Игры','Рабочие ситуации','Техники','Мой дневник']);}expect(errors).toEqual([]);
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));for(const id of games){await page.goto('/trainer.html?game='+id);await expect(page.locator('#arcadeBoard')).not.toBeEmpty();await expect(page.locator('.product-header>nav a')).toHaveText(['Теория','Игры','Ситуация','Техники','Дневник']);}expect(errors).toEqual([]);
 });
 test('Hybrid route can be rearranged and two trials reach a comparison result',async({page})=>{
   await page.goto('/trainer.html?game=hybrid');await click(page,'run');await expect(page.locator('.trial-result')).toHaveCount(1);await expect(page.locator('[name=context]')).toBeDisabled();

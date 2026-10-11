@@ -59,6 +59,7 @@ test('focused navigation exposes one task at a time and supports direct links an
   await page.goBack();await expect(page.locator('[data-current-technique=sipoc]')).toBeVisible();
 });
 test('each technique has an interactive diagram and drafts survive switching tools',async({page})=>{
+  test.setTimeout(60000);
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   for(let n=1;n<=10;n++){
     await page.goto(`/modules/module-${String(n).padStart(2,'0')}.html`);

@@ -1,4 +1,5 @@
-/* Two modes, one profile: learning pages sit above the existing working reference. */
+@layer legacy {
+/* Established lesson and simulation layout. */
 .mode-link{display:block;margin:16px 0;color:var(--blue);font-size:13px;font-weight:750}
 .learning-callout{display:flex;gap:15px;justify-content:space-between;align-items:center;padding:13px 17px;background:#edf3ff;border:1px solid #cddbf2;border-radius:12px;font-size:13px;margin:20px 0}
 .learning-callout a{color:var(--blue);font-weight:750}
@@ -153,3 +154,4 @@
   .lesson-layout{grid-template-columns:minmax(0,1fr);gap:15px}.lesson-outline{position:static;padding:10px}.lesson-outline nav{grid-template-columns:1fr 1fr;gap:3px}.lesson-outline nav a{font-size:11px;padding:7px}.lesson-outline>p{margin:9px 5px}.lesson-outline>.text-button{font-size:11px}.lesson-content{padding:18px}.lesson-content>h2{font-size:26px}.lesson-content>p,.lesson-thought>p{font-size:15px}.theory-block-tabs{grid-template-columns:1fr;gap:5px}.theory-block-tabs a{font-size:12px}.lesson-thought h2{font-size:25px}.lesson-thought .one-thought{font-size:18px}.practice-form{padding:16px}.learning-question{padding:14px}.learning-question legend{font-size:17px}.learning-option{font-size:14px}.quiz-submit{align-items:flex-start;flex-direction:column}.cross-course-links{grid-template-columns:1fr}.final-case{padding:18px}.lesson-actions{gap:12px}.learning-callout{display:block}.learning-callout a{display:block;margin-top:8px}
 }
 @media print{.course-header,.lesson-outline,.lesson-actions,.course-entry-actions{display:none!important}.course-page{max-width:none;padding:0}.lesson-layout{display:block}.course-map{grid-template-columns:1fr 1fr}.lesson-content,.quiz-report{box-shadow:none}}
+}

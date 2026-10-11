@@ -1,80 +1,27 @@
-/* Shared semantic palette. Legacy workbenches keep their layout and adopt these surfaces. */
-:root {
-  color-scheme: dark;
-  --background:#191716; --surface:#252220; --surface-soft:#302B28;
-  --text:#F2EDE6; --muted-text:#C1B5AC; --border:#62564E;
-  --accent:#F2B56B; --accent-ink:#302A28; --accent-soft:#443326;
-  --highlight:#C4B5DE; --highlight-soft:#352E40;
-  --success:#C4B5DE; --success-soft:#352E40;
-  --warning:#F2B56B; --warning-soft:#443326; --danger:#ECA8A2; --danger-soft:#432D2D;
-  --shadow:0 16px 40px #100D0B40;
-  --ink:var(--text); --muted:var(--muted-text); --line:var(--border); --paper:var(--background); --white:var(--surface);
-  --blue:var(--accent); --blue-dark:var(--surface-soft); --blue-soft:var(--accent-soft);
-  --violet:var(--highlight); --violet-soft:var(--highlight-soft);
-  --green:var(--success); --green-soft:var(--success-soft); --amber:var(--warning); --amber-soft:var(--warning-soft); --red:var(--danger); --red-soft:var(--danger-soft);
+@layer legacy, reset, tokens, shell, components, pages, utilities;
+@layer tokens {
+  :root {
+    color-scheme:light;
+    --page-bg:#F4F0EA;--paper:#FFFCF8;--paper-subtle:#EAE3DA;
+    --ink:#302A28;--ink-muted:#685B54;--rule:#B9AAA0;--rule-strong:#685B54;
+    --accent:#842F49;--accent-muted:#F2E2E7;--accent-ink:#fff;
+    --highlight:#69507D;--highlight-soft:#EDE6F2;--warning:#865316;--warning-soft:#F4E7D5;--danger:#9B3732;--danger-soft:#F3E2DE;
+    --font-body:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+    --font-display:ui-serif,Georgia,Cambria,"Times New Roman",serif;
+    --font-mono:ui-monospace,Consolas,monospace;
+    --content-width:1200px;--reading-width:74ch;
+    --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-6:24px;--space-8:32px;--space-12:48px;--space-16:64px;
+    --radius-xs:4px;--radius-sm:6px;--radius-md:8px;--radius-dialog:12px;
+    --shadow:0 12px 32px #302A281f;
+    /* Compatibility names for established engines and reference forms. */
+    --background:var(--page-bg);--surface:var(--paper);--surface-soft:var(--paper-subtle);--text:var(--ink);--muted-text:var(--ink-muted);--border:var(--rule);
+    --accent-soft:var(--accent-muted);--success:var(--highlight);--success-soft:var(--highlight-soft);
+    --muted:var(--ink-muted);--line:var(--rule);--white:var(--paper);--blue:var(--accent);--blue-dark:var(--ink);--blue-soft:var(--accent-muted);
+    --violet:var(--highlight);--violet-soft:var(--highlight-soft);--green:var(--highlight);--green-soft:var(--highlight-soft);--amber:var(--warning);--amber-soft:var(--warning-soft);--red:var(--danger);--red-soft:var(--danger-soft);
+    --radius:var(--radius-md);--page-width:var(--content-width);
+  }
+  :root[data-theme=dark] {
+    color-scheme:dark;--page-bg:#191716;--paper:#252220;--paper-subtle:#302B28;--ink:#F2EDE6;--ink-muted:#C1B5AC;--rule:#62564E;--rule-strong:#C1B5AC;
+    --accent:#F2B56B;--accent-muted:#443326;--accent-ink:#302A28;--highlight:#C4B5DE;--highlight-soft:#352E40;--warning:#F2B56B;--warning-soft:#443326;--danger:#ECA8A2;--danger-soft:#432D2D;--shadow:0 12px 32px #0005;
+  }
 }
-:root[data-theme="light"] {
-  color-scheme:light;
-  --background:#F4F0EA; --surface:#FFFCF8; --surface-soft:#EAE3DA;
-  --text:#302A28; --muted-text:#685B54; --border:#B9AAA0;
-  --accent:#842F49; --accent-ink:#FFFFFF; --accent-soft:#F2E2E7;
-  --highlight:#69507D; --highlight-soft:#EDE6F2;
-  --success:#69507D; --success-soft:#EDE6F2;
-  --warning:#865316; --warning-soft:#F4E7D5; --danger:#9B3732; --danger-soft:#F3E2DE;
-  --shadow:0 16px 40px #49372A12;
-}
-html body {background:var(--background)!important;color:var(--text)!important}
-/* Theme changes are immediate: do not interpolate legacy white surfaces and dark ink. */
-html[data-theme] body *{transition-property:transform,box-shadow!important}
-html :is(main,dialog,.game-page,.detective-page,.arcade-page,.drag-preview){color:var(--text)!important}
-html[data-theme] body :where(main,dialog,.drag-preview) :is(p,li,label,summary,legend,dt,dd,span,small,b,strong,h1,h2,h3,h4,output,caption,th,td){color:var(--text)!important}
-html[data-theme] body :where(main,dialog) :is(small,.eyebrow,.quiet-note,.game-catalog-kind,.game-catalog-topics,.atlas-context,.entry-meta,.topic-top,.game-eyebrow,.detective-eyebrow){color:var(--muted-text)!important}
-html[data-theme] body :where(main,dialog) a:not(.button){color:var(--accent)!important}
-html[data-theme] body :where(main,dialog) p a:not(.button){text-decoration:underline;text-underline-offset:3px}
-html[data-theme] body :where(main,dialog) :is(input:not([type=range]):not([type=checkbox]):not([type=radio]),select,textarea){color:var(--text)!important;background:var(--surface)!important;border-color:var(--border)!important;accent-color:var(--accent)}
-html[data-theme] body :where(main,dialog) :is(input[type=checkbox],input[type=radio],input[type=range]){accent-color:var(--accent)}
-html[data-theme] :is(dialog,.drag-preview,.task-drawer){background:var(--surface)!important;border-color:var(--border)!important;box-shadow:var(--shadow)}
-html[data-theme] body :where(main,dialog) button:not(.button):not(.gantt-bar){color:var(--text)!important;background:var(--surface-soft)!important;border-color:var(--border)!important}
-html[data-theme] body :where(main,dialog) :is(.text-button,.game-text-button,.detective-text-button){background:transparent!important;color:var(--accent)!important}
-html[data-theme] body :where(main,dialog) :is(.button.quiet,.button.secondary){background:var(--surface-soft)!important;color:var(--text)!important;border:1px solid var(--border)!important}
-html[data-theme] body :where(main,dialog) .button.primary{background:var(--accent)!important;color:var(--accent-ink)!important;border-color:var(--accent)!important}
-html[data-theme] body :where(main,dialog) :is(button[aria-pressed=true],button[aria-selected=true],.chapter-tabs a.active,.diagram-controls button[aria-pressed=true]){background:var(--accent-soft)!important;color:var(--accent)!important;border-color:var(--accent)!important}
-html[data-theme] body :where(main,dialog) :is(.button.primary,.button.primary *){color:var(--accent-ink)!important}
-html[data-theme] body :where(main,dialog) :is(.panel,.module-card,.case-card,.resource-card,.theory-card,.theory-article,.technique-detail,.term-list,.reading-nav a,.technique-picker>a,.reference-details,.lesson-content,.lesson-outline,.module-progress,.profile-menu,.learning-question,.course-map-node,.course-stats article,.training-game,.workday,.message-preview,.paper-document,.route-result,.diary-entry,.empty-state,.diary-list-wrap,.compact-topic-nav nav,.formal-network article,.ethics-dossiers article,.metrics-dashboard article,.flow-station,.route-builder li,.conversation-desk,.version-folder button,.sprint-backlog button,.metric-distribution,.metric-distribution>div,.trial-result .route-trace li,.detective-layout>section,[data-game-panel],.game-metrics>div,.gantt,.gantt-task-name,.detective-page table,#gameResult,#investigationResult,#arcadeResult){background:var(--surface)!important;border-color:var(--border)!important}
-html[data-theme] body :where(main,dialog) :is(.learning-option,.case-option,.step-list li,.learning-feedback,.case-feedback,.learning-transition,.entry-situation,.quiz-report,.learning-callout,.course-hero,.course-facts span,.learning-flow span,.adizes-comment,.visual-diagram,.mobile-model-node,.mobile-step,.mobile-zone,.mobile-role,.visual-explanation,.topic-map a,.theory-block-tabs a,.remediation-list a,.practice-tabs a,.library-switch button,.generated,.behavior-result,.recipient-conversation,.organization-network,.role-transition section,.dependency-view span,.resource-result span,.day-plan span,.workday-head,.department-map section,.delivery-chain li,.process-stations li,.chat-lines p,.previous-consequence,.message-original,.message-current,.message-current p,.telephone-chain span,.ethical-evidence article,.document-evidence article,.change-observation,.change-observation blockquote,.round-history,.meeting-transcript li,.meeting-clock,.change-round,.flow-kpis,.hybrid-context,.trial-result,.arcade-form,.sprint-plan,.sprint-reviews article,.network-observations p,.real-network li,.metric-evidence p,.flow-outside,.self-review,.catalog-project-picture,.catalog-detective-picture,.catalog-detective-picture span,.detective-brief,.detective-pilot,.case-sealed,.evidence-card,.empty-evidence,.case-files button,.detective-chain button,.gantt-head,.gantt-plan,.gantt-today>span,.game-brief,.game-event.is-resolved,.cause-chain li,.decision-replay article,.person-avatar,.task-avatars i){background:var(--surface-soft)!important;background-image:none!important;border-color:var(--border)!important}
-html[data-theme] body :where(main,dialog) :is(.example-box,.teacher-reply,.saved-message,.mastered-message,.cycle-return,.chat-lines p:nth-child(2),.evidence-card.is-pinned,.detective-cause,.delivery-chain .evidence-present,.department-map .shared-goal){background:var(--success-soft)!important;border-color:var(--success)!important;color:var(--text)!important}
-html[data-theme] body :where(main,dialog) :is(.mistake-box,.task-blocker,.incentive-chain span,.message-current .lost,.dependency-view .late){background:var(--warning-soft)!important;border-color:var(--warning)!important;color:var(--text)!important}
-html[data-theme] body :where(main,dialog) :is(.teacher-consequences,.activity-metrics,.course-stage,.course-loop,.learning-question,.micro-action,.another-view,.diagnostic-questions,.experiment-row,.notes-archive,.case-ledger,.case-desk,.source-folder,.game-person,.game-event,.gantt-row,.game-service,.task-more,.cause-journal,.reading-bar,.chapter-tabs,.term-list>div,.day-tasks>li,.message-piece,.diary-entry){border-color:var(--border)!important}
-html[data-theme] .reading-nav.chapter-tabs{background:var(--background)!important}
-html[data-theme] body main :is(table,tbody,td){background:var(--surface)!important;border-color:var(--border)!important}html[data-theme] body main :is(thead,th){background:var(--surface-soft)!important;border-color:var(--border)!important}
-html[data-theme] .toast{background:var(--text);color:var(--background)}
-html[data-theme] .gantt-lane{background:repeating-linear-gradient(to right,transparent 0,transparent calc(5% - 1px),var(--border) calc(5% - 1px),var(--border) 5%)!important}
-html[data-theme] .gantt-bar{background:var(--surface-soft)!important;border-color:var(--accent)!important;color:var(--text)!important}
-html[data-theme] .gantt-bar i{background:var(--accent-soft)!important}.gantt-bar.done{border-color:var(--success)!important}
-html[data-theme] .gantt-bar.done i{background:var(--success-soft)!important}html[data-theme] .gantt-bar.blocked{border-color:var(--warning)!important}html[data-theme] .gantt-bar.blocked i{background:var(--warning-soft)!important}
-html[data-theme] .gantt-today{border-color:var(--highlight)!important}
-html[data-theme] .trace-lane{background:var(--surface-soft)!important}
-html[data-theme] :is(.trace-segment.working,.pilot-comparison i,.queue-chart span,.subtle-progress i,.game-day-track>i,.adoption-strip i,.metric-distribution i){background:var(--accent)!important}
-html[data-theme] :is(.trace-segment.waiting,.subtle-progress,.game-day-track,.adoption-strip,.time-budget){background:var(--surface-soft)!important}
-html[data-theme] .trace-segment.reworking{background:var(--highlight)!important}
-html[data-theme] .time-budget>div{background:var(--accent-soft)!important;color:var(--text)!important}html[data-theme] .time-limit{background:var(--surface)!important;color:var(--text)!important}
-html[data-theme] .request-dots i{background:var(--accent-soft)!important;color:var(--text)!important}
-html[data-theme] :is(.game-brief,.game-status,.arcade-status,.empty-evidence,.case-sealed,.route-result,.generated,.no-results,.empty-state,.autonomy-effect>div){color:var(--text)!important}
-html[data-theme] :is(.autonomy-effect>div,.autonomy-scale li.selected){background:var(--accent-soft)!important;color:var(--text)!important}
-html[data-theme] :is(.game-metrics,.gantt-scroll){background:var(--border)!important;border-color:var(--border)!important}
-html[data-theme] body :where(main,dialog) :is(.path-number,.path-card .path-number){color:var(--muted-text)!important}
-html[data-theme] body :where(main,dialog) :is(.almanac-eyebrow,.path-symbol,.path-cta,.topic-number,.theory-topic>span:last-child){color:var(--accent)!important}
-html[data-theme] body :where(main,dialog) :is(.title-spark,.mission-icon,.game-sigil,.path-play .path-symbol,.path-play .path-cta){color:var(--highlight)!important}
-html[data-theme] body :where(main,dialog) :is(.path-card h3,.theory-topic h2){color:var(--text)!important}
-/* Author diagrams use embedded ink colours; retain a light canvas, not inverted imagery. */
-html[data-theme] .diagram-viewport{background:#FFFCF8;border-radius:10px}
-/* Diagrams use the same paper, amber and plum family in both modes. */
-html[data-theme] .diagram-viewport svg [fill="#23415f"]{fill:#302A28}
-html[data-theme] .diagram-viewport svg :is([fill="#edf3ff"],[fill="#dde9fb"],[fill="#b7cdef"],[fill="#d4dce7"]){fill:#E8DDEA}
-html[data-theme] .diagram-viewport svg :is([fill="#edf8f2"],[fill="#d5eddf"],[fill="#80c7ae"],[fill="#eaf7fa"]){fill:#EDE6F2}
-html[data-theme] .diagram-viewport svg :is([fill="#fff6e7"],[fill="#e7b65e"]){fill:#F4E2C7}
-html[data-theme] .diagram-viewport svg [fill="#f3efff"]{fill:#F2E2E7}
-html[data-theme] .diagram-viewport svg :is([fill="#edf3fb"],[fill="#f4f7fb"]){fill:#F4F0EA}
-html[data-theme] .diagram-viewport svg :is([stroke="#8098b8"],[stroke="#cbd8e7"],[stroke="#b7cce4"],[stroke="#aec4de"],[stroke="#ccd9e8"]){stroke:#AA989F}
-html[data-theme] .diagram-viewport [data-visual-node].selected :is(rect,circle,polygon,path){stroke:#69507D;stroke-width:2.5}
-@media print{html body{background:white!important;color:#20303f!important}html[data-theme] body main :is(p,li,label,span,b,strong,h1,h2,h3,h4,dt,dd){color:#20303f!important}}

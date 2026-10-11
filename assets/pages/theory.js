@@ -6,9 +6,7 @@ const $=id=>document.getElementById(id),params=new URLSearchParams(location.sear
 const topicPath=id=>'modules/module-'+String(id).padStart(2,'0')+'.html';
 function renderTopics(){
   const query=$('theorySearch').value.toLocaleLowerCase().trim(),topics=moduleCatalog.filter(m=>{const guide=theoryGuide.find(g=>g.id===m.id);return [m.title,guide.question,...guide.models].join(' ').toLocaleLowerCase().includes(query);});
-  const diagrams=theoryGuide.reduce((n,g)=>n+g.diagrams.length,0);
-  $('theoryCount').textContent=`Тем: ${topics.length} из 10 · 50 объяснений · 30 техник · ${diagrams} схем`;
-  $('theoryTopics').innerHTML=topics.length?topics.map(m=>{const g=theoryGuide.find(g=>g.id===m.id);return `<article class="theory-topic"><span class="topic-number">${String(m.id).padStart(2,'0')}</span><div><h2>${C.esc(m.title)}</h2><p>${C.esc(g.question)}</p><p class="topic-depth-count">5 разборов · 3 техники · ${g.diagrams.length} схем</p><details class="topic-contents"><summary>Что внутри темы</summary><ul>${g.models.map(name=>`<li>${C.esc(name)}</li>`).join('')}</ul></details><div class="topic-entry-links"><a class="topic-read" href="${C.link(topicPath(m.id)+'#theory')}">Читать тему →</a><a href="${C.link('theory.html?view=schemes&topic='+m.id)}">Посмотреть схемы →</a></div></div></article>`;}).join(''):'<p>Похожая тема не найдена. Попробуйте другое слово.</p>';
+  $('theoryTopics').innerHTML=topics.length?topics.map(m=>{const g=theoryGuide.find(g=>g.id===m.id);return `<article class="theory-topic"><span class="topic-number">${String(m.id).padStart(2,'0')}</span><div><h2><a class="topic-read" href="${C.link(topicPath(m.id)+'#theory')}">${C.esc(m.title)}</a></h2><p>${C.esc(g.question)}</p><p class="topic-models">${g.models.slice(0,4).map(C.esc).join(' · ')}</p><a class="topic-schemes" href="${C.link('theory.html?view=schemes&topic='+m.id)}">Схемы темы</a></div></article>`;}).join(''):'<p>Тема не найдена. Измените запрос.</p>';
 }
 let loaded=null,selected=params.get('diagram')||'',schemeEntries=[];
 async function loadSchemes(){
@@ -21,7 +19,7 @@ function drawSchemes(){
   const topic=$('schemeTopic').value,query=$('schemeSearch').value.toLocaleLowerCase().trim();
   const visible=schemeEntries.filter(d=>(!topic||d.topic===Number(topic))&&[d.title,d.note,...d.points.flatMap(p=>[p.label,p.detail])].join(' ').toLocaleLowerCase().includes(query));
   if(!visible.some(d=>d.id===selected))selected=visible[0]?.id||'';
-  $('schemeCount').textContent=`Схем: ${visible.length} из ${schemeEntries.length}. Выберите одну — откроются её графика и объяснение.`;
+  $('schemeCount').textContent='';
   $('schemePicker').innerHTML=visible.map(d=>`<button type="button" data-scheme="${d.id}" aria-pressed="${d.id===selected}"><span>Тема ${d.topic}</span><b>${C.esc(d.title)}</b></button>`).join('');
   const current=visible.find(d=>d.id===selected);
   const chapter=current&&HANDBOOK.chapters.find(c=>c.id===current.topic),technique=chapter?.techniques.find(t=>t.visual===current.id);

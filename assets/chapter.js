@@ -12,22 +12,21 @@ import {depthFor} from '../content/theory-depth.js';
   const root=document.getElementById('chapterRoot');
   root.innerHTML=`
     <div class="reading-bar"><a href="../theory.html?user=${encodeURIComponent(active)}">← Все темы теории</a><a href="../experiments.html?user=${encodeURIComponent(active)}">Мои действия</a></div>
-    <span class="eyebrow">Альманах менеджера · ${chapter.id}</span>
+    <span class="edition-label">Тема ${String(chapter.id).padStart(2,'0')}</span>
     <h1>${esc(chapter.title)}</h1><p class="lead">${esc(chapter.short)}</p>
-    <div class="learning-callout"><span>Хотите освоить тему по учебному маршруту?</span><a href="../learn.html?module=${chapter.id}&user=${encodeURIComponent(active)}">Открыть модуль курса →</a></div>
     <nav class="reading-nav chapter-tabs" aria-label="Содержание раздела"><a href="#theory">Теория</a><a href="#techniques">Техники</a><a href="#case">Кейс и рефлексия</a></nav>
     <section id="theory" class="chapter-pane">
-      <div class="theory-introduction"><h2>Как устроена эта работа</h2><p>${esc(chapter.intro)}</p><a class="mode-link" href="../theory.html?user=${encodeURIComponent(active)}&view=schemes&topic=${chapter.id}">Все схемы этой темы →</a></div>
-      <details class="reference-details theory-contents" open><summary>Содержание полного разбора</summary><nav aria-label="Объяснения темы">${chapter.theory.map(([title],i)=>`<a href="#reading-base-${i+1}">${esc(title)} →</a>`).join('<br>')}${depthFor(chapter.id).map(item=>`<br><a href="#reading-${item.id}">${esc(item.title)} →</a>`).join('')}</nav></details>
+      <div class="theory-introduction"><h2>${['Почему календарь перестаёт помогать','Где поручение теряет результат','Когда команда ждёт разрешения','Как объяснить справедливый выбор','Что адресат прочитал между строк','Где на самом деле принимается решение','Как документ становится действием','Куда уходит время запроса','Что меняется после запуска','Что именно показывает цифра'][chapter.id-1]}</h2><p>${esc(chapter.intro)}</p><div class="workspace-links"><a href="../learn.html?module=${chapter.id}&user=${encodeURIComponent(active)}">Пройти эту тему с практикой</a><a href="../theory.html?user=${encodeURIComponent(active)}&view=schemes&topic=${chapter.id}">Схемы темы</a></div></div>
+      <details class="reference-details theory-contents" open><summary>В этой статье</summary><nav aria-label="Объяснения темы">${chapter.theory.map(([title],i)=>`<a href="#reading-base-${i+1}">${esc(title)}</a>`).join('<br>')}${depthFor(chapter.id).map(item=>`<br><a href="#reading-${item.id}">${esc(item.title)}</a>`).join('')}</nav></details>
       ${Visuals.render(chapter.overviewVisual)}
-      <div class="chapter-theory-grid">${chapter.theory.map(([title,text],i)=>`<article class="theory-article" id="reading-base-${i+1}"><span class="eyebrow">${i+1} / 3 · основание действий</span><h2>${esc(title)}</h2><p>${esc(text)}</p><p>${esc(chapter.theoryDetails[i])}</p>${i===chapter.coreVisual[1]?Visuals.render(chapter.coreVisual[0]):''}</article>`).join('')}</div>
+      <div class="chapter-theory-grid">${chapter.theory.map(([title,text],i)=>`<article class="theory-article" id="reading-base-${i+1}"><span class="edition-label">${String(i+1).padStart(2,'0')}</span><h2>${esc(title)}</h2><p>${esc(text)}</p><p>${esc(chapter.theoryDetails[i])}</p>${i===chapter.coreVisual[1]?Visuals.render(chapter.coreVisual[0]):''}</article>`).join('')}</div>
       ${renderDepth(chapter.id,esc)}
-      <section class="section-block"><h2>Понятия простыми словами</h2><dl class="term-list">${chapter.terms.map(([term,meaning])=>`<div><dt>${esc(term)}</dt><dd>${esc(meaning)}</dd></div>`).join('')}</dl></section>
-      <div class="next-action panel"><div><h3>Перейти от объяснения к действию</h3><p>Выберите одну технику под вашу ситуацию, разберите схему и заполните свой рабочий шаблон.</p></div><a class="button primary" href="#techniques">Выбрать технику →</a></div>
+      <section class="section-block"><h2>Понятия</h2><dl class="term-list">${chapter.terms.map(([term,meaning])=>`<div><dt>${esc(term)}</dt><dd>${esc(meaning)}</dd></div>`).join('')}</dl></section>
+      <p class="course-entry-line"><a href="#techniques">Применить технику этой темы</a></p>
       <details class="reference-details"><summary>Частые вопросы по разделу</summary><div class="faq-list">${chapter.faq.map(([q,a])=>`<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</div></details>
     </section>
     <section id="techniques" class="chapter-pane" hidden>
-      <div class="section-heading"><h2>Что применить в вашей ситуации?</h2><p>Одна выбранная техника: схема, объяснение шагов, пример и собственный план.</p></div>
+      <div class="section-heading"><h2>Техники</h2></div>
       <div class="technique-picker" aria-label="Выбор техники">${chapter.techniques.map(t=>`<a href="#${t.id}" data-technique="${t.id}"><b>${esc(t.name)}</b><span>${esc(t.when)}</span></a>`).join('')}</div>
       <div id="techniquePanel"></div>
       ${chapter.id===8?'<details class="reference-details" id="capacityDetails"><summary>Дополнительно: проверить мощность этапа</summary><div id="calculatorSlot"></div></details>':''}
@@ -42,18 +41,18 @@ import {depthFor} from '../content/theory-depth.js';
       <span class="eyebrow">Рабочая техника</span><h2>${esc(t.name)}</h2>
       <div class="technique-purpose"><p><b>Когда использовать</b><br>${esc(t.when)}</p><p><b>Почему работает</b><br>${esc(t.why)}</p></div>
       ${Visuals.render(t.visual)}
-      <h3>Как выполнить — по шагам</h3><ol class="step-list">${t.steps.map(step=>`<li>${esc(step)}</li>`).join('')}</ol>
+      <h3>Шаги</h3><ol class="step-list">${t.steps.map(step=>`<li>${esc(step)}</li>`).join('')}</ol>
       <div class="example-box"><b>Рабочий пример</b><p>${esc(t.example)}</p></div>
       <div class="mistake-box"><b>Не перепутайте</b><p>${esc(t.mistake)}</p></div>
       <p class="technique-check"><b>Проверка результата:</b> ${esc(t.check)}</p>
-      <details class="worksheet"><summary>Применить к своей ситуации — открыть рабочий шаблон</summary><form data-tool="${t.id}" class="form-grid">${t.fields.map((f,i)=>`<label>${esc(f)}<textarea name="field${i}" placeholder="Ваши факты и договорённости"></textarea></label>`).join('')}<div class="inline-actions"><button type="submit" class="button primary">Записать результат в дневник</button><span class="draft-status" role="status">Черновик сохраняется при вводе</span></div></form></details>
+      <details class="worksheet"><summary>Применить к своей ситуации</summary><form data-tool="${t.id}" class="form-grid">${t.fields.map((f,i)=>`<label>${esc(f)}<textarea name="field${i}"></textarea></label>`).join('')}<div class="inline-actions"><button type="submit" class="button primary">Записать в дневник</button><span class="draft-status" role="status"></span></div></form></details>
       <a class="text-button case-link" href="#case">Проверить себя на кейсе →</a>
     </article>`;
     const form=holder.querySelector('form');
     const key=`chapter-${chapter.id}-${t.id}`;
     const draft=S.profile(active).data.worksheets[key]||{};
     for(const [k,v] of Object.entries(draft))if(form.elements[k]&&typeof v==='string')form.elements[k].value=v;
-    form.oninput=()=>{const ok=S.update(active,d=>d.worksheets[key]=Object.fromEntries(new FormData(form)));form.querySelector('.draft-status').textContent=ok?'Черновик сохранён в вашем профиле':'Хранилище недоступно: экспортируйте данные на главной';};
+    let savedTimer;form.oninput=()=>{const ok=S.update(active,d=>d.worksheets[key]=Object.fromEntries(new FormData(form))),status=form.querySelector('.draft-status');clearTimeout(savedTimer);status.textContent=ok?'Сохранено':'Не удалось сохранить. Скопируйте текст или откройте настройки.';if(ok)savedTimer=setTimeout(()=>status.textContent='',1800);};
     form.onsubmit=e=>{e.preventDefault();const fields=Object.fromEntries(new FormData(form));if(!Object.values(fields).some(v=>v.trim())){U.notify('Добавьте факты своей ситуации.');return;}S.journal(active,{type:'План действия',title:t.name,situation:t.fields.map((f,i)=>`${f}: ${fields[`field${i}`].trim()||'уточнить'}`).join('\n'),learning:`Проверка пользы: ${t.check}`,action:'Первый шаг, ответственный и срок:'});U.notify('Рабочая запись добавлена в дневник.');};
     Visuals.bind(holder);
   }
