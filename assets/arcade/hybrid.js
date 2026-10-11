@@ -1,8 +1,13 @@
 import {initial,clone,assertPlaying,record,button,select,summary,esc,basicValid,seedNumber} from './common.js';
+import {mountProjectRoute,comparisonReview} from './hybrid-route.js';
+export const ui={history:false,practiceCycle:false,quietStatus:true,compactTransfer:true};
+export const mountUI=mountProjectRoute;
+export const renderReport=comparisonReview;
 export const contexts=[{id:'report',name:'Обязательная отчётная система',uncertainty:0.15,gate:true,deadline:25,description:'Требования почти фиксированы. Ошибка дорогая, внешний срок и приёмка обязательны.'},{id:'discovery',name:'Новый внутренний сервис',uncertainty:0.9,gate:false,deadline:25,description:'Потребность известна, способ решения неизвестен. Нужна ранняя обратная связь пользователей.'},{id:'integration',name:'Интеграция двух систем',uncertainty:0.55,gate:true,deadline:28,description:'Технический контур предсказуем, интерфейс нужно исследовать. Есть внешнее окно и проверка.'}];
 export const blocks=[{id:'research',name:'Исследование',days:2},{id:'prototype',name:'Прототип',days:2},{id:'plan',name:'Планирование',days:2},{id:'build',name:'Разработка',days:6},{id:'review',name:'Review',days:1},{id:'gate',name:'Stage gate',days:2},{id:'test',name:'Тестирование',days:2},{id:'pilot',name:'Пилот пользователей',days:2},{id:'release',name:'Выпуск',days:1}];
 export const presets={waterfall:['plan','build','test','gate','release'],agile:['plan','prototype','review','build','review','test','pilot','release'],hybrid:['plan','prototype','review','build','test','gate','pilot','release']};
 const costs={report:{daily:90000,budget:1800000,change:'Внешний получатель уточняет обязательный формат',window:0},discovery:{daily:35000,budget:850000,change:'Пользователи иначе выполняют основной сценарий',window:0},integration:{daily:65000,budget:1600000,change:'Соседняя система меняет ограничение интерфейса',window:12}};
+export const contextTerms=costs;
 export function create(seed='hybrid-1'){return {...initial(seed),modelVersion:2,context:'report',route:[...presets.waterfall],runs:[]};}
 function evaluateLegacy(route,contextId,trial=0){
   const context=contexts.find(c=>c.id===contextId);if(!context)throw new Error('Контекст не найден.');

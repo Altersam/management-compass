@@ -7,7 +7,7 @@ export const catalog=[
   {id:'versions',title:'Версия 7_final_точно2',subtitle:'Документальный детектив',mechanic:'Восстановите действующую версию по файлам, датам и уведомлениям.',time:'4–6 минут',topics:[7],storage:'versions'},
   {id:'metrics',title:'Метрика врёт',subtitle:'Расследование показателя',mechanic:'После запуска отчёт показывает резкое сокращение времени.',time:'4–7 минут',topics:[10],storage:'metrics'},
   {id:'flow',title:'Бутылочное горлышко',subtitle:'Живой поток заявок',mechanic:'Управляйте WIP, ресурсом и возвратами там, где действительно скапливается очередь.',time:'5–8 минут',topics:[8],storage:'flow'},
-  {id:'sprint',title:'Спринт: цель вместо скорости',subtitle:'Задачи и зависимости',mechanic:'Соберите задачи под цель и скорректируйте следующий спринт после review.',time:'6–9 минут',topics:[1,2,3],storage:'sprint'},
+  {id:'sprint',title:'Спринт: цель вместо скорости',subtitle:'Backlog · Спринт · Review',mechanic:'Соберите работу под одну цель и посмотрите, что действительно дошло до результата.',time:'6–9 минут',topics:[1,2,3],storage:'sprint'},
   {id:'influence',title:'Карта влияния',subtitle:'Формальная схема — только начало',mechanic:'Решение утверждено, но внедрение всё равно остановилось.',time:'5–7 минут',topics:[3,6],storage:'influence'}
 ];
 export const loaders={hybrid:()=>import('./hybrid.js'),meeting:()=>import('./meeting.js'),ethics:()=>import('./ethics.js'),change:()=>import('./change.js'),telephone:()=>import('./telephone.js'),versions:()=>import('./versions.js'),metrics:()=>import('./metrics.js'),flow:()=>import('./flow.js'),sprint:()=>import('./sprint.js'),influence:()=>import('./influence.js')};
