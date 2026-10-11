@@ -1,4 +1,8 @@
 import {initial,clone,assertPlaying,record,button,select,summary,esc,basicValid} from './common.js';
+import {telephoneMarkup,telephoneReview,mountTelephoneMotion} from './telephone-chain.js';
+export const ui={history:false,practiceCycle:false,quietStatus:true,compactTransfer:true};
+export const mountUI=mountTelephoneMotion;
+export const renderReport=telephoneReview;
 export const hops=[{id:'director',name:'Директор → руководитель',complex:false,formal:false},{id:'lead',name:'Руководитель → заместитель',complex:true,formal:false},{id:'deputy',name:'Заместитель → исполнитель',complex:false,formal:false},{id:'executor',name:'Исполнитель → соседний отдел',complex:false,formal:true},{id:'recipient',name:'Отдел → получатель',complex:true,formal:false}];
 export const channels=[['email','Письмо · 2'],['chat','Чат · 1'],['meeting','Разговор · 4'],['document','Действующий документ · 3']];
 export const parts={action:'Запустить приём заявок одной категории',deadline:'До понедельника',quality:'С расчётом и подтверждённым источником',resource:'При доступе IT; исключения согласуются отдельно'};

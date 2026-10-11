@@ -5,10 +5,10 @@ test('all ten games load separate working objects and preserve same product shel
   const errors=[];page.on('pageerror',e=>errors.push(e.message));for(const id of games){await page.goto('/trainer.html?game='+id);await expect(page.locator('#arcadeBoard')).not.toBeEmpty();await expect(page.locator('.product-header>nav a')).toHaveText(['Теория','Игры','Ситуация','Техники','Дневник']);}expect(errors).toEqual([]);
 });
 test('Hybrid route can be rearranged and two trials reach a comparison result',async({page})=>{
-  await page.goto('/trainer.html?game=hybrid');await click(page,'run');await expect(page.locator('.trial-result')).toHaveCount(1);await expect(page.locator('[name=context]')).toBeDisabled();
-  await click(page,'add','research');await expect(page.locator('.route-builder li')).toHaveCount(6);
-  for(let index=5;index>0;index--)await page.locator(`[data-action=move][data-index="${index}"][data-delta="-1"]`).click();
-  await expect(page.locator('.route-builder li').first()).toContainText('Исследование');await click(page,'run');await expect(page.locator('#arcadeResult')).toBeVisible();await expect(page.locator('#arcadeResult')).toContainText('Выпуск завершает маршрут');
+  await page.goto('/trainer.html?game=hybrid');await page.locator('[data-route-action=context][data-value=report]').click();await page.locator('[data-route-action=run]').click();await expect(page.locator('.project-trace')).toHaveCount(1);await expect(page.locator('.project-context-picker')).toHaveCount(0);
+  await page.locator('[data-route-action=add][data-value=research]').click();await expect(page.locator('.project-route-drop li')).toHaveCount(6);
+  for(let index=5;index>0;index--)await page.locator(`[data-route-action=move][data-index="${index}"][data-delta="-1"]`).click();
+  await expect(page.locator('.project-route-drop li').first()).toContainText('Исследование');await page.locator('[data-route-action=run]').click();await expect(page.locator('#arcadeResult')).toBeVisible();await expect(page.locator('#arcadeResult')).toContainText('Выпуск завершает маршрут');
 });
 test('meeting obtains facts and confirms an executable resource choice',async({page})=>{
   await page.goto('/trainer.html?game=meeting');for(const [person,question] of [['it','constraint'],['finance','constraint'],['ops','fact'],['legal','constraint'],['owner','authority']]){await page.locator(`[data-meeting-action=person][data-value=${person}]`).click();await page.locator(`[data-meeting-action=ask][data-value=${question}]`).click();}await page.locator('[data-meeting-action=chooseOwner]').click();await page.locator('[data-meeting-action=person][data-value=owner]').click();await page.locator('[data-meeting-action=commit]').click();await expect(page.locator('#arcadeResult')).toContainText('подтверждена');
@@ -18,13 +18,13 @@ test('ethics and document reconstruction require actual investigation and author
 });
 test('change lab runs delayed intervention rounds and telephone travels all five hops',async({page})=>{
   await page.goto('/trainer.html?game=change');await click(page,'observe');await click(page,'measure','example');for(let i=0;i<4;i++)await click(page,'round');await expect(page.locator('#arcadeResult')).toBeVisible();
-  await page.goto('/trainer.html?game=telephone');for(const channel of ['email','meeting','email','document','meeting']){await page.locator('[name=channel]').selectOption(channel);await page.locator('[data-form=send] button').click();}await expect(page.locator('#arcadeResult')).toContainText('4/4');
+  await page.goto('/trainer.html?game=telephone');for(const channel of ['email','meeting','email','document','meeting']){await click(page,'channel',channel);await page.locator('[data-form=send] button').click();}await expect(page.locator('.telephone-comparison .is-retained')).toHaveCount(4);
 });
 test('metrics has controllable population and substantive conclusion',async({page})=>{
   await page.goto('/trainer.html?game=metrics');await click(page,'investigate');await click(page,'inspect','denominator');await click(page,'inspect','channels');await click(page,'channel','all');await click(page,'inspect','unfinished');await click(page,'pending','true');await expect(page.locator('.metric-observed')).toContainText('53');await click(page,'formulate');await click(page,'conclusion','hypothesis');await click(page,'next','users');await page.locator('[name=note]').fill('Среднее системы не описывает незавершённые и обращения в другом канале.');await page.locator('[data-form=decide] button').click();await expect(page.locator('#arcadeResult')).toBeVisible();
 });
 test('flow is a living timed system and sprint uses a real backlog rather than quiz scenes',async({page})=>{
-  await page.clock.install();await page.goto('/trainer.html?game=flow');await page.locator('#arcadeClock').click();await page.clock.runFor(3600);await page.locator('#arcadeClock').click();await expect(page.locator('.request-dots i')).not.toHaveCount(0);for(let i=0;i<17;i++)await click(page,'tick');await expect(page.locator('#arcadeResult')).toBeVisible();
+  await page.clock.install();await page.goto('/trainer.html?game=flow');await page.locator('#arcadeClock').click();await page.clock.runFor(3600);await page.locator('#arcadeClock').click();await expect(page.locator('.request-dots i')).not.toHaveCount(0);for(let i=0;i<17;i++)await page.locator('[data-flow-action=tick]').click();await expect(page.locator('#arcadeResult')).toBeVisible();
   await page.goto('/trainer.html?game=sprint');for(let i=0;i<3;i++){if(i)await page.locator('[data-sprint-action=nextPlan]').click();await page.locator(`[data-sprint-action=select][data-value=task-${i+1}]`).click();await page.locator('[data-sprint-action=run]').click();}await expect(page.locator('#arcadeResult')).toBeVisible();
 });
 test('influence builds observed graph and ends with a real coalition check',async({page})=>{
@@ -32,9 +32,9 @@ test('influence builds observed graph and ends with a real coalition check',asyn
 });
 test('game saves resume, finished restart archives only the selected game, catalog is engine lazy',async({page})=>{
   const requests=[];page.on('request',r=>requests.push(new URL(r.url()).pathname));await page.goto('/games.html');await expect(page.locator('.training-game')).toHaveCount(12);expect(requests.some(p=>/\/arcade\/(hybrid|meeting|flow)\.js/.test(p))).toBe(false);
-  await page.goto('/trainer.html?game=hybrid');await click(page,'add','research');await page.reload();await expect(page.locator('.route-builder li')).toHaveCount(6);await click(page,'run');await click(page,'run');await page.locator('#arcadeRestart button').click();await expect(page.locator('.route-builder li')).toHaveCount(5);const course=await page.evaluate(()=>CourseUI.data().course);expect(course.arcadeArchives.hybrid).toHaveLength(1);
+  await page.goto('/trainer.html?game=hybrid');await page.locator('[data-route-action=context][data-value=report]').click();await page.locator('[data-route-action=add][data-value=research]').click();await page.reload();await expect(page.locator('.project-route-drop li')).toHaveCount(6);await page.locator('[data-route-action=run]').click();await page.locator('[data-route-action=run]').click();await page.locator('#arcadeRestart button').click();await expect(page.locator('.project-context-picker button')).toHaveCount(3);const course=await page.evaluate(()=>CourseUI.data().course);expect(course.arcadeArchives.hybrid).toHaveLength(1);
 });
 test('all new games fit mobile and keyboard buttons remain operable',async({page})=>{
   test.setTimeout(60000);for(const width of [320,375,430,768,1024,1440]){await page.setViewportSize({width,height:1000});for(const id of games){await page.goto('/trainer.html?game='+id);await expect(page.locator('#arcadeBoard')).not.toBeEmpty();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),width+' '+id).toBe(true);}}
-  await page.goto('/trainer.html?game=hybrid');await page.locator('[data-action=add][data-value=research]').focus();await page.keyboard.press('Enter');await expect(page.locator('.route-builder li')).toHaveCount(6);
+  await page.goto('/trainer.html?game=hybrid');await page.locator('[data-route-action=context][data-value=report]').click();await page.locator('[data-route-action=add][data-value=research]').focus();await page.keyboard.press('Enter');await expect(page.locator('.project-route-drop li')).toHaveCount(6);
 });

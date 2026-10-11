@@ -1,4 +1,8 @@
 import {initial,clone,clamp,random,assertPlaying,record,button,select,summary,basicValid} from './common.js';
+import {mountFactoryFlow,factoryReview} from './flow-factory.js';
+export const ui={history:false,practiceCycle:false,quietStatus:true,compactTransfer:true};
+export const mountUI=mountFactoryFlow;
+export const renderReport=factoryReview;
 export const stations=[{id:'input',name:'Вход',capacity:4,cost:30},{id:'check',name:'Проверка',capacity:2,cost:40},{id:'process',name:'Обработка',capacity:4,cost:50},{id:'approval',name:'Согласование',capacity:3,cost:35}];
 export const ticker={type:'tick',ms:1200};
 export function create(seed='flow-1'){return {...initial(seed),queues:[[],[],[],[]],outside:[],done:[],people:[1,1,1,1],selected:'check',wip:12,checkEnabled:true,spent:0,budget:4000,nextId:1,errors:0,rework:0};}
@@ -21,7 +25,9 @@ export function act(state,a){assertPlaying(state);const s=clone(state);
       }
     }
     if(s.turn===20||s.spent>=s.budget)s.phase='ended';
-  }else throw new Error('Действие не найдено.');record(s,a,a.type==='tick'?'Поток прошёл следующий интервал':'Условия потока изменены');return s;
+  }else throw new Error('Действие не найдено.');
+  if(['tick','upgrade'].includes(a.type)){const trace=s.flowTrace||{startedAt:state.turn,peak:state.queues.map(q=>q.length),additions:[],samples:[]};trace.peak=trace.peak.map((n,i)=>Math.max(n,s.queues[i].length));if(a.type==='upgrade'){const i=stations.findIndex(x=>x.id===s.selected);trace.additions.push({turn:s.turn,station:s.selected,before:state.people[i],after:s.people[i]});}else trace.samples.push({turn:s.turn,queues:s.queues.map(q=>q.length),outside:s.outside.length,done:s.done.length,spent:s.spent});s.flowTrace=trace;}
+  record(s,a,a.type==='tick'?'Поток прошёл следующий интервал':'Условия потока изменены');return s;
 }
 export function validate(s){return basicValid(s)&&s.turn<=20&&Array.isArray(s.queues)&&s.queues.length===4&&s.queues.every(Array.isArray)&&Array.isArray(s.outside)&&Array.isArray(s.done)&&Array.isArray(s.people)&&s.people.length===4&&s.people.every(n=>Number.isInteger(n)&&n>=1&&n<=3)&&stations.some(x=>x.id===s.selected)&&[4,8,12,20].includes(s.wip)&&typeof s.checkEnabled==='boolean'&&Number.isFinite(s.spent)&&s.spent>=0&&s.budget===4000;}
 export function render(s){return `<div class="flow-kpis"><span>Интервал ${s.turn}/20</span><span>Расход ${s.spent}/4000</span><span>Выдано ${s.done.length}</span><span>Незавершено ${inside(s)+s.outside.length}</span></div><p>По три новых запроса за интервал. Объекты двигаются по цепочке; возвраты снова занимают вход.</p><div class="flow-line">${stations.map((x,i)=>`<article class="flow-station ${s.selected===x.id?'selected':''}">${button('station',`<b>${x.name}</b><span>${s.people[i]} человек · мощность ${i===1&&!s.checkEnabled?'без проверки':x.capacity*s.people[i]}</span>`,`data-value="${x.id}" aria-pressed="${s.selected===x.id}"`)}<div class="request-dots" role="img" aria-label="Очередь ${x.name}: ${s.queues[i].length} заявок">${s.queues[i].slice(0,24).map(item=>`<i title="Заявка ${item.id}">${item.id}</i>`).join('')}</div><span>${s.queues[i].length} в очереди</span></article>`).join('')}</div><div class="flow-outside"><b>${s.outside.length} ещё не допущены в процесс</b><p>Ограничение WIP не уничтожает входящие обязательства: внешняя очередь остаётся видимой.</p></div><div class="arcade-form">${select('wip','Лимит одновременно начатых запросов',[[4,'4'],[8,'8'],[12,'12'],[20,'20']],s.wip)}<label class="check-row"><input type="checkbox" name="check" ${s.checkEnabled?'checked':''}> Сохранять проверку качества</label>${button('upgrade','Добавить человека на '+stations.find(x=>x.id===s.selected).name+' · 80 + дневной расход')}${button('tick','Следующий интервал','class="button primary"')}</div>`;}

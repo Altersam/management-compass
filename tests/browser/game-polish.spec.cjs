@@ -5,13 +5,13 @@ test('entire editorial catalogue works without JavaScript and has two visual fea
   await expect(page.locator('[data-game=hybrid]')).toContainText('Hybrid');await page.locator('[data-game=hybrid] a').click();await expect(page).toHaveURL(/game=hybrid/);await context.close();
 });
 test('Hybrid Lab compares real route changes, resumes both condition sets and carries a next step',async({page})=>{
-  await page.goto('/trainer.html?game=hybrid');await page.locator('[name=context]').selectOption('discovery');await page.locator('[data-action=run]').click();await expect(page.locator('.hybrid-pressure')).toHaveCount(1);
-  const original=await page.evaluate(()=>CourseUI.data().course.arcadeGames.hybrid.runs[0]);await page.locator('[data-action=preset][data-value=agile]').click();await page.reload();await expect(page.locator('.route-builder li')).toHaveCount(8);await page.locator('[data-action=run]').click();
-  await expect(page.locator('.hybrid-comparison')).toContainText('одинаковом контексте');const saved=await page.evaluate(()=>CourseUI.data().course.arcadeGames.hybrid);expect(saved.runs[0]).toEqual(original);expect(saved.runs[1].result.rework).toBeLessThan(saved.runs[0].result.rework);
-  await page.locator('[name=workAction]').fill('Проверить сценарий на образце до разработки');await page.locator('#arcadeExperiment').click();await expect(page.locator('#newExperiment [name=action]')).toHaveValue('Проверить сценарий на образце до разработки');
+  await page.goto('/trainer.html?game=hybrid');await page.locator('[data-route-action=context][data-value=discovery]').click();await page.locator('[data-route-action=run]').click();await expect(page.locator('.project-change')).toContainText('Пользователи');
+  const original=await page.evaluate(()=>CourseUI.data().course.arcadeGames.hybrid.runs[0]);await page.locator('.project-start-templates summary').click();await page.locator('[data-route-action=preset][data-value=agile]').click();await page.reload();await expect(page.locator('.project-route-drop li')).toHaveCount(8);await page.locator('[data-route-action=run]').click();
+  await expect(page.locator('.project-comparison-delta')).toContainText('одинаковом контексте');const saved=await page.evaluate(()=>CourseUI.data().course.arcadeGames.hybrid);expect(saved.runs[0]).toEqual(original);expect(saved.runs[1].result.rework).toBeLessThan(saved.runs[0].result.rework);
+  await page.locator('.arcade-transfer summary').click();await page.locator('[name=workAction]').fill('Проверить сценарий на образце до разработки');await page.locator('#arcadeExperiment').click();await expect(page.locator('#newExperiment [name=action]')).toHaveValue('Проверить сценарий на образце до разработки');
 });
 test('corrupted Hybrid save is preserved rather than replaced or rendered as a fake result',async({page})=>{
-  await page.goto('/trainer.html?game=hybrid');await page.locator('[data-action=run]').click();
+  await page.goto('/trainer.html?game=hybrid');await page.locator('[data-route-action=context][data-value=report]').click();await page.locator('[data-route-action=run]').click();
   await page.evaluate(()=>Workspace.update(Workspace.active(),d=>d.course.arcadeGames.hybrid.runs[0].result.days=0));const before=await page.evaluate(()=>JSON.stringify(CourseUI.data().course.arcadeGames.hybrid));
   await page.reload();await expect(page.locator('#arcadeRoot [role=alert]')).toContainText('остаётся в профиле');expect(await page.evaluate(()=>JSON.stringify(CourseUI.data().course.arcadeGames.hybrid))).toBe(before);
 });
