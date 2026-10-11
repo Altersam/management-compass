@@ -1,6 +1,7 @@
 /* Read-only editorial inventory. Reports never reject the release for word frequency. */
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),{execFileSync}=require('node:child_process'),{publicFiles}=require('./public-files.cjs');
 const root=path.resolve(__dirname,'..');
+const {publicPath}=require('./public-files.cjs');
 function strings(source){
   const found=[];let i=0;
   function scan(expression=false){let braces=0;
@@ -15,9 +16,9 @@ function strings(source){
   }scan();return found;
 }
 const clean=str=>str.replace(/<[^>]*(?:>|$)/g,' ').replace(/^["'>]+/,'').replace(/\s+/g,' ').trim();
-function report(){
-  const files=publicFiles(root),texts=[],headings=[],leads=[],technical=[],radii=new Set();let pills=0;
-  for(const file of files){const source=fs.readFileSync(path.join(root,file),'utf8');
+function report(revision){
+  const files=revision?execFileSync('git',['ls-tree','-r','--name-only','-z',revision],{cwd:root,encoding:'utf8'}).split('\0').filter(file=>publicPath(file)):publicFiles(root),texts=[],headings=[],leads=[],technical=[],radii=new Set();let pills=0;
+  for(const file of files){const source=revision?execFileSync('git',['show',revision+':'+file],{cwd:root,encoding:'utf8'}):fs.readFileSync(path.join(root,file),'utf8');
     if(file.endsWith('.css')){for(const m of source.matchAll(/border-radius\s*:\s*([^;}]+)/g)){radii.add(m[1].trim());if(/(?:99|999|50%)/.test(m[1]))pills++;}continue;}
     if(!/\.(html|js)$/.test(file))continue;
     for(const str of file.endsWith('.html')?[source]:strings(source)){const text=clean(str);if(text)texts.push(text);
@@ -33,5 +34,5 @@ function report(){
   return {method:'Static public HTML and Cyrillic JS string/template segments. Dynamic expressions are omitted; repeated phrasing in different learning contexts is advisory.',frequencies:Object.fromEntries(terms.map(term=>[term,texts.join(' ').toLowerCase().split(term).length-1])),topWords:[...counts].sort((a,b)=>b[1]-a[1]).slice(0,20),topRepeatedPhrases:duplicate(phrases).slice(0,20),duplicateSentences:duplicate(texts.flatMap(t=>t.split(/(?<=[.!?])\s+/)).filter(t=>t.length>=35)).slice(0,20),duplicateHeadings:duplicate(headings),duplicateLeads:duplicate(leads),technical,radii:[...radii].sort(),pillDeclarations:pills};
 }
 function copies(){const tracked=execFileSync('git',['ls-files','-z'],{cwd:root,encoding:'utf8'}).split('\0').filter(Boolean),refs=publicFiles(root).filter(file=>/\.(html|js|css)$/.test(file)).map(file=>({file,text:fs.readFileSync(path.join(root,file),'utf8')}));return tracked.filter(file=>/ \(\d+\)|(?:copy|backup)/i.test(file)).map(file=>{const original=file.replace(/ \(\d+\)/g,''),exists=fs.existsSync(path.join(root,original)),hash=name=>crypto.createHash('sha256').update(fs.readFileSync(path.join(root,name))).digest('hex');return {file,original,identical:exists&&hash(file)===hash(original),references:refs.filter(ref=>ref.text.includes(file)||ref.text.includes(encodeURI(file))).map(ref=>ref.file)};});}
-if(require.main===module)console.log(JSON.stringify(process.argv.includes('--copies')?copies():report(),null,2));
+if(require.main===module)console.log(JSON.stringify(process.argv.includes('--copies')?copies():report(process.argv.find(arg=>arg.startsWith('--revision='))?.split('=')[1]),null,2));
 module.exports={report,copies,strings};

@@ -20,7 +20,7 @@ test('investigation restart archives only its own game and completed evidence re
   await page.goto('/detective.html');await page.evaluate(()=>Workspace.update(CourseUI.active,d=>{d.course.projectGame={revision:1,time:11};d.course.simulation={revision:2,decisions:['tight-check']};}));
   await source(page,'case:case-1');await source(page,'returns');await hypothesis(page,'register');await page.locator('[name=intervention][value=input]').check();await page.locator('#runPilot').click();await page.locator('#finishInvestigation').click();
   await page.locator('[data-inspect=returns]').first().click();await expect(page.locator('#sourceDocument')).toContainText('недостающим');await page.locator('#closeSource').click();
-  await page.locator('#nextInvestigation [name=seed]').selectOption('case-03');await page.locator('#nextInvestigation button[type=submit]').click();await expect(page.locator('.detective-eyebrow').first()).toContainText('case-03');
+  await page.locator('#nextInvestigation [name=seed]').selectOption('case-03');await page.locator('#nextInvestigation button[type=submit]').click();await expect(page.locator('.detective-eyebrow').first()).toContainText('дело №3');
   const course=await page.evaluate(()=>CourseUI.data().course);expect(course.detectiveGameArchive).toHaveLength(1);expect(course.detectiveGame.seed).toBe('case-03');expect(course.projectGame.time).toBe(11);expect(course.simulation.decisions).toEqual(['tight-check']);
 });
 test('games catalog is engine-lazy and main menu reaches both working games',async({page})=>{
