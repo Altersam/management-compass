@@ -1,10 +1,10 @@
 const {test,expect}=require('@playwright/test');
 async function range(page,name,value){await page.locator(`input[name="${name}"]`).evaluate((input,value)=>{input.value=String(value);input.dispatchEvent(new Event('input',{bubbles:true}));},value);}
 async function ethics(page){for(const id of ['facts','independent','criteria'])await page.locator(`[data-ethics="${id}"]`).click();}
-test('landing has meaningful static HTML with two entries and four stages without JavaScript',async({browser,baseURL})=>{
+test('landing explains five routes without requiring JavaScript or dumping all topics',async({browser,baseURL})=>{
   const context=await browser.newContext({javaScriptEnabled:false,baseURL}),page=await context.newPage();await page.goto('/');
-  await expect(page.locator('h1')).toHaveText('Практика управления');await expect(page.locator('.welcome-actions a')).toHaveCount(2);await expect(page.locator('.course-stage')).toHaveCount(4);await expect(page.locator('.topic-link')).toHaveCount(10);
-  await expect(page.locator('#startGame')).toHaveText('Начать игру');await expect(page.locator('#startGame')).toHaveAttribute('href','game.html');await expect(page.locator('main')).toContainText('работать с людьми');await context.close();
+  await expect(page.locator('h1')).toContainText('Альманах');await expect(page.locator('.path-card')).toHaveCount(5);await expect(page.locator('.path-card h3')).toHaveText(['Теория','Игры','Рабочие ситуации','Техники','Мой дневник']);await expect(page.locator('.topic-link')).toHaveCount(0);
+  await expect(page.locator('#startGame')).toHaveText('Начать игру');await expect(page.locator('#startGame')).toHaveAttribute('href','game.html');await expect(page.locator('main')).toContainText('следующий шаг');await context.close();
 });
 test('home loads a small entry and imports simulation only when requested',async({page})=>{
   const requests=[];page.on('request',request=>requests.push(new URL(request.url()).pathname));
@@ -17,7 +17,7 @@ test('home loads a small entry and imports simulation only when requested',async
   expect(requests.some(p=>p.endsWith('/course-questions.js'))).toBe(false);
 });
 test('learning starts in the day, changes its budget and replaces understood buttons with decisions',async({page})=>{
-  await page.goto('/');await page.locator('#startCourse').click();await expect(page.locator('.activity-1')).toBeVisible();await expect(page.locator('#ackTheory')).toHaveCount(0);
+  await page.goto('/');await page.locator('.guided-route summary').click();await page.locator('#startCourse').click();await expect(page.locator('.activity-1')).toBeVisible();await expect(page.locator('#ackTheory')).toHaveCount(0);
   const before=await page.locator('.activity-metrics').textContent();await page.locator('[name=plan-meeting]').selectOption('delegate');await page.locator('[name=plan-requests]').selectOption('delegate');await page.locator('[name=plan-team]').selectOption('later');await page.locator('[name=focus]').check();await page.locator('[name=notify]').check();
   expect(await page.locator('.activity-metrics').textContent()).not.toBe(before);await page.locator('.activity-decide').click();await page.locator('#activityNext a').click();
   for(let i=0;i<3;i++){
@@ -63,7 +63,7 @@ test('legacy records, real experiments, profile selection and backup remain comp
     const data={favorites:[8],journal:[{id:'old-note',date:'2026-10-08',type:'Рефлексия',title:'Прежняя запись',situation:'Старые факты',learning:'Вывод',action:'Шаг',rating:3,createdAt:'2026-10-08',updatedAt:''}],caseAnswers:{focus:{choice:1,correct:true}},caseReflections:{focus:'Старая мысль'},worksheets:{taskForm:{result:'Прежнее поручение'}},assessments:{paei:{values:[5,4,3]}}};localStorage.setItem('management-compass:v1',JSON.stringify({version:1,active:'personal',profiles:[{id:'personal',name:'Прежний профиль',data}]}));
   });
   await page.goto('/learn.html?module=3');await page.locator('.activity-decide').click();await page.goto('/workspace.html#practice');await expect(page.locator('#taskForm [name=result]')).toHaveValue('Прежнее поручение');
-  await page.goto('/workspace.html#diary');await page.locator('.notes-archive summary').click();await expect(page.locator('#diaryList')).toContainText('Прежняя запись');
+  await page.goto('/workspace.html#diary');await expect(page.locator('#diaryList')).toContainText('Прежняя запись');
   await page.goto('/settings.html');const backup=await page.evaluate(()=>Workspace.export(CourseUI.active));expect(backup.data.assessments.paei.values[0]).toBe(5);expect(backup.data.course.modules['3'].activities.intro.done).toBe(true);
   await page.locator('#learningImport').setInputFiles({name:'copy.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(backup))});await expect(page.locator('#learningProfileSelect option:checked')).toContainText('импорт');
   expect(await page.evaluate(()=>CourseUI.data().worksheets.taskForm.result)).toBe('Прежнее поручение');expect(await page.evaluate(()=>CourseUI.data().course.modules['3'].activities.intro.done)).toBe(true);

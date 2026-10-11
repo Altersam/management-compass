@@ -4,10 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#142b4a">
-  <meta name="description" content="Практика управления: уточните рабочую ситуацию, проверьте гипотезу и выберите первый инструмент.">
-  <title>Разобрать рабочую ситуацию — Практика управления</title>
+   <meta name="description" content="Альманах менеджера: рабочие ситуации, техники под задачу и личный дневник.">
+   <title>Рабочие ситуации — Альманах менеджера</title>
   <link rel="stylesheet" href="assets/styles.css">
   <link rel="stylesheet" href="assets/experience.css">
+  <link rel="stylesheet" href="assets/almanac.css"><link rel="stylesheet" href="assets/shell.css" data-shell-style>
 </head>
 <body>
   <div>
@@ -15,7 +16,7 @@
       <header class="topbar">
         <h1 id="viewTitle">Что сейчас мешает работе?</h1>
       </header>
-      <nav class="workspace-links" aria-label="Рабочие инструменты"><a href="#modules" data-view-link="reference">Все инструменты</a><a href="experiments.html">Мои действия</a><a href="settings.html">Настройки →</a></nav>
+      <nav class="workspace-links" aria-label="Дополнительная практика"><a href="#modules" data-view-link="reference">Техники под задачу</a><a href="experiments.html">Мои действия</a></nav>
 
       <section class="section-block" id="route" data-screen="start">
         <p>Выберите похожую ситуацию и уточните два условия. Начнём с рабочей гипотезы, которую можно проверить.</p>
@@ -26,7 +27,7 @@
       </section>
 
       <section class="section-block" id="modules" data-screen="reference" hidden>
-        <div class="section-heading heading-with-action"><div><h2>Каталог инструментов</h2><p>10 тем и 30 техник. Можно использовать как справочник: искать по задаче или названию инструмента.</p></div><a class="button quiet" href="navigator.html" id="navigatorLink">Рабочие ситуации →</a></div>
+        <div class="section-heading heading-with-action"><div><p>Выберите тему или найдите инструмент по задаче. Внутри — схема, шаги и пример; не нужно просматривать весь набор.</p></div><a class="button quiet" href="navigator.html" id="navigatorLink">Помочь выбрать →</a></div>
         <div class="module-grid" id="moduleGrid"></div>
       </section>
 
@@ -49,11 +50,11 @@
       </section>
 
       <section class="section-block" id="diary" data-screen="journal" hidden>
-        <p>Основные изменения и эксперименты — в <a href="experiments.html">Моих действиях</a>. Здесь остаются подробные заметки и свободная запись.</p>
-        <details class="notes-archive"><summary>Архив заметок</summary>
+        <p>Ваш журнал опыта: что произошло, что вы заметили и что сделаете дальше. Можно записать новый эпизод или вернуться к прошлому.</p><div class="workspace-links"><a href="experiments.html">Запланированные действия и их результаты →</a></div>
+        <div class="journal-workbench">
         <div class="diary-layout"><form id="diaryForm" class="panel diary-form"><div class="form-row"><label>Дата<input type="date" name="date" required></label><label>Тип записи<select name="type"><option>Рефлексия</option><option>Решение</option><option>Кейс</option><option>План действия</option><option>Итог недели</option></select></label></div><label>Короткий заголовок<input name="title" required placeholder="Например: поздняя эскалация риска"></label><label>Ситуация и факты<textarea name="situation" required placeholder="Что произошло? Что вы знаете точно?"></textarea></label><label>Мой вывод / чему научился<textarea name="learning" placeholder="Какие причины обнаружились? Что оказалось важным?"></textarea></label><label>Следующий шаг<textarea name="action" placeholder="Что, кто и к какому сроку сделает иначе?"></textarea></label><label>Насколько я доволен своим способом действия? <output id="ratingValue">3</output> / 5<input type="range" name="rating" min="1" max="5" value="3" id="ratingRange"></label><button class="button primary" type="submit">Сохранить запись</button></form>
           <div class="diary-list-wrap"><div class="diary-controls"><label class="search-label">Поиск по дневнику<input id="diarySearch" type="search" placeholder="Слово, тема или решение"></label><select id="diaryFilter" aria-label="Фильтр записей"><option value="all">Все записи</option></select></div><button class="text-button" id="weeklyPrompt">Начать рефлексию недели</button><div class="diary-list" id="diaryList"></div></div></div>
-        </details>
+        </div>
       </section>
 
       <section class="section-block" id="library" data-screen="reference" hidden>

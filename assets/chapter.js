@@ -10,7 +10,7 @@ import {Workspace,WorkspaceUI} from './runtime.js';
   const root=document.getElementById('chapterRoot');
   root.innerHTML=`
     <div class="reading-bar"><a href="${home}#modules">← Инструменты</a><a href="../experiments.html?user=${encodeURIComponent(active)}">Мои действия</a></div>
-    <span class="eyebrow">Практика управления · ${chapter.id}</span>
+    <span class="eyebrow">Альманах менеджера · ${chapter.id}</span>
     <h1>${esc(chapter.title)}</h1><p class="lead">${esc(chapter.short)}</p>
     <div class="learning-callout"><span>Хотите освоить тему по учебному маршруту?</span><a href="../learn.html?module=${chapter.id}&user=${encodeURIComponent(active)}">Открыть модуль курса →</a></div>
     <nav class="reading-nav chapter-tabs" aria-label="Содержание раздела"><a href="#theory">Теория</a><a href="#techniques">Техники</a><a href="#case">Кейс и рефлексия</a></nav>

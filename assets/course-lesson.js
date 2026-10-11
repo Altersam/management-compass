@@ -19,7 +19,7 @@ export function mountLesson({topic:currentTopic}) {
   function render(){
     mountedActivity?.unmount();mountedActivity=null;
     const current=phase();C.save(d=>{const c=M.ensure(d);c.last={module:topic,step:current.hash};c.resume={kind:'lesson'};});
-    document.title=`${module.title} — Практика управления`;
+    document.title=`${module.title} — Альманах менеджера`;
     root.innerHTML=`<div class="topic-top"><a href="${C.link('index.html')}">← Курс</a><span>${esc(module.title)}</span><details class="compact-topic-nav"><summary>В этой теме</summary><nav>${nav.map(([key,label])=>`<a href="#${key}" ${key===current.hash?'aria-current="location"':''}>${label}</a>`).join('')}</nav></details></div><div class="subtle-progress" role="progressbar" aria-label="Место в теме" aria-valuemin="0" aria-valuemax="100"><i id="topicProgress"></i></div><section id="lessonContent" class="lesson-body"></section>`;
     ({intro:()=>activity(false),practice:()=>activity(true),theory:()=>theory(current.block),technique,transfer,check,connections}[current.step])();
     Visuals.bind(root);progress();

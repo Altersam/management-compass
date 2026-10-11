@@ -1,6 +1,7 @@
 /* The build and local server share exactly the same public-file boundary. */
 const fs=require('node:fs'),path=require('node:path');
 const folders=['assets','content','modules'];
+const syncCopy=name=>/ \(\d+\)(?:\.[a-z0-9]+)?$/i.test(name);
 function publicPath(relative){
   return /^[a-z0-9-]+\.html$/i.test(relative)||/^modules\/module-\d{2}\.html$/.test(relative)||/^(?:assets|content)\/(?:[a-z0-9-]+\/)*[a-z0-9-]+\.(js|css|svg|ico)$/.test(relative);
 }
@@ -8,6 +9,7 @@ function publicFiles(root){
   const files=[];
   function visit(directory,prefix=''){
     for(const item of fs.readdirSync(directory,{withFileTypes:true})){
+      if(syncCopy(item.name))continue;
       const relative=prefix+item.name,file=path.join(directory,item.name);
       if(item.isSymbolicLink())throw new Error(`Public symlink is not allowed: ${relative}`);
       if(item.isDirectory()){
@@ -20,6 +22,7 @@ function publicFiles(root){
     }
   }
   for(const item of fs.readdirSync(root,{withFileTypes:true})){
+    if(syncCopy(item.name))continue;
     if(item.name.endsWith('.html')){
       if(!item.isFile()||!publicPath(item.name))throw new Error(`Unexpected page: ${item.name}`);
       files.push(item.name);

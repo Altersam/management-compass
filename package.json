@@ -1,9 +1,9 @@
 {
   "name": "management-compass",
-  "version": "3.1.0",
+  "version": "3.5.0",
   "private": true,
   "type": "module",
-  "description": "Management Compass: управленческая игра «Проект под давлением», курс и рабочие инструменты",
+  "description": "Альманах менеджера: теория, игры, рабочие ситуации, техники и личный дневник",
   "repository": {
     "type": "git",
     "url": "https://github.com/Altersam/management-compass.git"
@@ -18,7 +18,8 @@
     "build": "node scripts/build.cjs",
     "test": "node --test tests/*.test.cjs",
     "test:browser": "playwright test",
-    "lint:content": "node scripts/lint-content.cjs"
+    "lint:content": "node scripts/lint-content.cjs",
+    "test:a11y": "playwright test --config playwright.a11y.config.cjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",

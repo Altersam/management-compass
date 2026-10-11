@@ -9,6 +9,8 @@ test('public boundary allows nested native modules and excludes private files an
   for(const name of ['content/topics/01-self-management.js','assets/pages/home.js','assets/activities/workday.js','modules/module-03.html'])assert.equal(publicPath(name),true,name);
   for(const name of ['.git/config','docs/v3-audit.md','package.json','assets/source.pdf','content/source.pptx','assets/../store.js','assets//store.js','assets\\store.js','content/.private/a.js'])assert.equal(publicPath(name),false,name);
   const files=publicFiles(root);assert.ok(files.includes('content/topic-schema.js'));
+  assert.ok(files.every(file=>!file.includes(' (2)')),'sync copies stay outside the public build');
+  assert.equal(publicPath('settings (2).html'),false);
   assert.equal(resolvePublicFile(root,'content/topic-schema.js'),path.join(root,'content/topic-schema.js'));
   assert.equal(resolvePublicFile(root,'docs/v3-audit.md'),null);
 });

@@ -1,5 +1,5 @@
 (() => {
-  const titles={start:'Что сейчас мешает работе?',reference:'Инструменты',practice:'Рабочие упражнения',journal:'Архив заметок',help:'Помощь'};
+  const titles={start:'Рабочие ситуации',reference:'Техники под вашу задачу',practice:'Рабочие упражнения',journal:'Мой дневник',help:'Помощь'};
   function navigate(){
     const hash=location.hash.slice(1);
     const view=['modules','library','favorites'].includes(hash)?'reference':['practice','cases'].includes(hash)?'practice':['diary','decisions'].includes(hash)?'journal':hash==='faq'?'help':'start';
@@ -11,7 +11,7 @@
     document.getElementById('viewTitle').textContent=titles[view];
     if(hash==='favorites'){const filter=document.getElementById('favoritesOnly');if(filter&&!filter.checked){filter.checked=true;filter.dispatchEvent(new Event('change'));}}
     if(hash==='decisions'){const filter=document.getElementById('diaryFilter');if(filter){if(![...filter.options].some(o=>o.value==='Решение'))filter.add(new Option('Решения','Решение'));filter.value='Решение';filter.dispatchEvent(new Event('change'));}}
-    document.title=`${titles[view]} — Практика управления`;
+    document.title=`${titles[view]} — Альманах менеджера`;
   }
   window.addEventListener('hashchange',()=>{navigate();window.scrollTo({top:0,behavior:'instant'});});
   navigate();

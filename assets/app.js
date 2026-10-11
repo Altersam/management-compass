@@ -17,26 +17,28 @@ import * as WorkingNavigator from './navigator.js';
   function stats(){}
   function resetDiary(){editing=null;$('diaryForm').reset();$('diaryForm').elements.date.value=U.today();$('ratingValue').value='3';$('diaryForm').querySelector('[type=submit]').textContent='Сохранить запись';$('cancelEdit')?.remove();}
   function switchTo(id){S.select(id);active=id;profiles();renderModules();route();cases();diary();resetDiary();restoreDrafts();stats();}
-  let libraryMode='chapters';
+  let libraryMode='techniques';
   function renderModules(){
     const grid=$('moduleGrid');
-    grid.innerHTML=`<div class="library-controls"><div class="library-switch" aria-label="Способ просмотра"><button type="button" data-library-mode="chapters">По разделам</button><button type="button" data-library-mode="techniques">По техникам</button></div><label class="search-label">Найти объяснение или инструмент<input class="module-search" id="moduleSearch" type="search" placeholder="Например: SMART, очередь, делегирование"></label><label class="favorite-filter"><input id="favoritesOnly" type="checkbox"> Только избранное</label></div><p class="library-count" id="libraryCount" aria-live="polite"></p><div class="module-grid-inner"></div>`;
+    grid.innerHTML=`<div class="library-controls"><div class="library-switch" aria-label="Способ просмотра"><button type="button" data-library-mode="techniques">По техникам</button><button type="button" data-library-mode="chapters">По темам</button></div><label class="search-label">Найти инструмент<input class="module-search" id="moduleSearch" type="search" placeholder="Например: SMART, очередь, делегирование"></label><label class="topic-filter">Задача / тема<select id="techniqueTopic"><option value="">Все темы</option>${chapters.map(c=>`<option value="${c.id}" ${c.id===1?'selected':''}>${esc(c.title)}</option>`).join('')}</select></label><label class="favorite-filter"><input id="favoritesOnly" type="checkbox"> Только избранное</label></div><p class="library-count" id="libraryCount" aria-live="polite"></p><div class="module-grid-inner"></div>`;
     const holder=grid.querySelector('.module-grid-inner');
     function draw(){
       const query=$('moduleSearch').value.toLowerCase().trim();
       const favoritesOnly=$('favoritesOnly').checked;
       const entries=libraryMode==='chapters'?chapters.map(c=>({chapter:c})):chapters.flatMap(c=>c.techniques.map(t=>({chapter:c,technique:t})));
       const visible=entries.filter(({chapter:c,technique:t})=>{
+        if(t&&$('techniqueTopic').value&&c.id!==Number($('techniqueTopic').value))return false;
         if(favoritesOnly&&!data().favorites.includes(c.id))return false;
         const search=t?[c.title,t.name,t.when,t.why,Visuals.definitions[t.visual].title].join(' '):[c.title,c.short,c.intro,...c.tags,...c.theory.flat(),...c.terms.flat(),...c.techniques.map(t=>t.name)].join(' ');
         return search.toLowerCase().includes(query);
       });
-      holder.innerHTML=visible.length?visible.map(({chapter:c,technique:t})=>`<article class="module-card ${t?'atlas-card':''}" style="--accent:${c.color}"><div class="module-head"><span class="module-num">${String(c.id).padStart(2,'0')}</span><div><span class="atlas-context">${t?esc(c.title):'Теория · схемы · практика'}</span><h3>${esc(t?t.name:c.title)}</h3><p>${esc(t?t.when:c.short)}</p></div></div><div class="module-meta"><span>${t?esc(Visuals.definitions[t.visual].title):'3 объяснения'}</span>${t?'':'<span>3 визуальные техники</span>'}</div><div class="module-actions"><a class="module-link" href="${href(modulePath(c.id))}${t?'#'+t.id:''}">${t?'Схема и шаги →':'Читать раздел →'}</a><button class="text-button favorite" data-id="${c.id}" aria-pressed="${data().favorites.includes(c.id)}">${data().favorites.includes(c.id)?'★':'☆'} <span>${data().favorites.includes(c.id)?'В избранном':'В избранное'}</span></button></div></article>`).join(''):'<p class="no-results">Ничего не найдено. Измените слово или выключите фильтр избранного.</p>';
+      holder.innerHTML=visible.length?visible.map(({chapter:c,technique:t})=>`<article class="module-card ${t?'atlas-card':''}"><div class="module-head"><span class="module-num">${String(c.id).padStart(2,'0')}</span><div><span class="atlas-context">${t?esc(c.title):'Теория · схемы · практика'}</span><h3>${esc(t?t.name:c.title)}</h3><p>${esc(t?t.when:c.short)}</p></div></div><div class="module-actions"><a class="module-link" href="${href(modulePath(c.id))}${t?'#'+t.id:''}">${t?'Схема и шаги →':'Читать раздел →'}</a><button class="text-button favorite" data-id="${c.id}" aria-pressed="${data().favorites.includes(c.id)}">${data().favorites.includes(c.id)?'★':'☆'} <span>${data().favorites.includes(c.id)?'В избранном':'В избранное'}</span></button></div></article>`).join(''):'<p class="no-results">Ничего не найдено. Измените слово, тему или фильтр избранного.</p>';
       $('libraryCount').textContent=`${libraryMode==='chapters'?'Разделов':'Техник'}: ${visible.length}. ${libraryMode==='chapters'?'В каждом сохранена теория и показана логика действий.':'Откройте одну технику, чтобы увидеть схему и рабочий пример.'}`;
       grid.querySelectorAll('[data-library-mode]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.libraryMode===libraryMode)));
+      grid.querySelector('.topic-filter').hidden=libraryMode!=='techniques';
       holder.querySelectorAll('.favorite').forEach(b=>b.onclick=()=>{const id=Number(b.dataset.id);save(d=>d.favorites=d.favorites.includes(id)?d.favorites.filter(n=>n!==id):[...d.favorites,id]);draw();});
     }
-    $('moduleSearch').oninput=draw;$('favoritesOnly').onchange=draw;
+    $('moduleSearch').oninput=()=>{if($('moduleSearch').value.trim())$('techniqueTopic').value='';draw();};$('techniqueTopic').onchange=draw;$('favoritesOnly').onchange=draw;
     grid.querySelectorAll('[data-library-mode]').forEach(b=>b.onclick=()=>{libraryMode=b.dataset.libraryMode;draw();});
     draw();
   }

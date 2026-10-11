@@ -27,6 +27,7 @@ function trajectory(){
   secondary.innerHTML=`<h1>К чему вернуться</h1><p>Пройдено ${reports.filter(r=>r.mastered).length} из 10 тем.</p>${resumed?`<p>Вы остановились на теме «${esc(resumed.title)}». <a id="continueCourse" href="${C.lesson(last.module,last.step)}">Продолжить →</a></p>`:''}<ol class="trajectory-timeline">${moduleCatalog.map((m,i)=>`<li><span>${m.id}</span><div><a href="${C.lesson(m.id,last?.module===m.id?last.step:'intro')}">${esc(m.title)}</a><small>${reports[i].mastered?'Тема пройдена':last?.module===m.id?'Вы остановились здесь':''}</small></div></li>`).join('')}</ol><a href="${C.link('experiments.html')}">Что уже попробовали в работе →</a>`;
 }
 async function render(){
+  if(location.hash==='#courseMapTitle'){location.replace(C.link('theory.html'));return;}
   const token=++renderId,hash=location.hash,alternate=hash==='#trajectory'||hash==='#final';
   home.hidden=alternate;secondary.hidden=!alternate;
   if(hash==='#trajectory')trajectory();

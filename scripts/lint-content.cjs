@@ -40,10 +40,34 @@ async function lint(){
   }
   for(const file of files.filter(f=>f.startsWith('assets/game/')&&f.endsWith('.js')))if(/Math\.random\s*\(/.test(fs.readFileSync(path.join(root,file),'utf8')))errors.push(`${file}: game randomness must be seeded`);
   console.log(`Game: ${gameTasks.length} tasks, ${Object.keys(eventDefinitions).length} event definitions; seeded engine and course links checked.`);
+  const [{stages:detectiveStages,sources:detectiveSources,interventions:detectiveInterventions,scenarios:detectiveScenarios},{createCasebook,trace,compare},{evidence}]=await Promise.all(['data','model','evidence'].map(name=>import(pathToFileURL(path.join(root,`assets/detective/${name}.js`)))));
+  const stageIds=new Set(detectiveStages.map(s=>s.id)),sourceIds=new Set(detectiveSources.map(s=>s.id)),interventionIds=new Set(detectiveInterventions.map(i=>i.id));
+  if(stageIds.size!==detectiveStages.length||sourceIds.size!==detectiveSources.length||interventionIds.size!==detectiveInterventions.length)errors.push('detective: duplicate IDs');
+  for(const source of detectiveSources)if(!source.name||!source.description||!Number.isInteger(source.cost)||source.cost<=0)errors.push(`detective source ${source.id}: invalid content/cost`);
+  for(const intervention of detectiveInterventions)if(!intervention.name||!intervention.description||!stageIds.has(intervention.stage))errors.push(`detective intervention ${intervention.id}: invalid stage`);
+  for(const [index,scenario] of detectiveScenarios.entries()){
+    if(!stageIds.has(scenario.stage)||!interventionIds.has(scenario.intervention)||!scenario.title||!scenario.explanation||!scenario.next||!topics.some(t=>t.id===scenario.topic)||!/^theory-[0-2]$/.test(scenario.step))errors.push(`detective scenario ${scenario.id}: incomplete content or course link`);
+    const book=createCasebook('case-0'+(index+1));if(book.cases.length!==5)errors.push(`detective scenario ${scenario.id}: incomplete case set`);
+    for(const item of book.cases)if(trace(item).some(s=>!stageIds.has(s.stage)||[s.work,s.wait,s.rework,s.start,s.end].some(n=>!Number.isFinite(n)||n<0)))errors.push(`detective case ${item.id}: invalid timeline`);
+    for(const source of detectiveSources){const fact=evidence(book,source.id==='case'?'case:case-2':source.id);if(!fact.title||!fact.text||!fact.provenance||!fact.rows.length||fact.signals.some(id=>!stageIds.has(id)))errors.push(`detective evidence ${source.id}: incomplete`);}
+    for(const intervention of detectiveInterventions){const result=compare(book,intervention.id);if(result.before.total!==5||result.after.total!==5||result.cases.length!==5)errors.push('detective: pilot changes the comparison sample');}
+  }
+  for(const file of files.filter(f=>f.startsWith('assets/detective/')&&f.endsWith('.js')))if(/Math\.random\s*\(/.test(fs.readFileSync(path.join(root,file),'utf8')))errors.push(`${file}: randomness must be seeded`);
+  console.log(`Detective: ${detectiveStages.length} stages, ${detectiveSources.length} source types, ${detectiveScenarios.length} scenarios; case math and course links checked.`);
+  const {catalog:arcadeCatalog,loaders}=await import(pathToFileURL(path.join(root,'assets/arcade/catalog.js')));
+  const arcadeIds=new Set();
+  for(const meta of arcadeCatalog){
+    if(arcadeIds.has(meta.id)||!meta.title||!meta.mechanic||!loaders[meta.id]||!meta.topics.length||meta.topics.some(id=>!topics.some(t=>t.id===id)))errors.push(`arcade ${meta.id}: invalid catalog entry`);
+    arcadeIds.add(meta.id);const game=await loaders[meta.id]();
+    for(const name of ['create','act','validate','render','report'])if(typeof game[name]!=='function')errors.push(`arcade ${meta.id}: missing ${name}`);
+    const initial=game.create(meta.id+'-1');if(!game.validate(initial))errors.push(`arcade ${meta.id}: invalid initial state`);
+    if(!game.render(initial).trim())errors.push(`arcade ${meta.id}: empty working object`);
+  }
+  console.log(`Arcade: ${arcadeCatalog.length} additional games; lazy loaders, engine contracts and course links checked.`);
   for(const relative of files){
-    if(!/\.(html|js)$/.test(relative))continue;
+    if(!/\.(html|js|css)$/.test(relative))continue;
     const source=fs.readFileSync(path.join(root,relative),'utf8');
-    const links=relative.endsWith('.html')?[...source.matchAll(/(?:href|src)="([^"]+)"/g)].map(m=>m[1]):[...source.matchAll(/(?:\bfrom\s*|\bimport\s*\(?\s*)['"]([^'"]+)['"]/g)].map(m=>m[1]);
+    const links=relative.endsWith('.html')?[...source.matchAll(/(?:href|src)="([^"]+)"/g)].map(m=>m[1]):relative.endsWith('.css')?[...source.matchAll(/@import\s+['"]([^'"]+)['"]/g)].map(m=>m[1]):[...source.matchAll(/(?:\bfrom\s+|\bimport\s*\(?\s*)['"]([^'"]+)['"]/g)].map(m=>m[1]);
     for(const link of links){
       if(/^[a-z]+:/i.test(link)||link.startsWith('#'))continue;
       const clean=link.split(/[?#]/)[0];if(!clean)continue;

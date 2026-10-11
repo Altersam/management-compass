@@ -4,7 +4,7 @@ import {mountTrainer} from '../arcade/ui.js';
 const root=document.getElementById('arcadeRoot'),id=new URLSearchParams(location.search).get('game'),meta=catalog.find(m=>m.id===id);
 if(!meta){root.innerHTML=`<h1>Выберите тренажёр</h1><p>Этот адрес не соответствует доступной игре.</p><a href="${C.link('games.html')}">Все тренажёры →</a>`;}
 else{
-  document.title=meta.title+' — Практика управления';document.body.dataset.arcade=id;
+  document.title=meta.title+' — Альманах менеджера';document.body.dataset.arcade=id;
   try{
     const game=await loaders[id](),saved=C.data().course?.arcadeGames?.[id];
     if(saved&&!game.validate(saved))throw new Error('Сохранение этой игры не удалось открыть. Оно остаётся в профиле; сделайте копию в настройках.');

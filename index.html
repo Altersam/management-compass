@@ -1,34 +1,35 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" data-theme="dark">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Практика управления: учитесь на решениях и их последствиях, затем применяйте инструменты к своей работе.">
-  <meta name="theme-color" content="#142b4a"><title>Практика управления — курс о решениях, людях и системе</title>
-  <link rel="stylesheet" href="assets/styles.css"><link rel="stylesheet" href="assets/course.css"><link rel="stylesheet" href="assets/experience.css">
+  <meta name="description" content="Альманах менеджера: понятная теория, управленческие игры, разбор рабочих ситуаций, техники и личный дневник.">
+  <meta name="theme-color" content="#0b1428"><title>Альманах менеджера — выберите свой следующий шаг</title>
+  <link rel="stylesheet" href="assets/styles.css"><link rel="stylesheet" href="assets/experience.css"><link rel="stylesheet" href="assets/almanac.css"><link rel="stylesheet" href="assets/shell.css" data-shell-style>
 </head>
 <body>
   <div id="courseHeader"></div>
-  <main class="experience-page" id="courseRoot">
+  <main class="experience-page almanac-home" id="courseRoot">
     <div id="homeContent">
-      <section class="welcome">
-        <h1>Практика управления</h1>
-        <p>Попробуйте управлять, а не только читать про управление.</p>
-        <p class="game-intro">«Проект под давлением» — проведите запуск сервиса через срок, бюджет, команду и неожиданные последствия. 10–20 минут.</p>
-        <div class="welcome-actions"><a class="button primary" id="startGame" href="game.html">Начать игру</a><a class="button quiet" href="workspace.html#route">Разобрать рабочую ситуацию</a></div>
-        <p id="resumeCourse" class="resume-place" hidden></p>
+      <section class="almanac-welcome">
+        <span class="almanac-eyebrow">Ваша площадка для управленческой практики</span>
+        <h1>Альманах<br> менеджера<span class="title-spark" aria-hidden="true">✳</span></h1>
+        <p class="almanac-lead">Разберитесь в идее. Испытайте решение. Сделайте один шаг в своей работе.</p>
+        <p class="almanac-intro">Здесь можно учиться управлению без длинного обязательного маршрута. Выберите, что нужно сейчас: понять, попробовать, разобраться, применить или записать вывод.</p>
+        <div class="practice-path" aria-label="Путь практики"><span>Идея</span><i aria-hidden="true">→</i><span>Попытка</span><i aria-hidden="true">→</i><span>Наблюдение</span><i aria-hidden="true">→</i><span>Следующий шаг</span></div>
       </section>
-      <section class="course-stages" aria-labelledby="courseMapTitle">
-        <h2 id="courseMapTitle">Или пройти курс</h2>
-        <p>Ситуации помогают учиться принимать решения, работать с людьми и улучшать систему. <a id="startCourse" href="learn.html?module=1">Начать с первой темы →</a></p>
-        <section class="course-stage"><span>01</span><div><h3>Управлять собой и результатом</h3><p>Как перестать только реагировать и начать управлять результатом?</p><ol><li><a class="topic-link" data-topic="1" href="learn.html?module=1">Самоорганизация и устойчивость</a></li><li><a class="topic-link" data-topic="2" href="learn.html?module=2">Регулярный менеджмент</a></li></ol></div></section>
-        <section class="course-stage"><span>02</span><div><h3>Управлять взаимодействием</h3><p>Как получать результат через людей без постоянного ручного контроля?</p><ol start="3"><li><a class="topic-link" data-topic="3" href="learn.html?module=3">Команда и самостоятельность</a></li><li><a class="topic-link" data-topic="4" href="learn.html?module=4">Этика и справедливость</a></li><li><a class="topic-link" data-topic="5" href="learn.html?module=5">Коммуникация</a></li><li><a class="topic-link" data-topic="6" href="learn.html?module=6">Работа между подразделениями</a></li></ol></div></section>
-        <section class="course-stage"><span>03</span><div><h3>Управлять системой</h3><p>Почему люди могут всё делать правильно, а система всё равно работает плохо?</p><ol start="7"><li><a class="topic-link" data-topic="7" href="learn.html?module=7">Решения, документы и исполнение</a></li><li><a class="topic-link" data-topic="8" href="learn.html?module=8">Процессы и сервис</a></li></ol></div></section>
-        <section class="course-stage"><span>04</span><div><h3>Изменять и улучшать систему</h3><p>Как изменить способ работы и убедиться, что он действительно помог?</p><ol start="9"><li><a class="topic-link" data-topic="9" href="learn.html?module=9">Принятие изменений</a></li><li><a class="topic-link" data-topic="10" href="learn.html?module=10">Данные и выводы</a></li></ol></div></section>
-        <p class="course-loop">Измерили, что изменилось → вернулись к поручениям и следующему решению.</p>
+      <section aria-labelledby="choosePath" class="path-section">
+        <div class="path-heading"><h2 id="choosePath">С чего начнём?</h2><p>Пять способов найти свой следующий шаг.</p></div>
+        <div class="almanac-paths">
+          <a class="path-card" href="theory.html" data-path="theory"><span class="path-symbol" aria-hidden="true">▤</span><span class="path-number">01 · Понять</span><h3>Теория</h3><p>Короткие объяснения о решениях, людях и системе. Откройте одну тему, которая нужна сейчас.</p><span class="path-cta">Выбрать тему <b aria-hidden="true">↗</b></span></a>
+          <a class="path-card path-play" href="games.html" data-path="games"><span class="path-symbol" aria-hidden="true">▶</span><span class="path-number">02 · Попробовать</span><h3>Игры</h3><p>Распределяйте ресурс, ищите причину, договаривайтесь. Наблюдайте последствия своих решений.</p><span class="path-cta">Выбрать игру <b aria-hidden="true">↗</b></span></a>
+          <a class="path-card" href="workspace.html#route" data-path="situations"><span class="path-symbol" aria-hidden="true">⌁</span><span class="path-number">03 · Разобраться</span><h3>Рабочие ситуации</h3><p>Что мешает работе? Уточните два условия и получите гипотезу, которую можно проверить.</p><span class="path-cta">Разобрать ситуацию <b aria-hidden="true">↗</b></span></a>
+          <a class="path-card" href="workspace.html#modules" data-path="techniques"><span class="path-symbol" aria-hidden="true">⌘</span><span class="path-number">04 · Применить</span><h3>Техники</h3><p>Выберите инструмент под задачу. Схема, шаги и пример помогут подготовить конкретное действие.</p><span class="path-cta">Найти технику <b aria-hidden="true">↗</b></span></a>
+          <a class="path-card path-journal" href="workspace.html#diary" data-path="diary"><span class="path-symbol" aria-hidden="true">✎</span><span class="path-number">05 · Сохранить</span><h3>Мой дневник</h3><p>Записывайте факты, выводы и следующий шаг. Собирайте собственный опыт, к которому можно вернуться.</p><span class="path-cta">Открыть дневник <b aria-hidden="true">↗</b></span></a>
+        </div>
       </section>
-      <section class="how-learning"><h2>Как проходит обучение</h2><p>Ситуация → ваше решение → последствия → объяснение → практика → одно действие в своей работе.</p><p>Вы собираете рабочий день, выбираете момент контроля, меняете границы самостоятельности, разбираете переписку и наблюдаете очередь сервиса.</p></section>
-      <section class="after-learning"><h2>Рабочие инструменты</h2><p>Уточнить проблему, попробовать изменение и вернуться к результату.</p><a href="workspace.html#route">Рабочая ситуация →</a><a href="experiments.html">Мои действия →</a><a href="workspace.html#modules">Каталог инструментов →</a></section>
-      <section class="after-learning"><h2>Попробовать другую игровую механику</h2><p>«Найди разрыв»: исследуйте реальные дела, найдите место задержки в цепочке и проверьте гипотезу.</p><a href="detective.html">Начать расследование →</a><a href="games.html">Все тренажёры →</a></section>
+      <section class="quick-mission"><span class="mission-icon" aria-hidden="true">⚑</span><div><span class="almanac-eyebrow">Хотите сразу действовать?</span><h2>Проведите проект через срок и бюджет</h2><p>Назначайте людей и наблюдайте последствия. Курс перед игрой проходить не нужно.</p></div><a class="button primary" id="startGame" href="game.html">Начать игру</a></section>
+      <p id="resumeCourse" class="resume-place" hidden></p>
+      <details class="guided-route"><summary>Нужен последовательный учебный маршрут?</summary><p>Десять тем: от самоорганизации до улучшения системы. В каждой — ситуация, объяснение и одно действие в работе.</p><a id="startCourse" href="learn.html?module=1">Начать с первой темы →</a><a href="index.html#trajectory">Продолжить свой маршрут →</a></details>
     </div>
     <section id="secondaryContent" hidden></section>
   </main>
