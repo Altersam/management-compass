@@ -25,6 +25,7 @@ export function mountDetective({container,state:initial,onSave,onRestart,link,no
   function updatePilotControls(){
     const ended=state.phase==='ended',ready=state.hypothesis.stage&&state.hypothesis.note.trim().length>=10&&state.pinned.length>=2&&chosen;
     $('runPilot').disabled=ended||state.pilots.length>=maxPilots||!ready;
+    $('runPilot').className='button '+(ended||state.pilots.length?'quiet':'primary');
     $('finishInvestigation').disabled=ended||!state.pilots.length;
     $('hypothesisNote').disabled=ended;
     $('interventionChoices').disabled=ended||state.pilots.length>=maxPilots;

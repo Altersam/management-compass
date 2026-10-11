@@ -89,6 +89,7 @@ export function mountGame({container,state:initial,onSave,onRestart,link,notify,
     if(state.events.length>latestEventCount){const e=state.events.at(-1);$('gameStatus').textContent='Новое событие: '+eventDefinitions[e.definition].title;latestEventCount=state.events.length;}
     $('causeJournalEntries').innerHTML=causeJournal(state).map(item=>`<li><span>День ${gameDay(item.at)} · ${item.kind==='decision'?'Действие':'Последствие'}</span>${item.event?`<button type="button" class="game-text-button" data-review-event="${escape(item.event)}">${escape(item.label)}</button>`:`<p>${escape(item.label)}${item.task?' · '+escape(state.tasks.find(t=>t.id===item.task)?.name||''):''}</p>`}</li>`).join('')||'<li>Сначала распределите работу — здесь появятся значимые действия и их последствия.</li>';
     $('gameClock').disabled=finished(state);
+    $('gameClock').classList.toggle('primary',!finished(state));$('gameClock').classList.toggle('quiet',finished(state));
     container.querySelectorAll('[data-game-panel]').forEach(panel=>panel.classList.toggle('is-active',panel.dataset.gamePanel===tab));
     container.querySelectorAll('[data-tab]').forEach(button=>{button.setAttribute('aria-selected',String(button.dataset.tab===tab));button.tabIndex=button.dataset.tab===tab?0:-1;});
     if(finished(state)&&!resultShown){resultShown=true;renderResult();if(state.time>initial.time)$('gameResult').scrollIntoView({behavior:'instant',block:'start'});}
@@ -172,7 +173,7 @@ export function mountGame({container,state:initial,onSave,onRestart,link,notify,
     $('taskDrawer').onkeydown=e=>{if(e.key==='Escape'){e.stopPropagation();$('closeTaskDrawer').click();}};
     $('skipToEvent').disabled=finished(state);
   }
-  const removeDrag=mountPointerDrag({container,onDrop:drop,onPause:pause,preview:(person,taskId)=>{const p=state.people.find(p=>p.id===person),t=state.tasks.find(t=>t.id===taskId),fit=skillFit(p,t),load=workloads(state)[person];return `${p.name}: ${fit>=0.8?'сильное':fit>=0.5?'среднее':'слабое'} соответствие · ${t.skills.map(s=>skillNames[s]+' '+p.skills[s]+'/3').join(', ')}. ${load>0?'Уже ведёт '+load+' задач: внимание будет разделено.':'Есть резерв мощности.'}`;}});
+  const removeDrag=mountPointerDrag({container,onDrop:drop,onPause:pause,preview:(person,taskId)=>{const p=state.people.find(p=>p.id===person),t=state.tasks.find(t=>t.id===taskId),fit=skillFit(p,t),load=workloads(state)[person],other=state.tasks.filter(x=>x.id!==taskId&&x.assigned.includes(person)&&!complete(x));return `${p.name}: ${fit>=0.8?'сильное':fit>=0.5?'среднее':'слабое'} соответствие · ${t.skills.map(s=>skillNames[s]+' '+p.skills[s]+'/3').join(', ')}. ${load>0?'Уже ведёт '+load+' задач: внимание будет разделено.':'Есть резерв мощности.'}${other.length?' Меньше внимания получат: '+other.map(x=>x.name).join(', ')+'.':''}`;}});
   pause();render();
   return {dispose(){removeDrag();pause();container.removeEventListener('click',click);container.removeEventListener('change',change);document.removeEventListener('visibilitychange',visibility);},getState:()=>structuredClone(state)};
 }

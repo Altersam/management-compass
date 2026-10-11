@@ -12,7 +12,7 @@ export function mountTrainer({root,meta,game,state:initial,onSave,onRestart,link
   function render(target=focusDescriptor()){
     root.querySelector('#arcadePracticeCycle').innerHTML=practiceCycle(state.phase==='ended'?3:state.turn>0?2:state.history.length?1:0);
     board.innerHTML=game.render(state);root.querySelector('#arcadeHistory').innerHTML=state.history.slice(-40).map(item=>`<li>${esc(item.text)}</li>`).join('')||'<li>Здесь появятся действия и наблюдаемые результаты.</li>';
-    if(state.phase==='ended'){pause();board.querySelectorAll('input,select,textarea,button').forEach(el=>el.disabled=true);renderResult();}
+    if(state.phase==='ended'){pause();board.querySelectorAll('input,select,textarea,button').forEach(el=>{el.disabled=true;el.classList.replace('primary','quiet');});renderResult();}
     restoreFocus(target);
   }
   function dispatch(action,{redraw=true,tick=false}={}){
