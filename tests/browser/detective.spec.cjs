@@ -26,7 +26,7 @@ test('investigation restart archives only its own game and completed evidence re
 test('games catalog is engine-lazy and main menu reaches both working games',async({page})=>{
   const requests=[];page.on('request',r=>requests.push(new URL(r.url()).pathname));await page.goto('/games.html');await expect(page.locator('.training-game')).toHaveCount(12);
   expect(requests.some(path=>path.includes('/assets/detective/'))).toBe(false);expect(requests.some(path=>path.includes('/assets/game/'))).toBe(false);
-  await page.locator('#detectiveGameEntry').click();await expect(page.locator('.detective-chain')).toBeVisible();await page.locator('.product-header>nav a').first().click();await expect(page).toHaveURL(/games\.html/);await page.locator('#projectGameEntry').click();await expect(page.locator('.gantt-row')).toHaveCount(7);
+  await page.locator('#detectiveGameEntry').click();await expect(page.locator('.detective-chain')).toBeVisible();await page.locator('.product-header [data-section="1"]').click();await expect(page).toHaveURL(/games\.html/);await page.locator('#projectGameEntry').click();await expect(page.locator('.gantt-row')).toHaveCount(7);
 });
 test('keyboard source reading, pinning and mobile areas remain usable at six widths',async({page})=>{
   await page.goto('/detective.html');await page.locator('[data-inspect=returns]').focus();await page.keyboard.press('Enter');await expect(page.locator('#closeSource')).toBeFocused();await page.keyboard.press('Shift+Tab');await page.keyboard.press('Enter');await expect(page.locator('#pinSource')).toBeDisabled();await page.keyboard.press('Escape');await expect(page.locator('[data-inspect=returns]').first()).toBeFocused();
