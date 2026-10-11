@@ -1,6 +1,6 @@
 # Дизайн-аудит v4 — до изменений интерфейса
 
-Дата: 11 октября 2026. База: `main`, `21c1865`; рабочее дерево чистое. Просмотрены все 27 HTML-входов, перечисленные в задании, shell/themes/almanac/styles/experience/course/games CSS, три игровых stylesheet, home/theory/games/workspace/trainer entry, chapter/course-lesson/navigator/experiments/app renderers. Изучены discovery content, arcade catalog и предыдущие UX/design/readiness документы. Публичная главная на момент проверки соответствует прежней композиции: пять карточек, декоративные знаки, дополнительный onboarding. Старые схемы и игровые объекты содержательно полезны.
+Дата: 11 октября 2026. База: `main`, `21c1865`; рабочее дерево чистое. Просмотрены все 26 HTML-входов, перечисленные в задании, shell/themes/almanac/styles/experience/course/games CSS, три игровых stylesheet, home/theory/games/workspace/trainer entry, chapter/course-lesson/navigator/experiments/app renderers. Изучены discovery content, arcade catalog и предыдущие UX/design/readiness документы. Публичная главная на момент проверки соответствует прежней композиции: пять карточек, декоративные знаки, дополнительный onboarding. Старые схемы и игровые объекты содержательно полезны.
 
 ## Основные находки
 
@@ -52,3 +52,5 @@ Content schema/adapter/depth/guide содержат авторские объя�
 После каждого этапа: `npm test`, `npm run lint:content`, `npm run test:browser`, `npm run build`, `git diff --check`. При изменении contract UI тесты обновляются по поведению, а не удаляются. Финал: axe в обеих темах, screenshots 1440×1000 / 1024×768 / 390×844 по 11 маршрутам, self-audit cards/pills/radii/CTA/copy/legacy.
 
 Ключ данных, dataVersion, IDs, canonical ответы, export/import, архивы, модели и retrieval остаются совместимыми. Никакой framework-миграции. Cleanup готовится отдельным набором; агент не создаёт коммит без явного запроса.
+
+Результат всех этапов и сравнительные частоты: [design-self-audit-v4.md](design-self-audit-v4.md). Этот документ создан до правок интерфейса; таблица находок сохраняет исходное состояние.
