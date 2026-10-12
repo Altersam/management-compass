@@ -11,4 +11,6 @@
   @media(max-width:900px){.approach-game{padding:12px}.approach-goal{display:block;padding:18px}.approach-goal dl{margin-top:18px;gap:20px;flex-wrap:wrap}.approach-layout{grid-template-columns:minmax(0,1fr)}.approach-context{grid-column:1;grid-row:1}.approach-board{grid-column:1;grid-row:2}.approach-settings{grid-column:1;grid-row:3}.approach-surface{padding:16px}.approach-help-grid{grid-template-columns:1fr}.approach-forecast{display:block}.approach-forecast .button{margin-top:16px;width:100%}.approach-stages{grid-template-columns:1fr 1fr}.approach-current{grid-template-columns:1fr 1fr}}
   @media(max-width:540px){.approach-game h1{font-size:24px}.approach-goal dd{font-size:18px}.approach-goal dl{gap:18px}.approach-current dd{font-size:16px}.approach-live-controls .button{padding:9px 12px;font-size:12px}.approach-comparison{grid-template-columns:1fr}.approach-actions .button{flex:1}.approach-context dl{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}.approach-context dt{font-size:11px}.approach-context dd{font-size:12px}}
   @media(prefers-reduced-motion:reduce){.approach-game *{scroll-behavior:auto;transition:none;animation:none}}
+  .approach-layout>.approach-report{grid-column:2;grid-row:2;max-width:none;margin:0}
+  @media(max-width:900px){.approach-layout>.approach-report{grid-column:1;grid-row:3}}
 }

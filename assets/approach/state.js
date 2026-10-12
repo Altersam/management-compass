@@ -1,6 +1,6 @@
 import {generateProject,newSeed} from './generator.js';
 import {presets,validParameters} from './parameters.js';
-import {startRun,stepWeek,configureRun,decideRun,replayRun} from './simulation.js';
+import {startRun,stepWeek,configureRun,decideRun,replayRun,forecast} from './simulation.js';
 export function create(seed=newSeed()){
   seed=String(seed).slice(0,80);const {project,events}=generateProject(seed);
   return {revision:1,modelVersion:3,seed,project,events,parameters:structuredClone(presets.hybrid.parameters),preset:'hybrid',attempts:[],current:null,currentWeek:0,phase:'intro',speed:1,paused:true,history:[],turn:0};
@@ -18,7 +18,7 @@ export function act(state,a){
     if(s.current){const changes=Object.fromEntries(Object.entries(p).filter(([key,value])=>value!==s.parameters[key]));configureRun(s.current,changes,c);s.current.commands.push({type:'configure',week:s.current.week,changes});}
     s.parameters=p;s.preset=a.type==='preset'?a.value:null;
   }else if(a.type==='run'){
-    if(s.phase!=='planning'||s.attempts.length>=2)throw new Error('Сначала настройте подход.');s.current=startRun(c,s.parameters);s.currentWeek=0;s.phase='running';s.paused=false;
+    if(s.phase!=='planning'||s.attempts.length>=2)throw new Error('Сначала настройте подход.');s.current=startRun(c,s.parameters);s.current.initialForecast=forecast(c,s.parameters);s.currentWeek=0;s.phase='running';s.paused=false;
   }else if(a.type==='tick'){
     if(s.phase!=='running'||s.paused||!s.current)throw new Error('Время на паузе.');
     s.current=stepWeek(s.current,c,s.events);s.currentWeek=s.current.week;

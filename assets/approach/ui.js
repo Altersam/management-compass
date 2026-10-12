@@ -42,7 +42,10 @@ export function mountApproach({root,state:initial,onSave,onRestart,link,notify,o
     if(state.phase==='intro')root.innerHTML=`<section class="approach-surface approach-intro" id="arcadeBoard"><h1>Проектный подход</h1><p>Перед вами управленческий проект: ${esc(state.project.title)}.</p><p>Настройте способ работы под его условия. Во время проекта условия могут измениться.</p><button type="button" class="button primary" data-approach="start">Начать</button></section>`;
     else {
       const active=['planning','running','event'].includes(state.phase),prediction=active?forecast(state.project,state.parameters,state.current):null;
-      root.innerHTML=goal()+(state.phase==='planning'?'<p class="approach-instruction">Изучите контекст → настройте четыре рычага → посмотрите прогноз → запустите проект.</p>':'')+`<div class="approach-layout">${context()}${board(prediction)}${active?settings():''}</div>`+(active?forecastBar(prediction):result())+eventDialog();
+      root.innerHTML=goal()+(state.phase==='planning'?'<p class="approach-instruction">Изучите контекст → настройте четыре рычага → посмотрите прогноз → запустите проект.</p>':'')+`<div class="approach-layout">${context()}${board(prediction)}${active?settings():result()}</div>`+(active?forecastBar(prediction):'')+eventDialog();
+      if(state.current||state.phase==='review')root.querySelector('.approach-legend')?.insertAdjacentHTML('beforeend','<span>Серый — расход, % исходного бюджета; выше 100 точное значение показано под графиком</span>');
+      if(state.current)root.querySelector('.approach-legend span')?.replaceChildren('Пунктир — первоначальный прогноз');
+      if(state.phase==='ended')root.querySelector('.approach-current')?.insertAdjacentHTML('beforebegin','<p class="approach-small">Значения ниже относятся ко второй попытке. Сравнение обеих — в итоговом разборе.</p>');
     }
     root.querySelectorAll('details').forEach(d=>{if(open.has(d.dataset.help||d.querySelector('summary')?.textContent))d.open=true;});
     if(focused)root.querySelector('#'+CSS.escape(focused))?.focus({preventScroll:true});

@@ -65,7 +65,7 @@ export function forecast(project,parameters,current=null){
 }
 export function replayRun(project,events,startParameters,commands,week){
   if(!Number.isInteger(week)||week<0||week>project.weeks*2+8||!Array.isArray(commands)||commands.length>200)throw new Error('История попытки недопустима.');
-  let r=startRun(project,startParameters);let last=-1;
+  let r=startRun(project,startParameters);r.initialForecast=forecast(project,startParameters);let last=-1;
   for(const cmd of commands){if(!Number.isInteger(cmd.week)||cmd.week<last||cmd.week>week)throw new Error('Недопустимый момент решения.');last=cmd.week;}
   for(let w=0;w<=week;w++){
     for(const cmd of commands.filter(cmd=>cmd.week===w)){

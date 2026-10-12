@@ -10,10 +10,10 @@ export function trajectory(state,prediction,{reduced=false}={}){
   let paths='';
   if(comparison){state.attempts.forEach((r,i)=>{paths+=line(r.rows,'accepted',i?'#18774e':'#245fdc',i===0);});}
   else {
-    if(prediction)paths+=line(prediction.rows,'accepted','#245fdc',true);
+    if(prediction)paths+=line(run?.initialForecast?.rows||prediction.rows,'accepted','#245fdc',true);
     if(run)paths+=line(run.rows,'work','#245fdc')+line(run.rows,'accepted','#18774e')+line(run.rows.map(r=>({...r,unknowns:r.unknowns*100})),'unknowns','#7950b3')+line(run.rows.map(r=>({...r,cost:r.cost/c.budget*100})),'cost','#65758a');
   }
-  const marks=run?run.rows.filter(r=>r.checkpoint||r.event).map(r=>`${r.detected>.4?`<rect x="${x(r.week)-5}" y="${T}" width="10" height="${H-T-B}" class="approach-rework-band"><title>Неделя ${r.week}: обнаружен передел ${round(r.detected)} единиц работы</title></rect>`:''}${r.checkpoint?`<text class="approach-check-mark" x="${x(r.week)}" y="${H-B+14}" text-anchor="middle">◆<title>Контроль: неделя ${r.week}</title></text>`:''}${r.event?`<circle cx="${x(r.week)}" cy="${T-12}" r="5" class="approach-event-mark"><title>Событие на неделе ${r.week}</title></circle>`:''}`).join(''):'';
+  const marks=run?run.rows.filter(r=>r.checkpoint||r.event).map(r=>`${r.detected>.4?`<rect x="${x(r.week)-5}" y="${T}" width="10" height="${H-T-B}" class="approach-rework-band"><title>Неделя ${r.week}: обнаружен передел ${round(r.detected)} единиц работы</title></rect>`:''}${r.checkpoint?`<text class="approach-check-mark" x="${x(r.week)}" y="${H-B+14}" text-anchor="middle">◆<title>Контроль: неделя ${r.week}</title></text>`:''}${r.event?`<circle cx="${x(r.week)}" cy="${T-12}" r="5" class="approach-event-mark"><title>Событие на неделе ${r.week}</title></circle>`:''}`).join(''):(prediction?.rows||[]).filter(r=>r.checkpoint).map(r=>`<text class="approach-check-mark" x="${x(r.week)}" y="${H-B+14}" text-anchor="middle" opacity=".5">◆<title>Плановая проверка: неделя ${r.week}</title></text>`).join('');
   const last=run?.rows.at(-1),prev=run?.rows.at(-2)||last;
   const dur=(.32/state.speed)+'s';
   const animate=(attribute,from,to)=>reduced||state.paused||from===to?'':`<animate attributeName="${attribute}" from="${from}" to="${to}" dur="${dur}" fill="freeze"/>`;
