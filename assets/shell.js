@@ -4,8 +4,8 @@ const themeKey='manager-almanac:theme';
 function applyTheme(theme){
   document.documentElement.dataset.theme=theme==='light'?'light':'dark';
   const light=theme==='light',button=document.getElementById('themeToggle');
-  if(button){button.textContent=light?'Оформление: Бумага → Графит':'Оформление: Графит → Бумага';button.setAttribute('aria-label',light?'Включить тёмную тему':'Включить светлую тему');}
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content',light?'#F4F0EA':'#191716');
+  if(button){button.textContent=light?'Включить тёмную тему':'Включить светлую тему';button.setAttribute('aria-label',button.textContent);}
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content',light?'#e0e4eb':'#101b32');
 }
 export function productLink(path,profile){const url=new URL(path,base);if(profile)url.searchParams.set('user',profile);return url.pathname+url.search+url.hash;}
 export function setTheme(theme){applyTheme(theme);try{localStorage.setItem(themeKey,theme);}catch(_){}const select=document.getElementById('appearanceTheme');if(select)select.value=document.documentElement.dataset.theme;}

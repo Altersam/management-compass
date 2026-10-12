@@ -1,0 +1,24 @@
+/* Shared presentation for every public page; game layouts reuse the same root tokens. */
+@layer utilities {
+  body{background:var(--site-page);color:var(--site-ink)}
+  .product-header{background:var(--site-paper);border-color:var(--site-line)}
+  .product-header .learning-brand{font-family:var(--font-body);font-size:20px;letter-spacing:0}
+  .product-header .secondary-menu>div{background:var(--site-paper);border-color:var(--site-line);color:var(--site-ink)}
+  .product-footer{background:var(--site-page);border-color:var(--site-line)}
+  main :is(h1,h2,h3,h4){font-family:var(--font-body)}
+  body:not([data-game-ui]) main :is(.panel,.theory-card,.depth-article,.teacher-explanation,.navigator-suggestion,.settings-section,.bibliography>section,.diary-entry,.experiment-row,.worksheet,.theory-contents,.reference-details,.resource-card){border-color:var(--site-line)}
+  body:not([data-game-ui]) main :is(.index-row,.theory-topic,.atlas-card,.settings-section,.bibliography>section,.diary-entry,.experiment-row){background:var(--site-paper);border-radius:10px;box-shadow:var(--shadow);padding:20px;margin-bottom:14px}
+  body:not([data-game-ui]) main :is(.learning-option,.case-option,.micro-action,.workday,.message-preview,.paper-document,.profile-menu,.compact-topic-nav nav){background:var(--site-paper);color:var(--site-ink);border-color:var(--site-line)}
+  body:not([data-game-ui]) main :is(.learning-feedback,.teacher-reply,.example-box,.mistake-box,.case-feedback,.generated,.behavior-result,.recipient-conversation,.organization-network,.role-transition section,.dependency-view span,.resource-result span,.day-plan span,.workday-head,.department-map section,.delivery-chain li,.process-stations li,.chat-lines p,.previous-consequence,.time-budget,.autonomy-effect>div){background:var(--site-soft);color:var(--site-ink);border-color:var(--site-line)}
+  body:not([data-game-ui]) main :is(input,select,textarea){background:var(--site-paper);color:var(--site-ink);border-color:var(--site-line);accent-color:var(--site-accent)}
+  body:not([data-game-ui]) main :is(.button.primary,.primary-action){background:var(--site-accent);color:var(--site-on-accent);border-color:var(--site-accent)}
+  .diagram-viewport{background:var(--site-paper)}
+  .diagram-viewport svg text{fill:var(--site-ink)}
+  .diagram-viewport svg :is([fill="#23415f"],[fill="#302A28"]){fill:var(--site-ink)}
+  .diagram-viewport svg :is([fill="#edf3ff"],[fill="#dde9fb"],[fill="#b7cdef"],[fill="#d4dce7"],[fill="#edf8f2"],[fill="#d5eddf"],[fill="#80c7ae"],[fill="#eaf7fa"]){fill:var(--site-secondary-soft)}
+  .diagram-viewport svg :is([fill="#fff6e7"],[fill="#e7b65e"],[fill="#f3efff"]){fill:var(--site-accent-soft)}
+  .diagram-viewport svg :is([fill="#edf3fb"],[fill="#f4f7fb"],[fill="#fff"],[fill="#ffffff"]){fill:var(--site-paper)}
+  .diagram-viewport svg :is([stroke="#8098b8"],[stroke="#cbd8e7"],[stroke="#b7cce4"],[stroke="#aec4de"],[stroke="#ccd9e8"]){stroke:var(--site-line)}
+  .diagram-viewport [data-visual-node].selected :is(rect,circle,polygon,path){stroke:var(--site-secondary);stroke-width:2.5}
+  @media(max-width:760px){body:not([data-game-ui]) main :is(.index-row,.theory-topic,.atlas-card,.settings-section,.bibliography>section,.diary-entry,.experiment-row){padding:16px}}
+}
