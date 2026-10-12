@@ -12,4 +12,5 @@
   .compass-game .mc-technical-branch .gantt-task-name{border-left:3px solid var(--accent)}.compass-game .mc-adoption-branch .gantt-task-name{border-left:3px solid var(--highlight)}.compass-game .mc-result-summary{font-size:15px;line-height:1.7;max-width:72ch}
   @media(prefers-reduced-motion:reduce){.compass-game .mc-energy i,.compass-game .gantt-bar i{transition:none}}
   @media(min-width:901px){.compass-game .task-drawer{top:100px;max-height:calc(100dvh - 370px)}}
+  @media(max-width:900px){.compass-game .mc-actionbar{position:static}.compass-game .game-time-controls{margin:0}.compass-game .mc-goalbar h1{font-size:21px}}
 }

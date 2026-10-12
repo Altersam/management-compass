@@ -17,3 +17,10 @@ test('a case dialog applies a trade-off, keeps time paused and preserves the dec
   await page.locator('[data-case-choice=flex]').click();await expect(page.locator('#gameEventChoice')).toBeHidden();await expect(page.locator('#gameClock')).toHaveText('Продолжить время');
   await page.reload();const saved=await page.evaluate(()=>Workspace.profile(CourseUI.active).data.course.projectGame);expect(saved.time).toBe(4);expect(saved.events.at(-1).choice).toBe('flex');expect(saved.decisions.at(-1).type).toBe('scenarioChoice');
 });
+test('mobile forecast panel does not overlay the task board',async({page})=>{
+  await page.setViewportSize({width:390,height:844});await page.goto('/game.html');
+  expect(await page.locator('.mc-actionbar').evaluate(el=>getComputedStyle(el).position)).toBe('static');
+  const board=await page.locator('#panel-project').boundingBox(),actions=await page.locator('.mc-actionbar').boundingBox();expect(actions.y).toBeGreaterThan(board.y+board.height);
+  await page.locator('.gantt-task-name[data-task=prototype]').click();await expect(page.locator('#taskDrawer')).toBeVisible();await page.locator('#closeTaskDrawer').click();
+  if(process.env.REFERENCE_SCREENSHOTS)await page.screenshot({path:process.env.REFERENCE_SCREENSHOTS+'/project-compass-mobile-complete.png',fullPage:true});
+});

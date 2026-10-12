@@ -1,10 +1,12 @@
 import {sources,stages,interventions} from './data.js';
 import {createCasebook,compare,metrics} from './model.js';
 import {evidence} from './evidence.js';
+import {createInvestigation,investigationAct,resumeInvestigation} from './investigation-state.js';
 export const revision=1,budget=12,maxPilots=2;
-export function createState(seed='case-01'){return {revision,seed:String(seed).slice(0,80)||'case-01',phase:'investigating',spent:0,inspected:[],pinned:[],hypothesis:{stage:null,note:''},pilots:[],view:{tab:'project',selectedCase:'case-1',source:null,intervention:null}};}
+export function createState(seed='case-01',{generatorVersion}={}){if(generatorVersion===2)return createInvestigation(seed);return {revision,seed:String(seed).slice(0,80)||'case-01',phase:'investigating',spent:0,inspected:[],pinned:[],hypothesis:{stage:null,note:''},pilots:[],view:{tab:'project',selectedCase:'case-1',source:null,intervention:null}};}
 export function inspectionCost(key){const id=key.startsWith('case:')?'case':key;const source=sources.find(s=>s.id===id);if(!source)throw new Error('Источник не найден.');return source.cost;}
 export function act(state,command){
+  if(state.generatorVersion===2)return investigationAct(state,command);
   if(state.phase==='ended'&&!(command.type==='inspect'&&state.inspected.includes(command.key)))throw new Error('Расследование уже завершено. Можно открыть новое дело.');
   const s=structuredClone(state),book=createCasebook(s.seed);
   if(command.type==='inspect'){
@@ -32,6 +34,7 @@ export function act(state,command){
   return s;
 }
 export function resumeState(saved){
+  if(saved?.generatorVersion===2)return resumeInvestigation(saved);
   if(!saved||saved.revision!==revision||typeof saved.seed!=='string'||!['investigating','ended'].includes(saved.phase)||!Array.isArray(saved.inspected)||!Array.isArray(saved.pinned)||!Array.isArray(saved.pilots)||saved.pilots.length>maxPilots||!saved.hypothesis||!Number.isFinite(saved.spent)||saved.spent<0||saved.spent>budget)return null;
   try{
     const book=createCasebook(saved.seed);
