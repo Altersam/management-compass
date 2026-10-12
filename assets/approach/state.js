@@ -10,6 +10,7 @@ export function act(state,a){
   if(s.phase==='ended')throw new Error('Две попытки завершены.');
   if(a.type==='start'){if(s.phase!=='intro')throw new Error('Проект уже открыт.');s.phase='planning';}
   else if(a.type==='parameter'||a.type==='preset'){
+    if(a.type==='parameter'&&!['upfront','interval','feedback','buffer'].includes(a.key))throw new Error('Рычаг не найден.');
     if(!['planning','running','event'].includes(s.phase)||s.current&&!s.paused)throw new Error('Сначала поставьте проект на паузу.');
     if(a.type==='preset'&&s.current)throw new Error('Стартовый профиль меняется между попытками.');
     const p=a.type==='preset'?structuredClone(presets[a.value]?.parameters):{...s.parameters,[a.key]:Number(a.value)};
@@ -44,6 +45,7 @@ export function validate(s){
     if(s.current&&JSON.stringify(s.parameters)!==JSON.stringify(s.current.parameters))return false;
     if(s.currentWeek!==(s.current?.week||(['review','ended'].includes(s.phase)?s.attempts.at(-1)?.week:0)))return false;
     if(s.phase==='event'&&!s.current?.pending||s.phase==='running'&&s.current?.pending)return false;
+    if(s.phase==='event'&&!s.paused||s.phase==='intro'&&(s.attempts.length||s.current)||s.current?.complete)return false;
     if(s.phase==='ended'&&s.attempts.length!==2||s.phase==='review'&&s.attempts.length!==1||s.phase==='planning'&&s.attempts.length>=2)return false;
     return true;
   }catch(_){return false;}

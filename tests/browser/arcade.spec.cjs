@@ -1,11 +1,12 @@
 const {test,expect}=require('@playwright/test');
 const games=['hybrid','meeting','ethics','change','telephone','versions','metrics','flow','sprint','influence'];
+const {openLegacy}=require('../helpers/approach-runs.cjs');
 const click=(page,type,value)=>page.locator(`[data-action="${type}"]${value?`[data-value="${value}"]`:''}`).first().click();
 test('all ten games load separate working objects and preserve same product shell',async({page})=>{
-  const errors=[];page.on('pageerror',e=>errors.push(e.message));for(const id of games){await page.goto('/trainer.html?game='+id);await expect(page.locator('#arcadeBoard')).not.toBeEmpty();await expect(page.locator('.product-header>nav a')).toHaveText(['Теория','Игры','Ситуация','Техники','Дневник']);}expect(errors).toEqual([]);
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));for(const id of games){await page.goto('/trainer.html?game='+id);await expect(page.locator('#arcadeBoard')).not.toBeEmpty();await expect(page.locator('.product-header>nav a')).toHaveText(id==='hybrid'?['Все игры']:['Теория','Игры','Ситуация','Техники','Дневник']);}expect(errors).toEqual([]);
 });
 test('Hybrid route can be rearranged and two trials reach a comparison result',async({page})=>{
-  await page.goto('/trainer.html?game=hybrid');await page.locator('[data-route-action=context][data-value=report]').click();await page.locator('[data-route-action=run]').click();await expect(page.locator('.project-trace')).toHaveCount(1);await expect(page.locator('.project-context-picker')).toHaveCount(0);
+  await openLegacy(page);await page.locator('[data-route-action=context][data-value=report]').click();await page.locator('[data-route-action=run]').click();await expect(page.locator('.project-trace')).toHaveCount(1);await expect(page.locator('.project-context-picker')).toHaveCount(0);
   await page.locator('[data-route-action=add][data-value=research]').click();await expect(page.locator('.project-route-drop li')).toHaveCount(6);
   for(let index=5;index>0;index--)await page.locator(`[data-route-action=move][data-index="${index}"][data-delta="-1"]`).click();
   await expect(page.locator('.project-route-drop li').first()).toContainText('Исследование');await page.locator('[data-route-action=run]').click();await expect(page.locator('#arcadeResult')).toBeVisible();await expect(page.locator('#arcadeResult')).toContainText('Выпуск завершает маршрут');
@@ -32,9 +33,9 @@ test('influence builds observed graph and ends with a real coalition check',asyn
 });
 test('game saves resume, finished restart archives only the selected game, catalog is engine lazy',async({page})=>{
   const requests=[];page.on('request',r=>requests.push(new URL(r.url()).pathname));await page.goto('/games.html');await expect(page.locator('.training-game')).toHaveCount(12);expect(requests.some(p=>/\/arcade\/(hybrid|meeting|flow)\.js/.test(p))).toBe(false);
-  await page.goto('/trainer.html?game=hybrid');await page.locator('[data-route-action=context][data-value=report]').click();await page.locator('[data-route-action=add][data-value=research]').click();await page.reload();await expect(page.locator('.project-route-drop li')).toHaveCount(6);await page.locator('[data-route-action=run]').click();await page.locator('[data-route-action=run]').click();await page.locator('#arcadeRestart button').click();await expect(page.locator('.project-context-picker button')).toHaveCount(3);const course=await page.evaluate(()=>CourseUI.data().course);expect(course.arcadeArchives.hybrid).toHaveLength(1);
+  await openLegacy(page);await page.locator('[data-route-action=context][data-value=report]').click();await page.locator('[data-route-action=add][data-value=research]').click();await page.reload();await expect(page.locator('.project-route-drop li')).toHaveCount(6);await page.locator('[data-route-action=run]').click();await page.locator('[data-route-action=run]').click();await page.locator('#arcadeRestart button').click();await expect(page.locator('.project-context-picker button')).toHaveCount(3);const course=await page.evaluate(()=>CourseUI.data().course);expect(course.arcadeArchives.hybrid).toHaveLength(1);
 });
 test('all new games fit mobile and keyboard buttons remain operable',async({page})=>{
   test.setTimeout(60000);for(const width of [320,375,430,768,1024,1440]){await page.setViewportSize({width,height:1000});for(const id of games){await page.goto('/trainer.html?game='+id);await expect(page.locator('#arcadeBoard')).not.toBeEmpty();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),width+' '+id).toBe(true);}}
-  await page.goto('/trainer.html?game=hybrid');await page.locator('[data-route-action=context][data-value=report]').click();await page.locator('[data-route-action=add][data-value=research]').focus();await page.keyboard.press('Enter');await expect(page.locator('.project-route-drop li')).toHaveCount(6);
+  await openLegacy(page);await page.locator('[data-route-action=context][data-value=report]').click();await page.locator('[data-route-action=add][data-value=research]').focus();await page.keyboard.press('Enter');await expect(page.locator('.project-route-drop li')).toHaveCount(6);
 });
