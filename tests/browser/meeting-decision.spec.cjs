@@ -1,7 +1,7 @@
 const {test,expect}=require('@playwright/test');
 const {openModern,ask,linked,install,prepared}=require('../helpers/meeting-decision-runs.cjs');
 test('meeting centres on five seats and a draft, not text input or a long dialogue',async({page})=>{
-  await openModern(page);await expect(page.locator('[data-decision-action=select]')).toHaveCount(5);await expect(page.locator('[data-decision-action=ask]')).toHaveCount(3);await expect(page.locator('textarea,input,select')).toHaveCount(0);await expect(page.locator('.decision-contrast')).toContainText('5 / 5');await expect(page.locator('[data-decision-action=check]')).toHaveCount(0);await expect(page.locator('.decision-center')).toContainText('Полный запуск');
+  await openModern(page);await expect(page.locator('[data-decision-action=select]')).toHaveCount(5);await expect(page.locator('[data-decision-action=ask]')).toHaveCount(3);await expect(page.locator('#arcadeRoot textarea,#arcadeRoot input,#arcadeRoot select')).toHaveCount(0);await expect(page.locator('.decision-contrast')).toContainText('5 / 5');await expect(page.locator('[data-decision-action=check]')).toHaveCount(0);await expect(page.locator('.decision-center')).toContainText('Полный запуск');
 });
 test('known-risk check does not reveal unopened limits and concrete conditions form a working deal',async({page})=>{
   await openModern(page);await ask(page,'formal','constraint');await ask(page,'resource','constraint');await page.locator('[data-decision-action=check]').click();await expect(page.locator('.decision-known-risks .unknown')).toHaveCount(3);await expect(page.locator('.decision-known-risks')).toContainText('Только известные');

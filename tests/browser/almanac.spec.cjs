@@ -1,5 +1,5 @@
 const {test,expect}=require('@playwright/test');
-async function toggleTheme(page){await page.locator('.secondary-menu>summary').click();await page.locator('#themeToggle').click();await page.locator('.secondary-menu>summary').click();}
+async function toggleTheme(page){if(await page.locator('#gameThemeToggle').isVisible()){await page.locator('#gameThemeToggle').click();return;}await page.locator('.secondary-menu>summary').click();await page.locator('#themeToggle').click();await page.locator('.secondary-menu>summary').click();}
 test('five routes explain their purpose, search hides irrelevant materials and journal opens directly',async({page})=>{
   await page.goto('/');await expect(page.locator('.index-row')).toHaveCount(3);await expect(page.locator('[data-path]')).toHaveCount(5);await page.locator('[data-path=theory]').click();await expect(page.locator('.theory-topic')).toHaveCount(10);
   await page.locator('#theorySearch').fill('документы');await expect(page.locator('.theory-topic')).toHaveCount(1);await page.locator('.theory-topic .topic-read').click();await expect(page).toHaveURL(/module-07.*#theory/);await expect(page.locator('#theory')).toBeVisible();

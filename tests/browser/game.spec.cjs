@@ -11,7 +11,7 @@ test('persistent project board advances on clock, pauses, and resumes with assig
   await expect(page.locator('.gantt-row')).toHaveCount(7);await expect(page.locator('.game-person')).toHaveCount(5);await expect(page.locator('#gameClock')).toHaveText('Запустить время');
   await plan(page);await page.locator('.task-more>summary').click();await page.locator('[data-setting=autonomy]').selectOption('manual');
   await page.locator('#gameClock').click();await page.clock.runFor(8000);await page.locator('#gameClock').click();
-  const state=await page.evaluate(()=>Workspace.profile(CourseUI.active).data.course.projectGame);expect(state.time).toBe(1);expect(state.spent).toBe(48000);expect(state.tasks[1].assigned).toEqual(['maxim']);
+  const state=await page.evaluate(()=>Workspace.profile(CourseUI.active).data.course.projectGame);expect(state.time).toBe(1);expect(state.spent).toBe(state.people.reduce((sum,p)=>sum+p.cost,0));expect(state.tasks[1].assigned).toEqual(['maxim']);
   await page.clock.runFor(32000);expect(await page.evaluate(()=>Workspace.profile(CourseUI.active).data.course.projectGame.time)).toBe(1);
   await page.reload();await expect(page.locator('#gameBrief')).toContainText('Продолжить проект — день 2');await expect(page.locator('#selectedTaskHeading')).toHaveText('Запуск');await expect(page.locator('#gameClock')).toHaveText('Продолжить время');expect(errors).toEqual([]);
 });

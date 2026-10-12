@@ -1,7 +1,7 @@
 /* A single game-only palette. Page layout and causal semantics remain in their own renderers. */
 @layer utilities {
   body[data-game-ui]{
-    --game-page:#e0e4eb;--game-paper:#fbfcfe;--game-soft:#edf0f5;--game-board:#e6eaf0;
+    --game-page:#e0e4eb;--game-paper:#fbfcfe;--game-soft:#edf0f5;--game-board:#e6eaf0;--game-track:#c8d1de;
     --game-ink:#203047;--game-muted:#526176;--game-line:#9daabd;
     --game-accent:#a1326b;--game-accent-soft:#f8e6ef;--game-secondary:#2458b3;--game-secondary-soft:#e6edfa;--game-on-accent:#fff;
     --page-bg:var(--game-page);--paper:var(--game-paper);--paper-subtle:var(--game-soft);--ink:var(--game-ink);--ink-muted:var(--game-muted);--rule:var(--game-line);--rule-strong:var(--game-muted);
@@ -9,7 +9,7 @@
     --background:var(--page-bg);--surface:var(--paper);--surface-soft:var(--paper-subtle);--text:var(--ink);--muted-text:var(--ink-muted);--border:var(--rule);--accent-soft:var(--accent-muted);--success:var(--highlight);--success-soft:var(--highlight-soft);--blue:var(--game-secondary);--green:var(--game-secondary);--red:var(--game-accent);--amber:var(--game-accent);--violet:var(--game-accent);--line:var(--rule);--muted:var(--ink-muted);--font-display:var(--font-body);
     --shadow:0 6px 22px #20304714;background:var(--game-page);color:var(--game-ink);color-scheme:light;
   }
-  :root[data-theme=dark] body[data-game-ui]{--game-page:#0a251e;--game-paper:#123b31;--game-soft:#19493e;--game-board:#0e3028;--game-ink:#effbf5;--game-muted:#bdd9ce;--game-line:#578275;--game-accent:#ffb16c;--game-accent-soft:#543b29;--game-secondary:#66dbcc;--game-secondary-soft:#164b44;--game-on-accent:#102b24;--shadow:0 7px 24px #0004;color-scheme:dark}
+  :root[data-theme=dark] body[data-game-ui]{--game-page:#0a251e;--game-paper:#123b31;--game-soft:#19493e;--game-board:#0e3028;--game-track:#315d50;--game-ink:#effbf5;--game-muted:#bdd9ce;--game-line:#578275;--game-accent:#ffb16c;--game-accent-soft:#543b29;--game-secondary:#66dbcc;--game-secondary-soft:#164b44;--game-on-accent:#102b24;--shadow:0 7px 24px #0004;color-scheme:dark}
   [data-game-ui] .product-header{background:var(--game-paper);color:var(--game-ink);border-color:var(--game-line);flex-wrap:wrap}
   [data-game-ui] .product-header a,[data-game-ui] .product-header summary,[data-game-ui] .product-footer{color:var(--game-ink)}
   [data-game-ui] #themeToggle{display:none}[data-game-ui] .game-theme-toggle{background:var(--game-soft);color:var(--game-ink);border:1px solid var(--game-line);border-radius:7px;font:12px var(--font-body);padding:10px 12px;min-height:38px;cursor:pointer}
@@ -42,7 +42,7 @@
   [data-game-ui] main :is(.goal-task-tags .dependency,.goal-task-tags .investment,.goal-task-tags .window){background:var(--game-accent-soft);color:var(--game-ink)}
   [data-game-ui] main :is(.decision-grade,.goal-grade,.approach-grade,.mc-result-summary,.decision-person[data-state=ready] .decision-stance){color:var(--game-secondary)}
   [data-game-ui] main :is(.decision-grade[data-grade=C],.decision-grade[data-grade=D],.decision-grade[data-grade=F],.decision-stop,.capacity-warning,.game-pressure,.decision-person[data-state=refused] .decision-stance,.decision-person[data-state=doubt] .decision-stance){color:var(--game-accent)}
-  [data-game-ui] main :is(.mc-energy,.goal-task-progress,.goal-criterion-track,.gap-energy,.adoption-strip,.capbar,.goal-capacity-bar,.game-day-track){background:var(--game-soft)}
+  [data-game-ui] main :is(.mc-energy,.goal-task-progress,.goal-criterion-track,.gap-energy,.adoption-strip,.capbar,.goal-capacity-bar,.game-day-track){background:var(--game-track)}
   [data-game-ui] main :is(.mc-energy i,.goal-task-progress i,.goal-criterion-track i,.adoption-strip i,.game-day-track i,.capacity-segment.new,.gantt-bar i){background:var(--game-secondary);color:var(--game-on-accent)}
   [data-game-ui] main :is(.mc-energy i.warning,.mc-energy i.critical,.capacity-segment.over){background:var(--game-accent)}
   [data-game-ui] main .capacity-segment.tail{background:var(--game-accent-soft);color:var(--game-ink);border:1px dashed var(--game-accent)}
@@ -58,6 +58,9 @@
   [data-game-ui] main :is(.catalog-preview i,.row-preview i,.mini-gantt span i){background:var(--game-accent)}
   [data-game-ui] main :is(.catalog-preview span,.row-preview span,.flow-request,.request-dots i,.person-avatar){background:var(--game-soft);border-color:var(--game-line)}
   [data-game-ui] .product-header .secondary-menu>div{background:var(--game-paper);color:var(--game-ink);border-color:var(--game-line)}
+  [data-game-ui] .games-page .game-feature{padding:22px}
+  [data-game-ui] .games-page .game-row{padding:16px 18px}
+  [data-game-ui] .games-page .game-rows{gap:10px}
   [data-game-ui] main dialog{background:var(--game-paper);color:var(--game-ink);border-color:var(--game-line);box-shadow:var(--shadow)}
   [data-game-ui] main dialog::backdrop{background:#0a251e99}
   [data-game-ui] main :focus-visible{outline-color:var(--game-secondary)}
