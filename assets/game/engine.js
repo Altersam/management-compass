@@ -2,6 +2,7 @@ import {tickSize,random,finished,snapshot} from './state.js';
 import {contractor,skillFit,available} from './people.js';
 import {complete,blockers,taskStatus} from './project.js';
 import {emit,schedule,closeEvents} from './events.js';
+import {advanceScenarioEvents,applyScenarioChoice} from './scenario-events.js';
 
 const clamp=(n,min=0,max=1)=>Math.min(max,Math.max(min,n));
 const taskById=(s,id)=>{const t=s.tasks.find(t=>t.id===id);if(!t)throw new Error('Задача не найдена.');return t;};
@@ -127,7 +128,7 @@ export function advance(state,dt=tickSize){
   }
   s.stats.manualWaiting+=s.tasks.filter(t=>t.awaitingDecision).length*step;
   s.time=Math.round((s.time+step)*10000)/10000;
-  externalEvents(s);delayedEffects(s);causalEvents(s,workloads(s));
+  externalEvents(s);delayedEffects(s);causalEvents(s,workloads(s));advanceScenarioEvents(s);
   if(s.launchedAt!==null){
     const training=taskById(s,'training'),trained=complete(training),trainingQuality=trained?(training.quality-0.7)*30:0;
     const target=(trained?78:32)+trainingQuality+(s.leaderExample?12:-15)-(s.flags.supportEffective?25:0);
@@ -197,6 +198,8 @@ export function act(state,command){
   }else if(type==='cutSupport'){
     if(s.supportCut||s.launchedAt===null)throw new Error('Поддержка сейчас не может быть сокращена.');s.supportCut=true;schedule(s,'support',2,{},'support-'+s.time);closeEvents(s,'metrics');
   }else if(type==='restoreSupport'){s.supportCut=false;s.flags.supportEffective=false;closeEvents(s,'support');}
+  else if(type==='scenarioChoice')applyScenarioChoice(s,command);
+  else if(type==='acknowledge'){const e=s.events.find(e=>e.id===command.event);if(!e)throw new Error('Событие не найдено.');e.status='resolved';}
   else throw new Error('Неизвестное решение.');
   const before=snapshot(state);
   s.decisions.push({...structuredClone(command),at:s.time,before});return s;
@@ -204,6 +207,7 @@ export function act(state,command){
 export function forecast(state){
   // Run current allocations on a clone. This is a conditional forecast, not an oracle.
   const s=snapshot(state);s.externalPlan={...s.externalPlan,requirementsDay:99,illnessDay:99,itDay:99};
+  if(s.scenarioEvents)s.scenarioEvents.nextAt=99;
   let probe=s;
   for(let i=0;i<Math.ceil((20-s.time)/tickSize);i++){if(probe.launchedAt!==null)break;if(finished(probe))break;probe=advance(probe);}
   const tasks=Object.fromEntries(probe.tasks.map(t=>[t.id,{start:t.startedAt,end:t.completedAt}]));

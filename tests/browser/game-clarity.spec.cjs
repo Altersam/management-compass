@@ -3,7 +3,7 @@ const {createState}=require('../../assets/game/state.js');
 const {act,advance}=require('../../assets/game/engine.js');
 const {tasks}=require('../../assets/game/project.js');
 function replay(ended=false){let s=createState('service-20',{balanceVersion:1});for(const t of tasks)s=act(s,{type:'assign',task:t.id,people:t.assigned});for(let i=0;i<(ended?80:36);i++)s=advance(s);return s;}
-async function openFixture(page,state){await page.goto('/');await page.evaluate(s=>Workspace.update(Workspace.active(),d=>{d.course.projectGame=s;}),state);await page.goto('/game.html');}
+async function openFixture(page,state){await page.goto('/');await page.evaluate(s=>Workspace.update(Workspace.active(),d=>{d.course.projectGame=s;}),state);await page.goto('/game.html');await page.locator('#mcEventHistory>summary').click();}
 test('regular pace is two seconds per quarter-day and changing speed does not change model steps',async({page})=>{
   await page.clock.install();await page.goto('/game.html');await expect(page.locator('#gameSpeed')).toHaveValue('2000');await page.locator('#gameClock').click();await page.clock.runFor(2000);await page.locator('#gameClock').click();
   expect(await page.evaluate(()=>CourseUI.data().course.projectGame.time)).toBe(0.25);

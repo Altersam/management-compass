@@ -85,7 +85,7 @@ test('support cuts save immediately and harm later; formal launch does not prove
 test('forecast does not mutate saved RNG and report describes this run without a personality grade',()=>{
   const s=allocated(),before=JSON.stringify(s);assert.ok(forecast(s).day);assert.equal(JSON.stringify(s),before);
   const result=report(step(s,80));assert.equal(result.insights.length,5);assert.ok(result.insights.every(text=>text.startsWith('В этой игре')));
-  assert.ok(Object.values(eventDefinitions).filter(e=>e.kind==='causal').length>Object.values(eventDefinitions).filter(e=>e.kind==='external').length);
+  const core=Object.values(eventDefinitions).filter(e=>!e.domain);assert.ok(core.filter(e=>e.kind==='causal').length>core.filter(e=>e.kind==='external').length);assert.ok(Object.keys(eventDefinitions).length>=25,'the new organisational pool includes human and context choices');
 });
 test('game resume/export is isolated from existing simulation, archives and experiments',()=>{
   const map=new Map(),store=createStore({getItem:k=>map.get(k),setItem:(k,v)=>map.set(k,v)}),id=store.active(),s=step(allocated(),16);

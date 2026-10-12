@@ -26,12 +26,12 @@ for(const theme of ['dark','light'])test.describe(theme+' theme',()=>{
   });
   test('mobile situation result and game dialog retain accessible controls',async({page})=>{
     await page.setViewportSize({width:375,height:850});await page.goto('/navigator.html');await page.locator('[name=q0]').first().check();await page.locator('[name=q1]').first().check();await page.locator('#situationQuestions button').click();expect(await check(page,'hypothesis')).toEqual([]);
-    await page.goto('/game.html');for(let i=0;i<4;i++)await page.locator('#skipToEvent').click();await page.locator('[data-tab=events]').click();const why=page.locator('[data-explain]').first();await expect(why).toBeVisible();await why.click();expect(await check(page,'dialog')).toEqual([]);
+    await page.goto('/game.html');for(let i=0;i<4;i++){await page.locator('#skipToEvent').click();if(await page.locator('#gameEventChoice').isVisible()){expect(await check(page,'event trade-offs')).toEqual([]);await page.locator('#eventBackToBoard').click();}}await page.locator('#mcEventHistory>summary').click();const why=page.locator('[data-explain]').first();await expect(why).toBeVisible();await why.click();expect(await check(page,'dialog')).toEqual([]);
   });
   test('task drawer, causal replay and completed comparison are accessible',async({page})=>{
     await page.goto('/game.html');await page.locator('.gantt-task-name[data-task=prototype]').click();expect(await check(page,'task drawer')).toEqual([]);await page.locator('.task-more>summary').click();expect(await check(page,'task secondary controls')).toEqual([]);
     let state=createState('service-20',{balanceVersion:1});for(const t of tasks)state=act(state,{type:'assign',task:t.id,people:t.assigned});for(let i=0;i<80;i++)state=advance(state);
-    await page.evaluate(s=>Workspace.update(Workspace.active(),d=>d.course.projectGame=s),state);await page.reload();await page.locator('[data-event-id=requirements-return]').click();expect(await check(page,'causal review')).toEqual([]);await page.locator('#compareCause').click();expect(await check(page,'causal comparison')).toEqual([]);
+    await page.evaluate(s=>Workspace.update(Workspace.active(),d=>d.course.projectGame=s),state);await page.reload();await page.locator('#mcEventHistory>summary').click();await page.locator('[data-event-id=requirements-return]').click();expect(await check(page,'causal review')).toEqual([]);await page.locator('#compareCause').click();expect(await check(page,'causal comparison')).toEqual([]);
   });
   test('detective investigation, source dialog, pilot and final are accessible',async({page})=>{
     await page.goto('/detective.html');await expect(page.locator('.detective-chain')).toBeVisible();expect(await check(page,'detective initial')).toEqual([]);
