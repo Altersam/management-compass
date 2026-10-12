@@ -2,13 +2,18 @@ import {CourseUI as C} from '../course-ui.js';
 import {catalog,loaders} from '../arcade/catalog.js';
 import {mountTrainer} from '../arcade/ui.js';
 import {mountGamePresentation,newGameSeed} from '../game-presentation.js';
+import {needsUpgrade,upgradeRecord} from '../arcade/upgrade.js';
 const root=document.getElementById('arcadeRoot'),id=new URLSearchParams(location.search).get('game'),meta=catalog.find(m=>m.id===id);
 if(!meta){root.innerHTML=`<h1>Выберите тренажёр</h1><p>Этот адрес не соответствует доступной игре.</p><a href="${C.link('games.html')}">Все тренажёры →</a>`;}
 else{
   document.title=meta.title+' — Альманах менеджера';document.body.dataset.arcade=id;
   try{
-    const game=await loaders[id](),saved=C.data().course?.arcadeGames?.[id];
+    const game=await loaders[id]();let saved=C.data().course?.arcadeGames?.[id];
     if(saved&&!game.validate(saved))throw new Error('Сохранение этой игры не удалось открыть. Оно остаётся в профиле; сделайте копию в настройках.');
+    let legacyView=new URLSearchParams(location.search).get('legacy')==='1';
+    try{if(legacyView&&saved)sessionStorage.setItem('management-compass:legacy-view:'+id,saved.seed);else legacyView=sessionStorage.getItem('management-compass:legacy-view:'+id)===saved?.seed;}catch(_){}
+    let upgraded=false;
+    if(needsUpgrade(id,saved)&&!legacyView){C.save(d=>{upgraded=upgradeRecord(d.course,id,game.create);});saved=C.data().course.arcadeGames[id];}
     const state=saved||(id==='hybrid'?game.create(undefined,{modelVersion:3}):['sprint','meeting'].includes(id)?game.create(undefined,{modelVersion:2}):game.create(newGameSeed()));
     function save(next){C.save(d=>{if(!d.course)d.course={};if(!d.course.arcadeGames)d.course.arcadeGames={};d.course.arcadeGames[id]=next;});}
     if(!saved)save(state);
@@ -48,6 +53,7 @@ else{
     if(id==='meeting'){const data=await import('../meeting-decision/cases.js');domains=data.cases.map(d=>({id:d.id,name:d.domain}));domainOf=seed=>game.create(seed,{modelVersion:2}).scenario.id;}
     const random=['hybrid','sprint','meeting','ethics','versions','flow'].includes(id);
     const disposePresentation=mountGamePresentation({seed:state.seed,onRestart:restart,domains,domainOf,random,newOptions:{modern:['hybrid','sprint','meeting'].includes(id)},note:id==='ethics'||id==='versions'?'Авторская причинная модель с двумя seeded-вариантами. Новый seed может снова выбрать тот же вариант.':undefined});
+    if(upgraded){const note=document.createElement('p');note.className='game-upgrade-note';note.textContent='Открыта новая версия игры. Прежняя попытка сохранена в архиве профиля; её результат не пересчитывался.';root.before(note);}
     window.addEventListener('pagehide',()=>{ui.dispose();disposePresentation();},{once:true});
   }catch(error){root.innerHTML=`<h1>${C.esc(meta.title)}</h1><p role="alert">${C.esc(error.message)}</p><div class="workspace-links"><a href="${C.link('settings.html')}">Настройки и копия данных →</a><a href="${C.link('games.html')}">Каталог →</a></div>`;}
 }

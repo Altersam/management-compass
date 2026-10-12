@@ -5,6 +5,7 @@
   .product-header .learning-brand{font-family:var(--font-body);font-size:20px;letter-spacing:0}
   .product-header .secondary-menu>div{background:var(--site-paper);border-color:var(--site-line);color:var(--site-ink)}
   .product-footer{background:var(--site-page);border-color:var(--site-line)}
+  .game-upgrade-note{max-width:1240px;margin:14px auto 0;padding:12px 20px;border-left:3px solid var(--site-secondary);background:var(--site-soft);color:var(--site-ink);font-size:12px;line-height:1.7}
   main :is(h1,h2,h3,h4){font-family:var(--font-body)}
   body:not([data-game-ui]) main :is(.panel,.theory-card,.depth-article,.teacher-explanation,.navigator-suggestion,.settings-section,.bibliography>section,.diary-entry,.experiment-row,.worksheet,.theory-contents,.reference-details,.resource-card){border-color:var(--site-line)}
   body:not([data-game-ui]) main :is(.index-row,.theory-topic,.atlas-card,.settings-section,.bibliography>section,.diary-entry,.experiment-row){background:var(--site-paper);border-radius:10px;box-shadow:var(--shadow);padding:20px;margin-bottom:14px}
@@ -21,4 +22,6 @@
   .diagram-viewport svg :is([stroke="#8098b8"],[stroke="#cbd8e7"],[stroke="#b7cce4"],[stroke="#aec4de"],[stroke="#ccd9e8"]){stroke:var(--site-line)}
   .diagram-viewport [data-visual-node].selected :is(rect,circle,polygon,path){stroke:var(--site-secondary);stroke-width:2.5}
   @media(max-width:760px){body:not([data-game-ui]) main :is(.index-row,.theory-topic,.atlas-card,.settings-section,.bibliography>section,.diary-entry,.experiment-row){padding:16px}}
+  .almanac-cover>*{min-width:0}.index-row>*{min-width:0}
+  @media(max-width:760px){.almanac-cover h1{font-size:clamp(40px,12vw,64px)}.index-row{grid-template-columns:28px minmax(0,1fr)}}
 }

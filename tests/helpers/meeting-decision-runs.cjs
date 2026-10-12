@@ -1,6 +1,6 @@
 const {create,act}=require('../../assets/meeting-decision/state.js');
 const {expect}=require('@playwright/test');
-async function install(page,state){await page.goto('/');await page.evaluate(state=>Workspace.update(Workspace.active(),d=>{d.course.arcadeGames??={};d.course.arcadeGames.meeting=state;}),state);await page.goto('/trainer.html?game=meeting');await expect(page.locator('#arcadeRoot h1')).toBeVisible();}
+async function install(page,state){await page.goto('/');await page.evaluate(state=>Workspace.update(Workspace.active(),d=>{d.course.arcadeGames??={};d.course.arcadeGames.meeting=state;}),state);await page.goto('/trainer.html?game=meeting'+(state.modelVersion===2?'':'&legacy=1'));await expect(page.locator('#arcadeRoot h1')).toBeVisible();}
 async function openModern(page,seed='meeting-browser'){await install(page,create(seed));await page.locator('[data-decision-action=start]').click();}
 async function openLegacy(page){await install(page,require('../../assets/arcade/meeting.js').create());}
 async function ask(page,id,question){await page.locator(`[data-decision-action=select][data-id="${id}"]`).click();const button=page.locator(`[data-decision-action=ask][data-question="${question}"]`);if(await button.isEnabled())await button.click();}

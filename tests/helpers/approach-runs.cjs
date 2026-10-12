@@ -1,6 +1,6 @@
 const {create,act}=require('../../assets/approach/state.js');
 const {expect}=require('@playwright/test');
-async function install(page,state){await page.goto('/');await page.evaluate(state=>Workspace.update(Workspace.active(),d=>{d.course.arcadeGames??={};d.course.arcadeGames.hybrid=state;}),state);await page.goto('/trainer.html?game=hybrid');}
+async function install(page,state){await page.goto('/');await page.evaluate(state=>Workspace.update(Workspace.active(),d=>{d.course.arcadeGames??={};d.course.arcadeGames.hybrid=state;}),state);await page.goto('/trainer.html?game=hybrid'+(state.modelVersion===3?'':'&legacy=1'));}
 async function openModern(page,seed='browser-approach'){await install(page,create(seed));await page.locator('[data-approach=start]').click();}
 async function openLegacy(page){await install(page,require('../../assets/arcade/hybrid.js').create());await expect(page.locator('#arcadeBoard')).not.toBeEmpty();}
 function firstReview(seed='browser-approach'){
