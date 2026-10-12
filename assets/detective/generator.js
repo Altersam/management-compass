@@ -29,7 +29,8 @@ export function generateCasebook(seed){
       return {id:'case-'+(i+1),name:names[i],events:events.map((e,j)=>({...e,id:'event-'+j}))};
     });
     const reportedCycle=round(cases.reduce((v,c)=>v+c.events.filter(e=>e.type==='work').reduce((s,e)=>s+e.duration,0),0)/n);
-    const sourceInfo=[['chronology','Хронология дел','Отметки времени и последовательность событий',2],['interview','Интервью команды','Как участники принимают и передают работу',2],['metric','Методика отчёта','Границы измерения и состав показателя',2],['calendar','Рабочий журнал','Отметки начала и окончания подготовки',2],['registration','Журнал регистрации','Как запрос поступает в систему',2],['documents','Выборка документов','Какие исправления встречались в ответах',3]];
+    const related={approval_queue:['queue','Очереди и загрузка'],incomplete_input:['returns','Журнал возвратов'],batch_processing:['schedule','Календарь запуска'],routing_gap:['routing','История маршрутов'],expert_bottleneck:['roles','Загрузка специалистов'],handoff_gap:['handoffs','История передач'],unclear_acceptance:['feedback','Обратная связь получателей']}[archetype.id];
+    const sourceInfo=[['chronology','Хронология дел','Отметки времени и последовательность событий',2],[...related,'Записи участников и рабочие ограничения',2],['metric','Методика отчёта','Границы измерения и состав показателя',2],['calendar','Рабочий журнал','Отметки начала и окончания подготовки',2],['registration','Журнал регистрации','Как запрос поступает в систему',2],['documents','Выборка документов','Какие исправления встречались в ответах',3]];
     const texts=[...archetype.keyEvidence,...archetype.neutralEvidence,...archetype.decoys];
     const sources=shuffle(r,sourceInfo.map(([id,name,description,cost],i)=>({id,name,description,cost,facts:[{
       id:id+'-fact',source:id,text:texts[i],kind:i<2?'key':i<4?'neutral':'decoy',
@@ -43,5 +44,5 @@ export function generateCasebook(seed){
   }
   throw new Error('Не удалось собрать проверяемое дело.');
 }
-export const newSeed=()=>globalThis.crypto?.randomUUID?.()||String(Date.now())+'-'+Math.random().toString(36).slice(2);
+export const newSeed=()=>globalThis.crypto?.randomUUID?.()||String(Date.now())+'-'+String(globalThis.performance?.now?.()||0);
 export const caseIdentifier=seed=>seedHash(seed).toString(16).toUpperCase().padStart(8,'0').slice(-4);

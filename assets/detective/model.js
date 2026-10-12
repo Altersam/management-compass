@@ -56,5 +56,6 @@ export function pilotCases(book,intervention){
 }
 export function compare(book,intervention){
   const afterCases=pilotCases(book,intervention),before=metrics(book.cases),after=metrics(afterCases);
+  if(intervention==='change_metric')after.reportedDays=after.days;
   return {before,after,daysSaved:round(before.days-after.days),cases:book.cases.map((item,i)=>({id:item.id,before:round(trace(item).at(-1).end/hoursPerDay),after:round(trace(afterCases[i]).at(-1).end/hoursPerDay),usableBefore:item.firstUsable,usableAfter:afterCases[i].firstUsable}))};
 }

@@ -33,10 +33,11 @@ for(const theme of ['dark','light'])test.describe(theme+' theme',()=>{
     let state=createState('service-20',{balanceVersion:1});for(const t of tasks)state=act(state,{type:'assign',task:t.id,people:t.assigned});for(let i=0;i<80;i++)state=advance(state);
     await page.evaluate(s=>Workspace.update(Workspace.active(),d=>d.course.projectGame=s),state);await page.reload();await page.locator('#mcEventHistory>summary').click();await page.locator('[data-event-id=requirements-return]').click();expect(await check(page,'causal review')).toEqual([]);await page.locator('#compareCause').click();expect(await check(page,'causal comparison')).toEqual([]);
   });
-  test('detective investigation, source dialog, pilot and final are accessible',async({page})=>{
-    await page.goto('/detective.html');await expect(page.locator('.detective-chain')).toBeVisible();expect(await check(page,'detective initial')).toEqual([]);
-    for(const key of ['case:case-1','returns']){await page.locator(`[data-inspect="${key}"]`).first().click();expect(await check(page,'detective source '+key)).toEqual([]);await page.locator('#pinSource').click();await page.locator('#closeSource').click();}
-    await page.locator('.detective-chain [data-stage=register]').click();await page.locator('#hypothesisNote').fill('Повторный сбор сведений увеличивает ожидание после регистрации.');await page.locator('[name=intervention][value=input]').check();await page.locator('#runPilot').click();expect(await check(page,'detective pilot')).toEqual([]);await page.locator('#finishInvestigation').click();expect(await check(page,'detective final')).toEqual([]);
+  test('detective sources, selected clues, pilot and final are accessible',async({page})=>{
+    const {openCase,selectKeys,pilot}=require('../helpers/detective-runs.cjs');
+    const book=await openCase(page);await expect(page.locator('.detective-chain')).toBeVisible();expect(await check(page,'detective initial')).toEqual([]);
+    await selectKeys(page,book);expect(await check(page,'detective selected clues')).toEqual([]);
+    await pilot(page,book.archetype.trueStage,book.archetype.effectiveInterventions[0]);expect(await check(page,'detective pilot')).toEqual([]);await page.locator('#finishInvestigation').click();expect(await check(page,'detective final')).toEqual([]);
     await page.setViewportSize({width:375,height:850});expect(await check(page,'detective mobile final')).toEqual([]);
   });
   test('all ten arcade mechanics are accessible at desktop and mobile',async({page})=>{
