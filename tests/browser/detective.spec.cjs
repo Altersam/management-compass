@@ -25,7 +25,7 @@ test('same-case replay and new-case restart preserve isolated archives and read-
   await page.locator('[data-start]').click();await page.locator('[data-finish]').click();await expect(page.locator('#investigationResult')).toContainText('НЕ ЗАВЕРШЕНО');await page.locator('[data-new]').click();await expect(page.locator('[data-start]')).toBeVisible();course=await page.evaluate(()=>CourseUI.data().course);expect(course.detectiveGame.seed).not.toBe(book.seed);expect(course.detectiveGameArchive).toHaveLength(2);
 });
 test('catalog remains engine-lazy and reaches both working game modes',async({page})=>{
-  const requests=[];page.on('request',r=>requests.push(new URL(r.url()).pathname));await page.goto('/games.html');await expect(page.locator('.training-game')).toHaveCount(12);expect(requests.some(path=>path.includes('/assets/detective/'))).toBe(false);
+  const requests=[];page.on('request',r=>requests.push(new URL(r.url()).pathname));await page.goto('/games.html');await expect(page.locator('.training-game')).toHaveCount(13);expect(requests.some(path=>path.includes('/assets/detective/'))).toBe(false);
   await page.locator('#detectiveGameEntry').click();await expect(page.locator('[data-start]')).toBeVisible();await page.locator('[data-start]').click();await expect(page.locator('.detective-chain')).toBeVisible();await page.getByRole('link',{name:'Все игры',exact:true}).click();await page.locator('#projectGameEntry').click();await expect(page.locator('.gantt-row')).toHaveCount(7);
 });
 test('keyboard clues and colour-labelled cases fit six widths with no mobile tabs',async({page})=>{

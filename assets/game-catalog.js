@@ -5,5 +5,6 @@ const featured=['project','detective'];
 export const gameCatalog=[
   {id:'project',title:'Проект под давлением',category:'project',href:'game.html',storage:'projectGame',time:'8–12 минут'},
   {id:'detective',title:'Найди разрыв',category:'system',href:'detective.html',storage:'detectiveGame',time:'5–8 минут'},
+  {id:'simulation',title:'История общего сервиса',category:'project',href:'index.html#final',storage:'simulation',time:'8–12 минут'},
   ...catalog.map(meta=>({...meta,category:categories[meta.id],href:'trainer.html?game='+meta.id}))
 ].map(meta=>({...meta,featured:featured.includes(meta.id)}));

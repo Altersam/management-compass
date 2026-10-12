@@ -6,6 +6,7 @@ const C=CourseUI,{M,esc}=C;
 const home=document.getElementById('homeContent'),secondary=document.getElementById('secondaryContent');
 const legacy=['route','modules','library','practice','cases','diary','faq','decisions','favorites'];
 let renderId=0;
+let disposeGamePresentation=null;
 
 function homeState(){
   const course=M.course(C.data()),last=course.last,element=document.getElementById('resumeCourse');
@@ -29,13 +30,14 @@ function trajectory(){
 async function render(){
   if(location.hash==='#courseMapTitle'){location.replace(C.link('theory.html'));return;}
   const token=++renderId,hash=location.hash,alternate=hash==='#trajectory'||hash==='#final';
+  if(hash!=='#final'&&disposeGamePresentation){disposeGamePresentation();disposeGamePresentation=null;delete document.body.dataset.gameUi;}
   home.hidden=alternate;secondary.hidden=!alternate;
   if(hash==='#trajectory')trajectory();
   else if(hash==='#final'){
     secondary.innerHTML='<h1>История общего сервиса</h1><p role="status">Открываем ситуацию…</p>';
     try{
-      const {mountSimulation}=await import('./simulation.js');
-      if(token===renderId)mountSimulation({ui:C,container:secondary});
+      const [{mountSimulation},{mountGamePresentation}]=await Promise.all([import('./simulation.js'),import('../game-presentation.js')]);
+      if(token===renderId){mountSimulation({ui:C,container:secondary});if(!disposeGamePresentation)disposeGamePresentation=mountGamePresentation();}
     }catch(error){
       if(token!==renderId)return;
       secondary.innerHTML='<h1>История общего сервиса</h1><p role="alert">Не удалось открыть ситуацию. Попробуйте загрузить её ещё раз.</p><button class="button quiet" id="retrySimulation">Повторить</button>';

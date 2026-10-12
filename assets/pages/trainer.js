@@ -1,6 +1,7 @@
 import {CourseUI as C} from '../course-ui.js';
 import {catalog,loaders} from '../arcade/catalog.js';
 import {mountTrainer} from '../arcade/ui.js';
+import {mountGamePresentation,newGameSeed} from '../game-presentation.js';
 const root=document.getElementById('arcadeRoot'),id=new URLSearchParams(location.search).get('game'),meta=catalog.find(m=>m.id===id);
 if(!meta){root.innerHTML=`<h1>Выберите тренажёр</h1><p>Этот адрес не соответствует доступной игре.</p><a href="${C.link('games.html')}">Все тренажёры →</a>`;}
 else{
@@ -8,8 +9,9 @@ else{
   try{
     const game=await loaders[id](),saved=C.data().course?.arcadeGames?.[id];
     if(saved&&!game.validate(saved))throw new Error('Сохранение этой игры не удалось открыть. Оно остаётся в профиле; сделайте копию в настройках.');
-    const state=saved||(id==='hybrid'?game.create(undefined,{modelVersion:3}):['sprint','meeting'].includes(id)?game.create(undefined,{modelVersion:2}):game.create(id+'-1'));
+    const state=saved||(id==='hybrid'?game.create(undefined,{modelVersion:3}):['sprint','meeting'].includes(id)?game.create(undefined,{modelVersion:2}):game.create(newGameSeed()));
     function save(next){C.save(d=>{if(!d.course)d.course={};if(!d.course.arcadeGames)d.course.arcadeGames={};d.course.arcadeGames[id]=next;});}
+    if(!saved)save(state);
     function restart(seed,{modern=false}={}){C.save(d=>{if(!d.course)d.course={};if(!d.course.arcadeGames)d.course.arcadeGames={};if(!d.course.arcadeArchives)d.course.arcadeArchives={};const previous=d.course.arcadeGames[id];if(previous)d.course.arcadeArchives[id]=[...(d.course.arcadeArchives[id]||[]),previous].slice(-10);d.course.arcadeGames[id]=game.create(seed,{modelVersion:id==='hybrid'&&(modern||state.modelVersion===3)?3:['sprint','meeting'].includes(id)&&(modern||state.modelVersion===2)?2:undefined});});location.reload();}
     const options={root,meta,game,state,onSave:save,onRestart:restart,link:C.link,notify:C.U.notify,onExperiment:draft=>C.save(d=>d.worksheets.newExperiment=draft)};
     let ui;
@@ -40,6 +42,12 @@ else{
       if(id==='sprint'){const button=document.createElement('button');button.type='button';button.className='button quiet';button.textContent='Новое дело: два спринта под цель';button.onclick=()=>restart(undefined,{modern:true});root.append(button);}
       if(id==='meeting'){const button=document.createElement('button');button.type='button';button.className='button quiet';button.textContent='Новое дело: проверить решение исполнением';button.onclick=()=>restart(undefined,{modern:true});root.append(button);}
     }
-    window.addEventListener('pagehide',()=>ui.dispose(),{once:true});
+    let domains=[],domainOf;
+    if(id==='hybrid'){const data=await import('../approach/contexts.js');domains=data.domains.map(d=>({id:d.id,name:d.name}));domainOf=seed=>game.create(seed,{modelVersion:3}).project.domain;}
+    if(id==='sprint'){const data=await import('../sprint-goal/domains.js');domains=data.domains.map(d=>({id:d.id,name:d.name}));domainOf=seed=>game.create(seed,{modelVersion:2}).scenario.domain;}
+    if(id==='meeting'){const data=await import('../meeting-decision/cases.js');domains=data.cases.map(d=>({id:d.id,name:d.domain}));domainOf=seed=>game.create(seed,{modelVersion:2}).scenario.id;}
+    const random=['hybrid','sprint','meeting','ethics','versions','flow'].includes(id);
+    const disposePresentation=mountGamePresentation({seed:state.seed,onRestart:restart,domains,domainOf,random,newOptions:{modern:['hybrid','sprint','meeting'].includes(id)},note:id==='ethics'||id==='versions'?'Авторская причинная модель с двумя seeded-вариантами. Новый seed может снова выбрать тот же вариант.':undefined});
+    window.addEventListener('pagehide',()=>{ui.dispose();disposePresentation();},{once:true});
   }catch(error){root.innerHTML=`<h1>${C.esc(meta.title)}</h1><p role="alert">${C.esc(error.message)}</p><div class="workspace-links"><a href="${C.link('settings.html')}">Настройки и копия данных →</a><a href="${C.link('games.html')}">Каталог →</a></div>`;}
 }

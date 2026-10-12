@@ -2,7 +2,7 @@ const {test,expect}=require('@playwright/test');
 const {createState}=require('../../assets/game/state.js'),{act,advance}=require('../../assets/game/engine.js'),{tasks}=require('../../assets/game/project.js');
 const {openLegacy}=require('../helpers/approach-runs.cjs');
 test('entire editorial catalogue works without JavaScript and has two visual features',async({browser,baseURL})=>{
-  const context=await browser.newContext({javaScriptEnabled:false,baseURL}),page=await context.newPage();await page.goto('/games.html');await expect(page.locator('.training-game')).toHaveCount(12);await expect(page.locator('.game-feature')).toHaveCount(2);await expect(page.locator('.game-group')).toHaveCount(3);await expect(page.locator('input[type=search]')).toHaveCount(0);
+  const context=await browser.newContext({javaScriptEnabled:false,baseURL}),page=await context.newPage();await page.goto('/games.html');await expect(page.locator('.training-game')).toHaveCount(13);await expect(page.locator('.game-feature')).toHaveCount(2);await expect(page.locator('.game-group')).toHaveCount(3);await expect(page.locator('input[type=search]')).toHaveCount(0);
   await expect(page.locator('[data-game=hybrid]')).toContainText('Hybrid');await page.locator('[data-game=hybrid] a').click();await expect(page).toHaveURL(/game=hybrid/);await context.close();
 });
 test('Hybrid Lab compares real route changes, resumes both condition sets and carries a next step',async({page})=>{
