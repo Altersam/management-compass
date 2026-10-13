@@ -68,6 +68,6 @@ export function act(state,a){
     }else throw new Error('Действие не найдено.');
     if(!['move'].includes(a.type))after(s);
   }
-  s.commands.push(structuredClone(a));return s;
+  s.commands.push(structuredClone(Object.fromEntries(Object.entries(a).filter(([,value])=>value!==undefined))));return s;
 }
 export function validate(saved){try{if(!saved||saved.revision!==1||saved.modelVersion!==2||typeof saved.seed!=='string'||!Array.isArray(saved.commands)||saved.commands.length>350)return false;let expected=create(saved.seed);for(const a of saved.commands)expected=act(expected,a);return Object.keys(expected).every(k=>JSON.stringify(expected[k])===JSON.stringify(saved[k]));}catch(_){return false;}}
