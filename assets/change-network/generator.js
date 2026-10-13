@@ -5,8 +5,8 @@ import {validateScenario} from './validator.js';
 export function generateScenario(seed){
   const choose=randomFrom(seed),t=templates[Math.floor(choose()*templates.length)],variant=Math.floor(choose()*3);
   for(let attempt=0;attempt<20;attempt++){
-    const r=randomFrom(seed+'#'+attempt),count=6+Math.floor(r()*3),topology=t.topologies[variant],net=generateNetwork(count,topology,r,variant),nodeNames=t.groups.slice(0,count);
-    if(t.id==='merge'){const split=Math.ceil(count/2);nodeNames.splice(0,count,...t.groups.slice(0,split),...t.groups.slice(4,4+count-split));}
+    const r=randomFrom(seed+'#'+attempt),count=6+Math.floor(r()*5),topology=t.topologies[variant],net=generateNetwork(count,topology,r,variant),nodeNames=[...t.groups,'Локальная группа','Периферия'].slice(0,count);
+    if(t.id==='merge'){const split=Math.ceil(count/2),a=[...t.groups.slice(0,4),'Новые участники А'],b=[...t.groups.slice(4),'Новые участники Б'];nodeNames.splice(0,count,...a.slice(0,split),...b.slice(0,count-split));}
     else if(net.hub===count-1)nodeNames[net.hub]=t.groups[7];
     const nodes=nodeNames.map((name,i)=>{
       const barrier=t.barriers[(i+variant)%t.barriers.length],base={id:'node-'+i,name,role:i===0?'Спонсор изменения':i===net.hub?'Центр профессионального / неформального влияния':'Рабочая группа',...net.positions[i],influence:i===net.hub?5:i===0?4:2+Math.floor(r()*3),barrier,barrierKnown:false,support:35+r()*20,adoption:18+r()*18,commitment:30+r()*20,trust:45+r()*18,capability:55+r()*15,capacity:55+r()*15,fatigue:12+r()*12,latentResistance:18+r()*12,compliance:20+r()*15,champion:false,resolved:false,uses:{},touched:false,pilot:false};

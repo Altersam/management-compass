@@ -71,6 +71,7 @@
   [data-game-ui] main :is(.network-now,.network-diagnosis,.network-messages,.network-primary-actions em,.network-more-tools em,.network-final-metrics,.network-consolidation li){background:var(--game-soft);border-color:var(--game-secondary)}
   [data-game-ui] main .network-action-dots i{background:var(--game-secondary)}[data-game-ui] main .network-action-dots i.used{background:var(--game-line)}
   [data-game-ui] main .organization-map .network-node-symbol{fill:var(--game-ink)}
+  [data-game-ui] main .network-grade{color:var(--game-secondary)}[data-game-ui] main .network-grade[data-grade=D],[data-game-ui] main .network-grade[data-grade=F]{color:var(--game-accent)}
   [data-game-ui] main dialog{background:var(--game-paper);color:var(--game-ink);border-color:var(--game-line);box-shadow:var(--shadow)}
   [data-game-ui] main dialog::backdrop{background:#101b3299}
   [data-game-ui] main :focus-visible{outline-color:var(--game-secondary)}
