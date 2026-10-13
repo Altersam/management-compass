@@ -18,6 +18,7 @@ export function applyIntervention(s,id){
     }else if(id==='pressure'){
       add(n,'compliance',24*diminish);add(n,'adoption',14*diminish);
       const ready=n.resolved&&n.trust>=60&&n.commitment>=55&&n.latentResistance<35;
+      fit=ready;
       if(ready){add(n,'commitment',5*diminish);add(n,'fatigue',3);message=`${n.name}: короткий срок помог готовой группе завершить переход.`;}
       else {add(n,'commitment',-13);add(n,'trust',-10);add(n,'latentResistance',18);add(n,'fatigue',10);message=`${n.name}: контроль поднял формальное выполнение, но не снял барьер.`;}
     }else{

@@ -1,7 +1,7 @@
 import {metrics} from './adoption.js';
 export function report(s){
   const m=metrics(s.nodes,s.scenario.threshold),diagnostics=s.nodes.filter(n=>n.barrierKnown),actions=s.interventions.filter(a=>a.action!=='diagnose'),fit=actions.length?actions.filter(a=>a.fit).length/actions.length:0,centres=s.nodes.filter(n=>n.influence>=4),centreWork=centres.filter(n=>n.barrierKnown&&n.commitment>=55).length/centres.length;
-  const pressure=actions.filter(a=>a.action==='pressure').length,touched=s.nodes.filter(n=>n.touched).length,efficiency=s.nodes.some(n=>!n.touched&&n.adoption>=s.scenario.threshold)?1:.5;
+  const pressure=actions.filter(a=>a.action==='pressure'&&!a.fit).length,touched=s.nodes.filter(n=>n.touched).length,efficiency=s.nodes.some(n=>!n.touched&&n.adoption>=s.scenario.threshold)?1:.5;
   const before=s.history[3]?.metrics.accepted||0,corrected=s.history.length>=4&&s.history[3].metrics.accepted>s.history[0].metrics.accepted;
   const points=m.accepted/s.nodes.length*30+Math.min(1,diagnostics.length/3)*20+fit*20+centreWork*15+Math.max(0,10-pressure*2)+efficiency*5+(corrected?4:0);
   const diagnoses=[];
