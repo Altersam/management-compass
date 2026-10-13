@@ -1,0 +1,3 @@
+export function policyOpen(s,st,t){if(st.ruleChanged&&t.typical&&['standard','daily'].includes(st.routeRule))return true;if(st.policy?.type==='calendar')return Math.ceil(s.tick/4)%5===st.policy.day%5;return true;}
+export function ordered(s,st){const eligible=st.queue.filter(t=>t.availableAt<=s.tick);if(!s.expedite||s.fairPriority)return eligible.sort((a,b)=>a.createdAt-b.createdAt);return eligible.sort((a,b)=>(a.priority==='urgent'?0:1)-(b.priority==='urgent'?0:1)||a.createdAt-b.createdAt);}
+export function stageQuota(st,eligible,quota){if(st.batchRule<=1||st.ruleChanged)return quota;const oldest=eligible.length?Math.max(...eligible.map(t=>t.age)):0;if(eligible.length<st.batchRule&&oldest<3)return 0;return quota;}

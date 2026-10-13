@@ -1,0 +1,3 @@
+import {randomFrom} from '../sprint-goal/random.js';
+export function needsRework(s,st,t){const removedRisk=t.latentRisk&&s.tick>=s.unsafeAt+6?.38:0,rate=Math.min(.65,st.defectRate*(s.qualityFactor||1)+removedRisk);return rate>0&&randomFrom(s.seed+'#defect#'+t.id+'#'+st.id+'#'+t.reworkCount)()<rate;}
+export function returnTask(s,st,t){t.reworkCount++;t.latentRisk=false;if(t.reworkCount>2){t.currentStage='quarantine';s.quarantine.push(t);s.moves.push({id:t.id,from:st.id,to:'quarantine',rework:true});return;}const target=s.stages.find(x=>x.id===st.reworkTarget&&!x.removed)||s.stages.find(x=>!x.removed);t.currentStage=target.id;t.availableAt=s.tick+1;t.lastMovedAt=s.tick;t.blocked=false;target.queue.push(t);s.moves.push({id:t.id,from:st.id,to:target.id,rework:true});}
