@@ -1,5 +1,6 @@
 import {barriers} from './barriers.js';
 import {topologies} from './network.js';
+import {witnessScenario} from './witness.js';
 export function validateScenario(s){
   const errors=[],ids=new Set(s.nodes.map(n=>n.id));
   if(s.nodes.length<6||s.nodes.length>10||ids.size!==s.nodes.length||!topologies.includes(s.topology))errors.push('network-size');
@@ -12,5 +13,6 @@ export function validateScenario(s){
   if(!s.edges.some(e=>e.hidden)||s.edges.filter(e=>e.hidden).length>2)errors.push('hidden-links');
   if(!s.edges.some(e=>e.from===s.hub&&e.weight>.6)||s.waves!==4||s.actionsPerWave<3||s.actionsPerWave>5)errors.push('strategy');
   if(s.templateId==='merge'&&(s.topology!=='two_camps'||!s.nodes.some(n=>n.barrier==='status')||!s.edges.some(e=>e.from!==e.to)))errors.push('merge-invariant');
+  if(!errors.length&&!witnessScenario(s).feasible)errors.push('no-feasible-strategy');
   return {valid:!errors.length,errors};
 }

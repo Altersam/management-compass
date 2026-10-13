@@ -15,7 +15,7 @@ export function generateNetwork(count,topology,r,variant){
   // A named peer connects centres. Strong directed outgoing influence need not be reciprocal.
   const hub=topology==='hierarchy'?count-1:topology==='hub_and_spoke'?0:variant===1?Math.ceil(count/2):count-1;
   for(let i=0;i<count;i++)if(i!==hub)add(hub,i,'informal',.62+r()*.16);
-  const candidates=edges.filter(e=>e.type==='informal'&&e.from==='node-'+hub);
+  const informal=edges.filter(e=>e.type==='informal'&&e.from==='node-'+hub),candidates=informal.length?informal:edges.filter(e=>e.from==='node-'+hub);
   if(candidates.length)candidates[Math.floor(r()*candidates.length)].hidden=true;
   if(variant===2&&candidates.length>1)candidates.find(e=>!e.hidden).hidden=true;
   const conflictFrom=topology==='two_camps'?0:1,conflictTo=topology==='two_camps'?Math.ceil(count/2):Math.min(3,count-1);add(conflictFrom,conflictTo,'conflict',.35);
