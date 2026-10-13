@@ -1,0 +1,6 @@
+export function processModel(t,variant){
+  const total=100,excluded=t.id==='support'?[35,40,45][variant]:t.id==='sales'?[38,44,49][variant]:t.id==='education'?[18,22,26][variant]:[22,30,38][variant],pending=t.id==='support'?20:[12,17,22][variant],bad=t.outcome[3]==='%'&&t.outcome[4]==='up'?Math.round(100-t.outcome[2]):[17,23,29][variant];
+  const counted=total-excluded,slow=t.id==='support'?10:Math.max(5,Math.round(counted*.2)),fast=counted-slow;
+  return {total,excluded,pending,bad,counted,fast,slow,groups:[{id:'fast',count:fast,value:12,label:'Быстрые закрытые в системе',included:true},{id:'slow',count:slow,value:50,label:'Сложные закрытые в системе',included:true},{id:'outside',count:excluded-pending,value:90,label:'Закрытые письма',included:false},{id:'pending',count:pending,value:120,label:'Незакрытые письма · нижняя граница',included:false}]};
+}
+export function processView(s){return {input:s.scenario.process.total+' '+s.scenario.input,stage:s.scenario.stage,revealed:s.revealed,distribution:s.exhibits.includes('distribution')?s.scenario.distribution:null,cards:s.exhibits.includes('cards')?s.scenario.caseCards:[],context:s.exhibits.includes('context')?s.scenario.context:null,staff:s.exhibits.includes('staff')?s.scenario.staff:null,decoy:s.exhibits.includes('decoy')?s.scenario.decoy:null};}

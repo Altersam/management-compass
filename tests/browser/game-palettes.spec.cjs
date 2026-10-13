@@ -11,7 +11,7 @@ test('case selection filters real domains and repeats preserve the same scenario
 });
 test('fixed case buttons are explicit and the missing story is discoverable without engine preloading',async({page})=>{
   const loaded=[];page.on('request',r=>loaded.push(r.url()));await page.goto('/games.html');await expect(page.locator('.training-game')).toHaveCount(13);expect(loaded.some(url=>url.includes('simulation-engine.js'))).toBe(false);await page.locator('#legacySimulationEntry').click();await expect(page.locator('#makeSimulationDecision')).toBeVisible();
-  await page.goto('/trainer.html?game=metrics');await page.locator('.game-case-browser>summary').click();await expect(page.locator('.game-case-options')).toContainText('Авторский кейс');await expect(page.locator('[data-case-action=new]')).toHaveCount(0);
+  await page.goto('/trainer.html?game=metrics');await page.locator('.game-case-browser>summary').click();await expect(page.locator('#gameCaseDomain option')).toHaveCount(25);await expect(page.locator('[data-case-action=new]')).toBeVisible();
 });
 test('theme visual audit captures modern and authored games in both palettes and viewport sizes',async({page})=>{
   test.setTimeout(90000);

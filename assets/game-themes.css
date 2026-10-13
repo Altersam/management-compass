@@ -89,6 +89,25 @@
   [data-game-ui] main .meaning-tree .meaning-symbol.waiting{fill:#f4f6fc}
   [data-game-ui] main .meaning-grade{color:var(--game-secondary)}[data-game-ui] main .meaning-grade[data-grade=D],[data-game-ui] main .meaning-grade[data-grade=F]{color:var(--game-accent)}
   [data-game-ui] main dialog{background:var(--game-paper);color:var(--game-ink);border-color:var(--game-line);box-shadow:var(--shadow)}
+  [data-game-ui] main :is(.mi-panel,.mi-probes button,.mi-choices button){background:var(--game-paper);border-color:var(--game-line);box-shadow:var(--shadow)}
+  [data-game-ui] main .mi-hero{background:var(--game-board);border-color:var(--game-line)}
+  [data-game-ui] main .mi-headline-values b,[data-game-ui] main .mi-success{color:#1c704f}
+  :root[data-theme=dark] [data-game-ui] main .mi-headline-values b,:root[data-theme=dark] [data-game-ui] main .mi-success{color:#8cdeb5}
+  [data-game-ui] main .mi-controls .button.primary{background:var(--game-secondary);color:var(--game-on-accent);border-color:var(--game-secondary)}
+  [data-game-ui] main :is(.mi-process,.mi-period-field){background:#15243d;color:#f4f6fc;border-color:#8297b2}
+  [data-game-ui] main :is(.mi-process,.mi-period-field) :is(h2,h3,h4,p,b,strong,span,small,summary,li){color:#f4f6fc}
+  [data-game-ui] main :is(.mi-flow-node,.mi-layer,.mi-case-cards article,.mi-distribution article,.mi-period-readings article){background:#243955;border-color:#8297b2}
+  [data-game-ui] main .mi-layer.revealed{border-color:#efa3c7;background:#343047}
+  [data-game-ui] main :is(.mi-observation,.mi-outcome-fact,.mi-comparison-fact,.mi-period-behaviour){background:#243955;border-color:#8eb5fb}
+  [data-game-ui] main .mi-period-chart text{fill:#c0d0e5}
+  [data-game-ui] main .mi-period-legend .reported,[data-game-ui] main .mi-period-readings .reported h3{color:var(--mi-report)}
+  [data-game-ui] main .mi-period-legend .real,[data-game-ui] main .mi-period-readings .real h3{color:var(--mi-reality)}
+  [data-game-ui] main .mi-period-legend .gaming,[data-game-ui] main .mi-period-readings .gaming h3{color:var(--mi-gaming)}
+  [data-game-ui] main .mi-layer.revealed{border-color:var(--mi-reality)}
+  [data-game-ui] main .mi-comparison-fact{border-color:var(--mi-suspect)}
+  [data-game-ui] main .mi-flow-return,[data-game-ui] main .mi-flow-transfer{background:#243955;border-color:var(--mi-reality);color:#f4f6fc}
+  [data-game-ui] main :is(.mi-selected-measure,.mi-final-compare article,.mi-lesson){background:var(--game-soft)}
+  [data-game-ui] main .mi-grade{color:var(--game-secondary)}[data-game-ui] main .mi-grade[data-grade=D],[data-game-ui] main .mi-grade[data-grade=F]{color:var(--game-accent)}
   [data-game-ui] main :is(.route-panel,.route-actions button,.route-intro>button,.route-decision>button,.route-end-actions button){background:var(--game-paper);border-color:var(--game-line);box-shadow:var(--shadow)}
   [data-game-ui] main :is(.route-goal,.route-board){background:var(--game-board);border-color:var(--game-line)}
   [data-game-ui] main :is(.route-now,.route-decider-card,.route-endorser-list li,.route-decision-steps li,.route-lesson){background:var(--game-soft);border-color:var(--game-secondary)}

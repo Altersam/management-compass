@@ -1,4 +1,5 @@
 const {test,expect}=require('@playwright/test'),AxeBuilder=require('@axe-core/playwright').default;
+test.beforeEach(async({page})=>require('../helpers/metric-investigation-runs.cjs').openLegacy(page));
 for(const theme of ['light','dark'])test('metrics intermediate facts, correction and narrative are accessible: '+theme,async({page})=>{
   test.setTimeout(90000);await page.addInitScript(theme=>localStorage.setItem('manager-almanac:theme',theme),theme);await page.setViewportSize({width:390,height:844});await page.goto('/trainer.html?game=metrics');
   const check=async stage=>{const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(result.violations.map(v=>({stage,id:v.id,nodes:v.nodes.map(n=>n.target)}))).toEqual([]);};
