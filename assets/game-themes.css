@@ -78,6 +78,16 @@
   [data-game-ui] main .organization-map .network-edge line{stroke:var(--map-line)}[data-game-ui] main .organization-map .network-edge.related line{stroke:var(--map-secondary)}[data-game-ui] main .organization-map .network-edge.spreading line{stroke:var(--map-accent)}
   [data-game-ui] main .organization-map marker path{fill:var(--map-line)}
   [data-game-ui] main .network-messages:empty{display:none}
+  [data-game-ui] main :is(.meaning-panel,.meaning-current-slots button,.meaning-channels button){background:var(--game-paper);border-color:var(--game-line);box-shadow:var(--shadow)}
+  [data-game-ui] main :is(.meaning-goal,.meaning-board){background:var(--game-board);border-color:var(--game-line)}
+  [data-game-ui] main :is(.meaning-now,.meaning-route,.meaning-execution li){background:var(--game-soft);border-color:var(--game-secondary)}
+  [data-game-ui] main .meaning-warning{background:var(--game-accent-soft);border-color:var(--game-accent)}
+  [data-game-ui] main .meaning-tree-scroll{background:#15243d;border-color:#8297b2}
+  [data-game-ui] main .meaning-tree :is(.meaning-stage,.meaning-slot-label){fill:#c0d0e5}[data-game-ui] main .meaning-tree .meaning-root-text{fill:#f4f6fc}
+  [data-game-ui] main .meaning-tree .meaning-symbol{fill:#15243d}[data-game-ui] main .meaning-tree .meaning-symbol:is(.blurry,.lost,.replaced,.phantom,.absent,.pending){fill:#f4f6fc}
+  [data-game-ui] main .meaning-tree .meaning-event{fill:#ffb16c}
+  [data-game-ui] main .meaning-tree .meaning-symbol.waiting{fill:#f4f6fc}
+  [data-game-ui] main .meaning-grade{color:var(--game-secondary)}[data-game-ui] main .meaning-grade[data-grade=D],[data-game-ui] main .meaning-grade[data-grade=F]{color:var(--game-accent)}
   [data-game-ui] main dialog{background:var(--game-paper);color:var(--game-ink);border-color:var(--game-line);box-shadow:var(--shadow)}
   [data-game-ui] main dialog::backdrop{background:#101b3299}
   [data-game-ui] main :focus-visible{outline-color:var(--game-secondary)}

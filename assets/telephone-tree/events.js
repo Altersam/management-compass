@@ -1,3 +1,4 @@
+import {roleFilters} from './channels.js';
 export const eventDefinitions=[
   {id:'sick',title:'Больничный ответственного',text:'Поручение принимает заместитель, который не знает часть предыдущего обсуждения.',affected:['owner','criteria','context'],options:[['asIs','Передать как есть','Сохранить ресурс; вводная заместителя будет короче.',0],['handoff','Короткая передача дел','Сверить рамки и ответственность перед продолжением.',1]]},
   {id:'vacation',title:'Неожиданный отпуск',text:'Участник уходит раньше планового окна и спешит передать дела.',affected:['goal','constraint','context'],options:[['asIs','Переслать переписку','Сохранить темп, принимая сокращённое понимание.',0],['handoff','Структурированная передача','Зафиксировать цель, рамки и состояние работы.',1],['wait','Перенести передачу','Уменьшить шум, но принять задержку.',0]]},
@@ -15,6 +16,8 @@ export const eventDefinitions=[
 export function resolveEvent(s,choice){
   const event=s.pendingEvent,def=event&&eventDefinitions.find(d=>d.id===event.id),option=def?.options.find(o=>o[0]===choice);if(!option)throw new Error('Вариант события недоступен.');if(s.resource<option[3])throw new Error('Не осталось ресурса фиксации.');s.resource-=option[3];
   s.eventEffect={noise:{},disabled:[],replace:null,phantom:false};
+  const replacements={sick:['Заместитель',null],replacement:['Новый исполнитель','executor'],'new-leader':['Новый руководитель','head'],'new-contractor':['Новый подрядчик','contractor']};
+  if(replacements[def.id]){const [name,role]=replacements[def.id];s.eventEffect.receiverLabel=name;if(role)s.eventEffect.receiverBias={...roleFilters[role].bias};}
   const safe=['handoff','verify','wait'].includes(choice);for(const id of def.affected)s.eventEffect.noise[id]=safe?.01:.13;
   if(choice==='wait')s.delay++;
   if(def.id==='cancel'&&choice!=='handoff'){s.eventEffect.disabled=['sync'];s.channel=choice==='talk'?'talk':'email';if(!s.resource)s.channel='talk';}

@@ -26,7 +26,7 @@ export function act(state,a){
     if(s.paused)throw new Error('Проигрывание на паузе.');
     if(s.phase==='transfer'){
       const frame=s.animation.frames[s.animation.index];s.packet[frame.slot]=structuredClone(frame.after);s.animation.index++;
-      if(s.animation.index===s.animation.frames.length){const before=s.animation.before,channel=s.animation.channel;s.step++;s.turn=s.step;accumulateDamage(s);s.transfers.push({step:s.step,channel,before,after:structuredClone(s.packet)});s.history.push(snapshot(s,s.scenario.roles[s.step].name));s.animation=null;s.eventEffect=null;s.messages.push('Передача '+s.step+': проверьте, какие части конструкции изменились.');nextPhase(s);}
+      if(s.animation.index===s.animation.frames.length){const before=s.animation.before,channel=s.animation.channel,receiver=s.eventEffect?.receiverLabel||s.scenario.roles[s.step+1].name;s.step++;s.turn=s.step;accumulateDamage(s);s.transfers.push({step:s.step,channel,before,after:structuredClone(s.packet)});s.history.push(snapshot(s,receiver));s.animation=null;s.eventEffect=null;s.messages.push('Передача '+s.step+': проверьте, какие части конструкции изменились.');nextPhase(s);}
     }else if(s.phase==='execution'){
       s.execution.push(executionPlan(s)[s.execution.length]);if(s.execution.length===3){s.result=score(s);s.phase='report';}
     }else throw new Error('Проигрывание не идёт.');

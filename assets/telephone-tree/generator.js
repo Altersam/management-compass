@@ -17,6 +17,10 @@ export function generateScenario(seed){
     events.sort((a,b)=>a.step-b.step);
     const s={templateId:t.id,title:t.title,domain:t.domain,archetype:t.archetype,brief:t.brief,variationId:variant,variationText:t.variations[variant],original,blurry:{goal:'Подготовить рабочий результат по общей вводной',deadline:`К ${['пятнице','понедельнику','четвергу'][variant]}`,owner:'Владелец приёмки уточняется',criteria:t.weakCriteria,constraint:'По возможности '+t.constraint.toLowerCase(),priority:'Приоритеты определить по ситуации',context:'Результат нужен для следующего этапа'},replacements:{goal:t.wrongGoal,deadline:'Как можно скорее',owner:'Текущий исполнитель принимает результат сам',criteria:'Формальная готовность достаточна: '+t.weakCriteria.toLowerCase(),constraint:t.wrongConstraint,priority:'Главное — сделать быстрее',context:'Дальнейший объём уже утверждён, отдельная проверка решения не нужна'},critical:[...t.critical],roles,events,resource:4+Math.floor(r()*2),clarifications:3,noise:.005+r()*.035,generationAttempt:attempt};
     s.lethalConstraint=['pilot','incident','analytics','event','move','trip','scientific-event','repair','consultation','website','software'].includes(t.id);
+    s.deadlineSlack=['incident','event'].includes(t.id)?0:variant;
+    if(t.id==='incident'){s.original.deadline='Сегодня до '+[16,12,18][variant]+':00';s.blurry.deadline='Сегодня';}
+    if(variant===1&&!s.critical.includes('owner'))s.critical.push('owner');
+    if(variant===2&&!s.critical.includes('context'))s.critical.push('context');
     if(validateScenario(s).valid)return s;
   }throw new Error('Не удалось собрать разрешимое поручение.');
 }

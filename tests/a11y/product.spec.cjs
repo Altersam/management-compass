@@ -46,7 +46,7 @@ for(const theme of ['dark','light'])test.describe(theme+' theme',()=>{
   });
   test('saved arcade results retain accessible final and self-review controls',async({page})=>{
     test.setTimeout(180000);const {ids,finishedGame}=require('../helpers/arcade-runs.cjs'),violations=[];
-    for(const id of ids){await page.goto('/trainer.html?game='+id);await expect(page.locator('#arcadeBoard')).not.toBeEmpty();await page.evaluate(({id,state})=>{if(['hybrid','sprint','meeting','ethics','change'].includes(id))sessionStorage.setItem('management-compass:legacy-view:'+id,state.seed);Workspace.update(Workspace.active(),d=>{d.course.arcadeGames??={};d.course.arcadeGames[id]=state;});},{id,state:finishedGame(id)});await page.reload();await expect(page.locator('#arcadeResult')).toBeVisible();
+    for(const id of ids){await page.goto('/trainer.html?game='+id);await expect(page.locator('#arcadeBoard')).not.toBeEmpty();await page.evaluate(({id,state})=>{if(['hybrid','sprint','meeting','ethics','change','telephone'].includes(id))sessionStorage.setItem('management-compass:legacy-view:'+id,state.seed);Workspace.update(Workspace.active(),d=>{d.course.arcadeGames??={};d.course.arcadeGames[id]=state;});},{id,state:finishedGame(id)});await page.reload();await expect(page.locator('#arcadeResult')).toBeVisible();
       for(const width of [1440,375]){await page.setViewportSize({width,height:1000});violations.push(...await check(page,'arcade final '+id+' '+width));expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),id+' final '+width).toBe(true);}
     }expect(violations).toEqual([]);
   });

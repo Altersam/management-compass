@@ -3,4 +3,8 @@
   @media(max-width:1000px){.meaning-layout{grid-template-columns:minmax(0,1fr)}.meaning-board{grid-row:2}.meaning-sidebar{grid-row:1}}
   @media(max-width:540px){.meaning-telephone-game{padding:12px}.meaning-goal{padding:18px}.meaning-goal h1{font-size:23px}.meaning-panel,.meaning-board{padding:16px}.meaning-final-grid{grid-template-columns:1fr}.meaning-end-actions .button{flex:1}.meaning-tree{min-width:650px}.meaning-channels button{padding:10px}}
   @media(prefers-reduced-motion:reduce){.meaning-telephone-game *{animation:none;transition:none;scroll-behavior:auto}}
+  .meaning-current-slots button p,.meaning-current-slots button small{display:none}.meaning-current-slots button[aria-pressed=true] p,.meaning-current-slots button[aria-pressed=true] small{display:block}
+  .meaning-current-slots button{padding:9px 11px}.meaning-current-slots button>b{font-size:11px}.meaning-current-slots button>span{margin-top:3px}
+  .meaning-table :is(th,td){padding:4px 6px}.meaning-table button{padding:3px;line-height:1.25}.meaning-table b{font-size:15px;line-height:1.25}.meaning-table small{font-size:9px;line-height:1.25}
+  .meaning-segment.waiting{stroke:#8297b2;stroke-dasharray:3 6}.meaning-point.waiting{fill:#243c59;stroke:#8297b2}
 }
