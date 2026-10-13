@@ -29,7 +29,7 @@ export function mountEthicsDossier({root,state:initial,onSave,onRestart,link,not
     else if(state.phase==='dossier')root.innerHTML=goal()+now()+`<p class="dossier-context">${esc(state.scenario.context)} ${esc(state.scenario.variationText)}</p><div class="dossier-layout" id="arcadeBoard">${cards()}<div class="dossier-center">${basis()}</div><div class="dossier-side">${decisionPanel()}</div></div>`;
     else root.innerHTML=goal()+(state.phase==='protection'?protection():['consequences','future'].includes(state.phase)?timeline():final());
     root.querySelectorAll('details').forEach(d=>{if(open.has(d.querySelector('summary')?.textContent))d.open=true;});
-    if(focus?.dossierAction)root.querySelector(`[data-dossier-action="${focus.dossierAction}"]${focus.id?`[data-id="${focus.id}"]`:''}`)?.focus({preventScroll:true});
+    if(focus?.dossierAction){let target=root.querySelector(`[data-dossier-action="${focus.dossierAction}"]${focus.id?`[data-id="${focus.id}"]`:''}`);if((!target||target.disabled)&&focus.id){target=root.querySelector(`[data-doc-id="${focus.id}"] h3`);if(target)target.tabIndex=-1;}target?.focus({preventScroll:true});}
     const grade=root.querySelector('.dossier-grade');if(grade)grade.dataset.grade=state.result.grade;clock?.sync();
   }
   function click(e){const b=e.target.closest('[data-dossier-action]');if(!b)return;const type=b.dataset.dossierAction;

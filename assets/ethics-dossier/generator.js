@@ -17,6 +17,11 @@ export function generateScenario(seed){
     const futureIndex=Math.floor(r()*template.future.length),impact=futureImpacts[template.id][futureIndex];
     const scenario={templateId:template.id,title:template.title,domain:template.domain,variation:variant,variationText:format(template.variations[variant]),context:format(template.context),decisionDate:`${params.day} ${params.month}`,archetypes:[...template.archetypes],checks:2+Math.floor(r()*3),documents:shuffle(generateDocuments(template,variant,params,r,format),r),options,mitigations:structuredClone(mitigations),future:{id:'future-'+futureIndex,text:template.future[futureIndex],impact,favourable:impact==='positive',unavailableAtDecision:true},generationAttempt:attempt};
     scenario.times=['ai-work','deadline','delivery','launch'].includes(template.id)?['Сейчас','Через неделю','Через месяц','Через квартал']:template.id==='grant'?['Сейчас','Через месяц','Через полгода','Через год']:['Сейчас','Через 2 недели','Через 2 месяца','Через 6 месяцев'];
+    scenario.implementation={text:[
+      'Участники приняли рабочую часть решения, но попросили дополнительно объяснить цену выбора другим сторонам.',
+      'Часть участников воспользовалась правом уточнения. Проверка заняла ресурс, даже когда само решение сохранилось.',
+      'Результат проявился медленнее первоначального ожидания; дополнительная координация потребовалась независимо от выбранной позиции.'
+    ][Math.floor(r()*3)]};
     if(validateScenario(scenario).valid)return scenario;
   }throw new Error('Не удалось собрать непротиворечивое этическое дело.');
 }

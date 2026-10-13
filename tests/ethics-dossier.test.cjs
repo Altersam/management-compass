@@ -27,7 +27,7 @@ test('protection changes real consequences and a defended risky choice can have 
   for(const o of s.scenario.options){const plan=consequencePlan(s.scenario,o.id,'checkpoint');assert.ok(plan.some(e=>e.sign==='plus'));assert.ok(plan.some(e=>e.sign==='minus'));}
 });
 test('future outcome never changes the grade; a lucky fragile decision is not rewarded with A',()=>{
-  const s=prepared('future'),before=scoreDecision(s),changed=structuredClone(s);changed.scenario.future={...changed.scenario.future,text:'Совершенно другое внешнее событие.',favourable:!s.scenario.future.favourable,impact:'negative'};assert.deepEqual(scoreDecision(changed),before);
+  const s=prepared('future'),before=scoreDecision(s),changed=structuredClone(s);changed.scenario.future={...changed.scenario.future,text:'Совершенно другое внешнее событие.',favourable:!s.scenario.future.favourable,impact:'negative'};changed.scenario.implementation={text:'Иные условия фактического исполнения.'};assert.deepEqual(scoreDecision(changed),before);
   let weak=act(create('lucky'),{type:'open'});for(const id of ['record','testimony']){weak=act(weak,{type:'read',id});weak=act(weak,{type:'basis',id});}weak=act(weak,{type:'principle',id:'utility'});weak=act(weak,{type:'decision',id:'option_a'});weak=act(weak,{type:'mitigation',id:'recognition'});weak.scenario.future.favourable=true;assert.ok(scoreDecision(weak).grade!=='A');
   assert.equal(futureOutcome(s.scenario,'option_a','independent').unavailableAtDecision,true);
 });

@@ -6,7 +6,7 @@ export function consequencePlan(scenario,decisionId,mitigationId){
     {time:'Сейчас',dimension:'result',sign:'plus',text:option.plus},
     {time:'Через 2 недели',dimension:option.risk,sign:'minus',text:option.minus},
     {time:'Через 2 месяца',dimension:'protection',sign:protection.primaryCovered?'plus':'mixed',text:protection.primaryCovered?`Защитная мера ограничила основной риск: ${mitigation.name.toLowerCase()}. Проверка потребовала дополнительной работы; первоначальная цена выбора не исчезла.`:`Мера «${mitigation.name}» защитила отдельную часть решения, но основной риск выбранного варианта сохранился.`},
-    {time:'Через 6 месяцев',dimension:'longTerm',sign:'mixed',text:option.longTerm}
+    {time:'Через 6 месяцев',dimension:'longTerm',sign:'mixed',text:option.longTerm+' '+(scenario.implementation?.text||'')}
   ].map((e,i)=>({...e,time:scenario.times?.[i]||e.time}));
 }
 export function futureOutcome(scenario,decisionId,mitigationId){
