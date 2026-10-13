@@ -89,6 +89,18 @@
   [data-game-ui] main .meaning-tree .meaning-symbol.waiting{fill:#f4f6fc}
   [data-game-ui] main .meaning-grade{color:var(--game-secondary)}[data-game-ui] main .meaning-grade[data-grade=D],[data-game-ui] main .meaning-grade[data-grade=F]{color:var(--game-accent)}
   [data-game-ui] main dialog{background:var(--game-paper);color:var(--game-ink);border-color:var(--game-line);box-shadow:var(--shadow)}
+  [data-game-ui] main :is(.route-panel,.route-actions button,.route-intro>button,.route-decision>button,.route-end-actions button){background:var(--game-paper);border-color:var(--game-line);box-shadow:var(--shadow)}
+  [data-game-ui] main :is(.route-goal,.route-board){background:var(--game-board);border-color:var(--game-line)}
+  [data-game-ui] main :is(.route-now,.route-decider-card,.route-endorser-list li,.route-decision-steps li,.route-lesson){background:var(--game-soft);border-color:var(--game-secondary)}
+  [data-game-ui] main .route-map-scroll{background:#15243d;border-color:#8297b2}
+  [data-game-ui] main .route-station{background:#243955;color:#f4f6fc;border-color:#8297b2}
+  [data-game-ui] main .route-station[aria-pressed=true]{background:#374e70;color:#f4f6fc;border-color:var(--route-map-accent)}
+  [data-game-ui] main .route-station :is(b,span,small){color:#f4f6fc}
+  [data-game-ui] main .route-station.decider{border-color:#8eb5fb}[data-game-ui] main .route-station.opponent{border-color:#efa3c7}
+  [data-game-ui] main .route-fog{background:#20334e;color:#c0d0e5;border-color:#8297b2}
+  [data-game-ui] main .route-marker{background:#f4f6fc;color:#15243d;border-color:#fff}
+  [data-game-ui] main .route-roads text{fill:#c0d0e5}[data-game-ui] main .route-roads .route-ghost-label{fill:#ff9687}
+  [data-game-ui] main .route-grade{color:var(--game-secondary)}[data-game-ui] main .route-grade[data-grade=F],[data-game-ui] main .route-grade[data-grade=D]{color:var(--game-accent)}
   [data-game-ui] main dialog::backdrop{background:#101b3299}
   [data-game-ui] main :focus-visible{outline-color:var(--game-secondary)}
   [data-game-ui] main svg text{fill:var(--game-muted)}

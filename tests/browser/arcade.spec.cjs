@@ -1,10 +1,11 @@
 const {test,expect}=require('@playwright/test');
 const games=['hybrid','meeting','ethics','change','telephone','versions','metrics','flow','sprint','influence'];
 const {openLegacy}=require('../helpers/approach-runs.cjs');
+test.beforeEach(async({page},info)=>{if(info.title.startsWith('influence builds'))await require('../helpers/influence-route-runs.cjs').openLegacy(page);});
 test.beforeEach(async({page},info)=>{if(info.title.startsWith('flow is a living'))await require('../helpers/sprint-goal-runs.cjs').openLegacy(page);if(info.title.startsWith('meeting obtains'))await require('../helpers/meeting-decision-runs.cjs').openLegacy(page);if(info.title.startsWith('ethics and document'))await require('../helpers/ethics-dossier-runs.cjs').openLegacy(page);if(info.title.startsWith('change lab runs')){await require('../helpers/change-network-runs.cjs').openLegacy(page);await require('../helpers/telephone-tree-runs.cjs').openLegacy(page);}});
 const click=(page,type,value)=>page.locator(`[data-action="${type}"]${value?`[data-value="${value}"]`:''}`).first().click();
 test('all ten games load separate working objects and preserve same product shell',async({page})=>{
-  const errors=[];page.on('pageerror',e=>errors.push(e.message));for(const id of games){await page.goto('/trainer.html?game='+id);await expect(page.locator('#arcadeBoard')).not.toBeEmpty();await expect(page.locator('.product-header>nav a')).toHaveText(['hybrid','sprint','meeting','ethics','change','telephone'].includes(id)?['Все игры']:['Теория','Игры','Ситуация','Техники','Дневник']);}expect(errors).toEqual([]);
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));for(const id of games){await page.goto('/trainer.html?game='+id);await expect(page.locator('#arcadeBoard')).not.toBeEmpty();await expect(page.locator('.product-header>nav a')).toHaveText(['hybrid','sprint','meeting','ethics','change','telephone','influence'].includes(id)?['Все игры']:['Теория','Игры','Ситуация','Техники','Дневник']);}expect(errors).toEqual([]);
 });
 test('Hybrid route can be rearranged and two trials reach a comparison result',async({page})=>{
   await openLegacy(page);await page.locator('[data-route-action=context][data-value=report]').click();await page.locator('[data-route-action=run]').click();await expect(page.locator('.project-trace')).toHaveCount(1);await expect(page.locator('.project-context-picker')).toHaveCount(0);
