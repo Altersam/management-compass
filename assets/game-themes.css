@@ -61,6 +61,11 @@
   [data-game-ui] .games-page .game-feature{padding:22px}
   [data-game-ui] .games-page .game-row{padding:16px 18px}
   [data-game-ui] .games-page .game-rows{gap:10px}
+  [data-game-ui] main :is(.dossier-panel,.dossier-document){background:var(--game-paper);border-color:var(--game-line);box-shadow:var(--shadow)}
+  [data-game-ui] main .dossier-goal{background:var(--game-board);border-color:var(--game-line)}
+  [data-game-ui] main :is(.dossier-now,.dossier-check-result,.dossier-basis-list article,.dossier-timeline li,.dossier-quality article,.dossier-verdicts li,.dossier-bias-note){background:var(--game-soft);border-color:var(--game-secondary)}
+  [data-game-ui] main :is(.dossier-document.in-basis,.dossier-future){background:var(--game-accent-soft);border-color:var(--game-accent)}
+  [data-game-ui] main .dossier-grade{color:var(--game-secondary)}[data-game-ui] main .dossier-grade[data-grade=F],[data-game-ui] main .dossier-grade[data-grade=D]{color:var(--game-accent)}
   [data-game-ui] main dialog{background:var(--game-paper);color:var(--game-ink);border-color:var(--game-line);box-shadow:var(--shadow)}
   [data-game-ui] main dialog::backdrop{background:#101b3299}
   [data-game-ui] main :focus-visible{outline-color:var(--game-secondary)}
