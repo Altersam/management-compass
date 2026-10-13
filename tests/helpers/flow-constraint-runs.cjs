@@ -7,6 +7,7 @@ function intervention(s,strategy='good'){
   else if(c.type==='quality')action={type:'quality',target:st.id,object:guess};
   else if(['policy','batch','priority'].includes(c.type))action={type:'rule',target:st?.id,object:guess};
   else if(c.type==='wip')action={type:'wip',limit:s.scenario.healthyWip,object:'wip'};
+  else if(st.routeRule&&!st.ruleChanged&&strategy==='good')action={type:'rule',target:st.id,object:guess};
   else if(strategy==='reallocate'){const donor=donors(s,st).sort((a,b)=>b.currentCapacity-a.currentCapacity)[0];action=donor?{type:'reallocate',target:st.id,from:donor.id,object:guess}:{type:'capacity',target:st.id,object:guess};}
   else action={type:'capacity',target:st.id,object:guess};
   return {guess,action};
