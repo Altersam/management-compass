@@ -40,6 +40,7 @@ export function mountChangeNetwork({root,state:initial,onSave,onRestart,link,not
     root.querySelectorAll('details').forEach(d=>{if(open.has(d.querySelector('summary')?.textContent))d.open=true;});
     if(focus?.networkAction)root.querySelector(`[data-network-action="${focus.networkAction}"]${focus.id?`[data-id="${focus.id}"]`:''}${focus.value?`[data-value="${focus.value}"]`:''}`)?.focus({preventScroll:true});
     const grade=root.querySelector('.network-grade');if(grade)grade.dataset.grade=state.result.grade;
+    if(['report','ended'].includes(state.phase)&&state.history[3].metrics.use>state.result.metrics.use+5){const observed=root.querySelector('.network-final-metrics p:last-child');if(observed)observed.innerHTML='После снятия поддержки: <b>наблюдался откат</b>';}
     if(state.phase==='event'&&eventShown!==state.pendingEvent.id){eventShown=state.pendingEvent.id;showEvent();}clock?.sync();
   }
   function showEvent(){const d=root.querySelector('#networkEventDialog');if(d&&!d.open)d.showModal();d?.querySelector('[data-choice]')?.focus();}

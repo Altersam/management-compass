@@ -39,7 +39,7 @@ test('state-driven events are limited, contain choices and do not fire without t
 test('targeted network strategies survive withdrawal without touching every group; training and pressure are not universal victories',()=>{
   let failedPressure=0,failedTraining=0,indirect=0;
   for(let i=0;i<30;i++){
-    const {s}=strategy('strategy-'+i);assert.equal(s.history.length,4);assert.equal(s.followup.length,2);assert.ok(s.result.metrics.accepted>=Math.ceil(s.nodes.length*.6));assert.ok(['A','B'].includes(s.result.grade));assert.ok(validate(s));if(s.nodes.some(n=>!n.touched&&stable(n,s.scenario.threshold)))indirect++;
+    const {s}=strategy('strategy-'+i);assert.equal(s.history.length,4);assert.equal(s.followup.length,2);assert.ok(s.result.metrics.accepted>=Math.ceil(s.nodes.length*.6));assert.ok(['A','B'].includes(s.result.grade));assert.ok(validate(s));if(s.nodes.some(n=>!n.touched&&stable(n,s.scenario.threshold)&&!stable(s.scenario.nodes.find(initial=>initial.id===n.id),s.scenario.threshold)))indirect++;
     const p=strategy('strategy-'+i,'pressure'),t=strategy('strategy-'+i,'train');if(p.s.result.metrics.accepted<Math.ceil(p.s.nodes.length*.6))failedPressure++;if(t.s.result.metrics.accepted<Math.ceil(t.s.nodes.length*.6))failedTraining++;
     for(const n of p.s.nodes)for(const key of ['support','adoption','trust','commitment','capability','capacity','fatigue','latentResistance','compliance'])assert.ok(Number.isFinite(n[key])&&n[key]>=0&&n[key]<=100);
   }assert.ok(indirect>0);assert.ok(failedPressure>0);assert.ok(failedTraining>0);

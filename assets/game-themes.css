@@ -72,6 +72,12 @@
   [data-game-ui] main .network-action-dots i{background:var(--game-secondary)}[data-game-ui] main .network-action-dots i.used{background:var(--game-line)}
   [data-game-ui] main .organization-map .network-node-symbol{fill:var(--game-ink)}
   [data-game-ui] main .network-grade{color:var(--game-secondary)}[data-game-ui] main .network-grade[data-grade=D],[data-game-ui] main .network-grade[data-grade=F]{color:var(--game-accent)}
+  [data-game-ui] main .organization-map{--map-ink:#f4f6fc;--map-muted:#c0d0e5;--map-line:#8297b2;--map-secondary:#8eb5fb;--map-accent:#efa3c7;background:#15243d;border-radius:9px;border:1px solid var(--map-line)}
+  :root[data-theme=dark] [data-game-ui] main .organization-map{--map-secondary:var(--site-secondary);--map-accent:var(--site-accent)}
+  [data-game-ui] main .organization-map .network-node-name{fill:var(--map-ink)}[data-game-ui] main .organization-map .network-node-state{fill:var(--map-muted)}
+  [data-game-ui] main .organization-map .network-edge line{stroke:var(--map-line)}[data-game-ui] main .organization-map .network-edge.related line{stroke:var(--map-secondary)}[data-game-ui] main .organization-map .network-edge.spreading line{stroke:var(--map-accent)}
+  [data-game-ui] main .organization-map marker path{fill:var(--map-line)}
+  [data-game-ui] main .network-messages:empty{display:none}
   [data-game-ui] main dialog{background:var(--game-paper);color:var(--game-ink);border-color:var(--game-line);box-shadow:var(--shadow)}
   [data-game-ui] main dialog::backdrop{background:#101b3299}
   [data-game-ui] main :focus-visible{outline-color:var(--game-secondary)}
