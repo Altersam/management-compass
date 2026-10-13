@@ -16,7 +16,7 @@ test('pointer assignment previews skill and retains checkbox fallback',async({pa
   await page.setViewportSize({width:1440,height:1000});await page.goto('/game.html');
   const source=await page.locator('[data-drag-person=maxim]').boundingBox(),target=await page.locator('[data-drop-task=prototype]').boundingBox();
   await page.mouse.move(source.x+source.width/2,source.y+source.height/2);await page.mouse.down();await page.mouse.move(target.x+target.width/2,target.y+target.height/2,{steps:12});
-  await expect(page.locator('.drag-preview')).toContainText('Прототипирование 3/3');await page.mouse.up();
+  const skill=await page.evaluate(()=>CourseUI.data().course.projectGame.people.find(p=>p.id==='maxim').skills.design);await expect(page.locator('.drag-preview')).toContainText('Прототипирование '+skill+'/3');await page.mouse.up();
   await expect(page.locator('[data-assign=maxim]')).toBeChecked();await expect(page.locator('[data-drop-task=prototype] .task-avatars')).toContainText('М');
   await page.locator('[data-assign=maxim]').uncheck();await expect(page.locator('[data-assign=maxim]')).not.toBeChecked();
 });

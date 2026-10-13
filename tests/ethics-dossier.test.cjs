@@ -23,7 +23,7 @@ test('bias is not false, official rules stay reliable and procedural/outdated re
   for(let i=0;i<40;i++){const b=generateScenario('record-'+i);assert.equal(b.documents.find(d=>d.id==='rule').issue,'NONE');assert.ok(['OUTDATED','PROCEDURAL','INCOMPLETE'].includes(b.documents.find(d=>d.id==='record').issue));}
 });
 test('protection changes real consequences and a defended risky choice can have high process quality',()=>{
-  const s=prepared();assert.ok(['A','B'].includes(scoreDecision(s).grade));const a=consequencePlan(s.scenario,'option_a','independent'),b=consequencePlan(s.scenario,'option_a','recognition');assert.notDeepEqual(a,b);assert.equal(a[2].sign,'plus');assert.equal(b[2].sign,'mixed');
+  let s=prepared();const risk=s.scenario.options.find(o=>o.id==='option_a').risk,fit=s.scenario.mitigations.find(m=>m.covers.includes(risk)),other=s.scenario.mitigations.find(m=>!m.covers.includes(risk));s=act(s,{type:'mitigation',id:fit.id});assert.ok(['A','B'].includes(scoreDecision(s).grade));const a=consequencePlan(s.scenario,'option_a',fit.id),b=consequencePlan(s.scenario,'option_a',other.id);assert.notDeepEqual(a,b);assert.equal(a[2].sign,'plus');assert.equal(b[2].sign,'mixed');
   for(const o of s.scenario.options){const plan=consequencePlan(s.scenario,o.id,'checkpoint');assert.ok(plan.some(e=>e.sign==='plus'));assert.ok(plan.some(e=>e.sign==='minus'));}
 });
 test('future outcome never changes the grade; a lucky fragile decision is not rewarded with A',()=>{
