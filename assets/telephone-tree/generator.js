@@ -8,7 +8,7 @@ export const taskArchetypes=['pilot','incident','procurement','event','report','
 export function generateScenario(seed){
   const choose=randomFrom(seed),t=templates[Math.floor(choose()*templates.length)],variant=Math.floor(choose()*3);
   for(let attempt=0;attempt<20;attempt++){
-    const r=randomFrom(seed+'#'+attempt),count=[20,30,40][variant],percent=15+Math.floor(r()*3)*5,amount=(2+Math.floor(r()*5))*50000,owner=['Владелец процесса','Руководитель программы','Заказчик результата'][variant];
+    const r=randomFrom(seed+'#'+attempt),count=(t.id==='incident'?[3,5,7]:t.id==='event'?[100,200,300]:t.id==='hiring'?[3,4,5]:[20,30,40])[variant],percent=15+Math.floor(r()*3)*5,amount=(2+Math.floor(r()*5))*50000,owner=['Владелец процесса','Руководитель программы','Заказчик результата'][variant];
     const format=text=>text.replace(/\{(count|percent|amount)\}/g,(_,key)=>key==='count'?String(count):key==='percent'?String(percent):amount.toLocaleString('ru-RU'));
     const original={goal:format(t.goal),deadline:`До ${['пятницы','понедельника','четверга'][variant]} ${[16,12,18][variant]}:00`,owner:owner+' принимает результат',criteria:format(t.criteria),constraint:format(t.constraint),priority:t.priority,context:t.context};
     const roles=[{id:'source',name:'Источник',bias:{}},...['head','coordinator','executor',variant===1?'recipient':'contractor'].map((id,i)=>({id,name:i===1&&t.domain==='Образование'?'Методический координатор':roleFilters[id].name,bias:Object.fromEntries(Object.keys(slotLabels).map(k=>[k,clamp((roleFilters[id].bias[k]||0)+(r()-.5)*.045,0,.16)]))}))];

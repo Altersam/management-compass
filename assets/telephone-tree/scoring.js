@@ -9,6 +9,7 @@ export function score(s){
   if(s.packet.phantom?.state==='phantom')points-=12;points-=Math.min(8,s.phantomDebt*2);
   points-=Math.min(6,s.delay*(s.execution.at(-1)?.deadlineMissed?4:1));
   const violation=s.execution.at(-1)?.violation;if(violation&&s.scenario.lethalConstraint)points=Math.min(points,35);
+  points=Math.max(0,Math.min(100,points));
   const traces=Object.keys(slotLabels).map(id=>{
     const first=s.history.find(h=>h.step>0&&['blurry','lost','replaced'].includes(h.received[id]?.state)),restores=s.recoveries.filter(r=>r.slot===id);
     return {id,first:first?.label||null,restores:restores.map(r=>({label:s.history[r.step]?.label||s.scenario.roles[r.step].name,step:r.step,late:r.debtBefore>=4})),final:s.packet[id].state,debt:s.damageDebt[id]||0};
