@@ -10,4 +10,5 @@ for(const relative of files){
   fs.mkdirSync(path.dirname(destination),{recursive:true});
   fs.copyFileSync(path.join(root,relative),destination);
 }
-console.log('Static site prepared in site/. Only reference pages and local assets are included.');
+require('./export-flow.cjs').exportFlow(root,path.join(out,'flow-bottleneck-final.html'));
+console.log('Static site prepared in site/. Includes the single-file offline flow game.');
