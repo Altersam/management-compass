@@ -1,7 +1,7 @@
 import {generateScenario,initialFlow} from './generator.js';
 import {task} from './task.js';
 import {newSeed} from '../sprint-goal/random.js';
-import {step} from './flow.js';
+import {step,flowSnapshot} from './flow.js';
 import {metrics} from './metrics.js';
 import {detectConstraint} from './constraint.js';
 import {apply,validAction} from './intervention.js';
@@ -19,7 +19,7 @@ export function act(state,input){const a=JSON.parse(JSON.stringify(input)),s=str
   else if(a.type==='select'){if(!s.stages.some(st=>st.id===a.id)&&!['wip','priority'].includes(a.id)&&!s.stages.some(st=>['policy:'+st.id,'quality:'+st.id].includes(a.id)))throw new Error('Объект не найден.');s.selected=a.id;}
   else if(a.type==='guess'){if(s.phase!=='planning')throw new Error('Сначала завершите наблюдение.');const id=a.id||s.selected;if(!s.stages.some(st=>[st.id,'policy:'+st.id,'quality:'+st.id].includes(id))&&!['wip','priority'].includes(id))throw new Error('Выберите объект.');s.guess=id;s.planned=null;}
   else if(a.type==='plan'){if(s.phase!=='planning'||!s.guess||!validAction(s,a.action))throw new Error('Сначала поставьте гипотезу и выберите доступное вмешательство.');s.planned=structuredClone(a.action);}
-  else if(a.type==='run'){if(s.phase!=='planning'||!s.guess||!s.planned)throw new Error('Нужны гипотеза и вмешательство.');const before=metrics(s),actual=detectConstraint(s),action=structuredClone(s.planned),controlStart=structuredClone(s),local=apply(s,action);s.pendingRound={round:s.round+1,guess:s.guess,actual,action,local,before,start:s.tick,controlStart};s.phase='running';s.periodEnd=s.tick+20;s.paused=false;s.animation=null;}
+  else if(a.type==='run'){if(s.phase!=='planning'||!s.guess||!s.planned)throw new Error('Нужны гипотеза и вмешательство.');const before=metrics(s),actual=detectConstraint(s),action=structuredClone(s.planned),controlStart=flowSnapshot(s),local=apply(s,action);s.pendingRound={round:s.round+1,guess:s.guess,actual,action,local,before,start:s.tick,controlStart};s.phase='running';s.periodEnd=s.tick+20;s.paused=false;s.animation=null;}
   else if(a.type==='tick'){if(s.paused||!['observe','running'].includes(s.phase))throw new Error('Поток не идёт.');if(!s.animation){step(s);s.animation={index:0,frames:3,moves:structuredClone(s.moves)};}else{s.animation.index++;if(s.animation.index===s.animation.frames){s.animation=null;if(s.tick>=s.periodEnd)finishPeriod(s);}}}
   else if(a.type==='pause'||a.type==='resume'){if(!['observe','running'].includes(s.phase))throw new Error('Поток не идёт.');s.paused=a.type==='pause';}
   else if(a.type==='next'){if(s.phase!=='review')throw new Error('Сначала сравните эффект.');if(s.round===3)s.phase='report';else{s.phase='planning';s.guess=null;s.planned=null;s.selected=null;}}

@@ -18,7 +18,16 @@ export function apply(s,a){if(!validAction(s,a))throw new Error('Вмешате�
   if(a.type==='reallocate'){const from=s.stages.find(st=>st.id===a.from),delta=3;from.currentCapacity-=delta;st.currentCapacity+=delta;localAfter=st.currentCapacity;}
   if(a.type==='wip'){localBefore=s.wipLimit;s.wipLimit=a.limit;localAfter=s.wipLimit;unit='одновременно';}
   if(a.type==='quality'){const affected=st.defectRate?[st]:s.stages.filter(x=>x.reworkTarget===st.id);localBefore=affected[0]?.qualityFactor||1;affected.forEach(x=>x.qualityFactor*=.35);localAfter=affected[0]?.qualityFactor||1;unit='доля исходных причин возврата';}
-  if(a.type==='rule'){if(a.object==='priority'){s.fairPriority=true;localBefore=0;localAfter=1;unit='защита обычной очереди';}else{st.ruleChanged=true;if(st.routeRule==='regression'){st.currentCapacity+=2;st.qualityFactor*=.5;}if(st.routeRule==='classification')s.stages.filter(x=>x.reworkTarget===st.id).forEach(x=>x.qualityFactor*=.3);if(st.routeRule==='smallBatch'){st.batchRule=1;st.currentCapacity=Math.max(1,st.currentCapacity-1);}localAfter=st.currentCapacity;unit='способность при новом правиле';}}
+  if(a.type==='rule'){
+    if(a.object==='priority'){s.fairPriority=true;localBefore=0;localAfter=1;unit='защита обычной очереди';}
+    else{st.ruleChanged=true;localAfter=st.currentCapacity;
+      if(st.policy){localBefore=1;localAfter=5;unit='дней типовых решений за рабочую неделю';}
+      else if(st.routeRule==='regression'){st.currentCapacity+=2;st.qualityFactor*=.5;localAfter=st.currentCapacity;}
+      else if(st.routeRule==='classification'){const affected=s.stages.filter(x=>x.reworkTarget===st.id);localBefore=affected[0]?.qualityFactor||1;affected.forEach(x=>x.qualityFactor*=.3);localAfter=affected[0]?.qualityFactor||1;unit='доля исходных причин ошибочной классификации';}
+      else if(st.routeRule==='smallBatch'){localBefore=st.batchRule;st.batchRule=1;st.currentCapacity=Math.max(1,st.currentCapacity-1);localAfter=1;unit='размер партии';}
+      else if(st.routeRule==='standard'){localBefore=1;localAfter=.45;unit='работа этапа на типовой случай';}
+    }
+  }
   if(a.type==='remove'){st.removed=true;s.unsafeAt=s.tick;localAfter=0;unit='этап пропущен';}
   if(a.type==='priority')s.expedite=true;
   return {before:localBefore,after:localAfter,unit,delta:localBefore?(localAfter-localBefore)/localBefore*100:null,wipAtDecision:inside(s)};
