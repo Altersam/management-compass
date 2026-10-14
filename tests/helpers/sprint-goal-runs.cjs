@@ -1,6 +1,6 @@
 const {create,act}=require('../../assets/sprint-goal/state.js');
 const {expect}=require('@playwright/test');
-async function install(page,state){await page.goto('/');await page.evaluate(s=>Workspace.update(Workspace.active(),d=>{d.course.arcadeGames??={};d.course.arcadeGames.sprint=s;}),state);await page.goto('/trainer.html?game=sprint'+(state.modelVersion===2?'':'&legacy=1'));await expect(page.locator('#arcadeRoot h1')).toBeVisible();}
+async function install(page,state){await page.goto('/');await page.evaluate(s=>Workspace.update(Workspace.active(),d=>{d.course.arcadeGames??={};d.course.arcadeGames.sprint=s;}),state);await page.goto('/trainer.html?game=sprint'+(state.modelVersion===2?'':'&legacy=1'));await expect(page.locator('#gameThemeToggle')).toBeVisible();}
 async function openModern(page,seed='sprint-0'){await install(page,create(seed));}
 async function openLegacy(page){await install(page,require('../../assets/arcade/sprint.js').create());}
 async function add(page,ids){for(const id of ids)await page.locator(`[data-goal-action=add][data-id="${id}"]`).click();}
