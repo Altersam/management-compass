@@ -89,6 +89,20 @@
   [data-game-ui] main .meaning-tree .meaning-symbol.waiting{fill:#f4f6fc}
   [data-game-ui] main .meaning-grade{color:var(--game-secondary)}[data-game-ui] main .meaning-grade[data-grade=D],[data-game-ui] main .meaning-grade[data-grade=F]{color:var(--game-accent)}
   [data-game-ui] main dialog{background:var(--game-paper);color:var(--game-ink);border-color:var(--game-line);box-shadow:var(--shadow)}
+  [data-game-ui] main :is(.fc-panel,.fc-context-actions button){background:var(--game-paper);border-color:var(--game-line);box-shadow:var(--shadow)}
+  [data-game-ui] main .fc-goal{background:var(--game-board);border-color:var(--game-line)}
+  [data-game-ui] main .fc-board{background:#15243d;border-color:#8297b2;color:#f4f6fc}
+  [data-game-ui] main .fc-board :is(h2,h3,p,b,strong,span,small,summary,li){color:#f4f6fc}
+  [data-game-ui] main :is(.fc-station,.fc-policy-objects button,.fc-station-select){background:#243955;border-color:#8297b2;color:#f4f6fc}
+  [data-game-ui] main .fc-board button[aria-pressed=true]{background:#374e70;color:#f4f6fc;border-color:#ffcd8c}
+  [data-game-ui] main .fc-entry,[data-game-ui] main .fc-exit,[data-game-ui] main .fc-entry button{background:#20334e;border-color:#8297b2;color:#f4f6fc}
+  [data-game-ui] main .fc-task :is(b,small){color:#15243d}
+  [data-game-ui] main .fc-task.normal{background:#8cdeb5}[data-game-ui] main .fc-task.aging{background:#ffcd8c}[data-game-ui] main .fc-task.old{background:#ffb09d}[data-game-ui] main .fc-task.rework{background:#d1b4ff}
+  [data-game-ui] main .fc-board .fc-guess-mark{background:#ffcd8c;color:#15243d}
+  [data-game-ui] main .fc-card-legend span:nth-child(1){color:#8cdeb5}[data-game-ui] main .fc-card-legend span:nth-child(2){color:#ffcd8c}[data-game-ui] main .fc-card-legend span:nth-child(3){color:#ffb09d}[data-game-ui] main .fc-card-legend span:nth-child(4){color:#d1b4ff}[data-game-ui] main .fc-card-legend span:nth-child(5){color:#8eb5fb}
+  [data-game-ui] main .fc-roads text{fill:#15243d}
+  [data-game-ui] main :is(.fc-hypothesis,.fc-planned,.fc-event,.fc-effect-lesson,.fc-effect article,.fc-migration>div,.fc-lesson){background:var(--game-soft)}
+  [data-game-ui] main .fc-grade{color:var(--game-secondary)}[data-game-ui] main .fc-grade[data-grade=D],[data-game-ui] main .fc-grade[data-grade=F]{color:var(--game-accent)}
   [data-game-ui] main :is(.mi-panel,.mi-probes button,.mi-choices button){background:var(--game-paper);border-color:var(--game-line);box-shadow:var(--shadow)}
   [data-game-ui] main .mi-hero{background:var(--game-board);border-color:var(--game-line)}
   [data-game-ui] main .mi-headline-values b,[data-game-ui] main .mi-success{color:#1c704f}

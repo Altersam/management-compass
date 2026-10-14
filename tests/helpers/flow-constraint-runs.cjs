@@ -5,6 +5,7 @@ function intervention(s,strategy='good'){
   if(strategy==='local'){const target=s.stages.find(st=>st.id===s.scenario.falseLead);guess=target.id;action={type:'capacity',target:target.id,object:guess};}
   else if(strategy==='speed'){const target=s.stages.find(st=>st.canRemove&&!st.removed&&s.stages.indexOf(st)<s.stages.length-1);if(target){guess=target.id;action={type:'remove',target:target.id,object:guess};}else{guess=s.stages[0].id;action={type:'capacity',target:guess,object:guess};}}
   else if(c.type==='quality')action={type:'quality',target:st.id,object:guess};
+  else if(st&&s.stages.some(x=>x.reworkTarget===st.id&&x.qualityFactor>.5)&&require('../../assets/flow-constraint/metrics.js').metrics(s).rework>.11)action={type:'quality',target:st.id,object:guess};
   else if(['policy','batch','priority'].includes(c.type))action={type:'rule',target:st?.id,object:guess};
   else if(c.type==='wip')action={type:'wip',limit:s.scenario.healthyWip,object:'wip'};
   else if(st.routeRule&&!st.ruleChanged&&strategy==='good')action={type:'rule',target:st.id,object:guess};

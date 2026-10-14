@@ -6,13 +6,15 @@ import {metrics} from './metrics.js';
 import {detectConstraint} from './constraint.js';
 import {apply,validAction} from './intervention.js';
 import {score} from './scoring.js';
-export function create(seed=newSeed()){seed=String(seed).slice(0,80);const scenario=generateScenario(seed),s={...initialFlow(seed,scenario),revision:1,modelVersion:2,scenarioId:scenario.id,phase:'intro',round:0,budget:scenario.budget,spent:0,selected:null,guess:null,planned:null,baseline:null,rounds:[],migration:[],periodEnd:0,paused:false,animation:null,result:null,commands:[]};
+import {validateScenario} from './validator.js';
+function initialState(seed,attempt){const scenario=generateScenario(seed,attempt),s={...initialFlow(seed,scenario),revision:1,modelVersion:2,scenarioId:scenario.id,phase:'intro',round:0,budget:scenario.budget,spent:0,selected:null,guess:null,planned:null,baseline:null,rounds:[],migration:[],periodEnd:0,paused:false,animation:null,result:null,commands:[]};
   for(const [i,st] of s.stages.entries()){const count=scenario.crowding?Math.round(scenario.healthyWip/s.stages.length*1.8):i===0?scenario.demand*2:i===1?scenario.demand:Math.max(3,Math.round(st.baseCapacity/2));for(let k=0;k<count;k++){const t=task(seed,s.nextId++,-(scenario.kind==='batch'?2:28+k%8),{stage:st.id,urgent:scenario.urgent,typical:scenario.typical});st.queue.push(t);s.arrivals++;}}
   for(let i=0;i<scenario.initialOutside;i++){s.outside.push(task(seed,s.nextId++,-8,{urgent:scenario.urgent,typical:scenario.typical}));s.arrivals++;}return s;
 }
+export function create(seed=newSeed()){seed=String(seed).slice(0,80);for(let attempt=0;attempt<12;attempt++){const s=initialState(seed,attempt);if(validateScenario(s).valid)return s;}throw new Error('Не удалось собрать разрешимый поток.');}
 function finishPeriod(s){const m=metrics(s,s.periodEnd-20),constraint=detectConstraint(s);if(s.phase==='observe'){s.baseline={metrics:m,constraint};s.migration=[constraint];s.phase='planning';}else{const r=s.pendingRound,control=r.controlStart;for(let i=0;i<20;i++)step(control);r.control=metrics(control,r.start);delete r.controlStart;r.after=m;r.constraintAfter=constraint;r.daily=s.samples.filter(x=>x.tick>r.start);r.systemDelta=r.control.throughput?(m.throughput-r.control.throughput)/r.control.throughput*100:null;
     s.rounds.push(r);s.migration.push(constraint);delete s.pendingRound;s.round++;s.phase='review';if(s.round===3)s.result=score(s);}}
-export function act(state,a){const s=structuredClone(state);if(s.phase==='ended')throw new Error('Поток уже разобран.');
+export function act(state,input){const a=JSON.parse(JSON.stringify(input)),s=structuredClone(state);if(s.phase==='ended')throw new Error('Поток уже разобран.');
   if(a.type==='open'){if(s.phase!=='intro')throw new Error('Поток уже запущен.');s.phase='observe';s.periodEnd=20;s.paused=false;}
   else if(a.type==='select'){if(!s.stages.some(st=>st.id===a.id)&&!['wip','priority'].includes(a.id)&&!s.stages.some(st=>['policy:'+st.id,'quality:'+st.id].includes(a.id)))throw new Error('Объект не найден.');s.selected=a.id;}
   else if(a.type==='guess'){if(s.phase!=='planning')throw new Error('Сначала завершите наблюдение.');const id=a.id||s.selected;if(!s.stages.some(st=>[st.id,'policy:'+st.id,'quality:'+st.id].includes(id))&&!['wip','priority'].includes(id))throw new Error('Выберите объект.');s.guess=id;s.planned=null;}
