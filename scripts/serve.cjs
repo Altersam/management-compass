@@ -7,7 +7,7 @@ const root=path.resolve(__dirname,'..');
 const args=process.argv.slice(2),index=args.indexOf('--port');
 const port=Number(index>=0?args[index+1]:4173);
 if(!Number.isInteger(port)||port<1||port>65535)throw new Error('Invalid port');
-const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.svg':'image/svg+xml','.ico':'image/x-icon'};
+const types={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.js':'text/javascript; charset=utf-8','.svg':'image/svg+xml','.ico':'image/x-icon','.woff2':'font/woff2'};
 const server=http.createServer((req,res)=>{
   if(!['GET','HEAD'].includes(req.method)){res.writeHead(405);res.end('Method not allowed');return;}
   let relative;

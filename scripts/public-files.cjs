@@ -3,7 +3,7 @@ const fs=require('node:fs'),path=require('node:path');
 const folders=['assets','content','modules'];
 const syncCopy=name=>/ \(\d+\)(?:\.[a-z0-9]+)?$/i.test(name);
 function publicPath(relative){
-  return /^[a-z0-9-]+\.html$/i.test(relative)||/^modules\/module-\d{2}\.html$/.test(relative)||/^(?:assets|content)\/(?:[a-z0-9-]+\/)*[a-z0-9-]+\.(js|css|svg|ico)$/.test(relative);
+  return /^[a-z0-9-]+\.html$/i.test(relative)||/^modules\/module-\d{2}\.html$/.test(relative)||/^(?:assets|content)\/(?:[a-z0-9-]+\/)*[a-z0-9-]+\.(js|css|svg|ico|woff2)$/.test(relative);
 }
 function publicFiles(root){
   const files=[];

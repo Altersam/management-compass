@@ -1,8 +1,0 @@
-const {test,expect}=require('@playwright/test'),AxeBuilder=require('@axe-core/playwright').default;
-const {openModern:approach}=require('../helpers/approach-runs.cjs'),{openModern:sprint,add}=require('../helpers/sprint-goal-runs.cjs'),{openModern:meeting,linked}=require('../helpers/meeting-decision-runs.cjs'),{openCase:detective,selectKeys}=require('../helpers/detective-runs.cjs');
-for(const theme of ['light','dark'])test('game palettes keep contrast and controls accessible: '+theme,async({page})=>{
-  test.setTimeout(120000);await page.addInitScript(t=>localStorage.setItem('manager-almanac:theme',t),theme);await page.setViewportSize({width:375,height:1000});const violations=[];
-  async function check(stage){const r=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();violations.push(...r.violations.map(v=>({stage,id:v.id,nodes:v.nodes.map(n=>({target:n.target,summary:n.failureSummary}))})));}
-  for(const url of ['/games.html','/game.html','/index.html#final',...['metrics','influence','ethics','versions','telephone','flow','change'].map(id=>'/trainer.html?game='+id)]){await page.goto(url);await expect(page.locator('#gameThemeToggle')).toBeVisible();await check(url);}
-  const book=await detective(page);await selectKeys(page,book);await check('detective');await approach(page);await check('approach');await sprint(page);await add(page,['task-1','task-4','task-2']);await check('sprint');await meeting(page);await linked(page);await check('meeting');await page.locator('.game-case-browser>summary').click();await check('case picker');expect(violations).toEqual([]);
-});

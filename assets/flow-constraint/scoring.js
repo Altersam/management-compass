@@ -1,7 +1,0 @@
-import {metrics,clamp,round} from './metrics.js';
-import {sameDiagnosis} from './constraint.js';
-export const statusLabels={moving:'Система поехала',shifted:'Переставили пробку',mountain:'Гора стала выше',starved:'Задушили поток',quality:'Скорость съела качество',priority:'Срочные победили систему'};
-export function score(s){const b=s.baseline.metrics,f=metrics(s),targetCycle=s.scenario.stages.length/4+1.25,cycleHealth=clamp(.45+.55*clamp((b.cycle-f.cycle)/Math.max(1,b.cycle)/.45)+.15*clamp(targetCycle/Math.max(1,f.cycle))),pendingHealth=clamp(s.scenario.healthyWip/Math.max(s.scenario.healthyWip,f.wip+f.outside*.35)),diagnosis=s.rounds.filter(r=>sameDiagnosis(r.guess,r.actual)).length/3;
-  const components={throughput:35*clamp(f.throughput/f.demand),cycle:25*cycleHealth,wip:15*pendingHealth,quality:15*clamp(1-f.rework*2-f.quarantine/Math.max(1,s.arrivals)),diagnosis:8*diagnosis+2*clamp(1-s.spent/10)};
-  const quality=Math.round(Object.values(components).reduce((a,b)=>a+b,0));let status=s.rounds.some(r=>r.systemDelta>8)?'moving':'shifted';if(f.wip+f.outside>b.wip+b.outside&&!s.rounds.some(r=>r.systemDelta>8))status='mountain';if(s.wipLimit<s.scenario.demand*2&&f.throughput<b.throughput*.8)status='starved';if(f.rework>b.rework+.12)status='quality';if(f.ordinaryAge>Math.max(4,f.urgentAge*1.8)&&s.expedite&&!s.fairPriority)status='priority';return {quality,grade:quality>=86?'A':quality>=72?'B':quality>=56?'C':quality>=40?'D':'F',status,components,before:b,after:f,diagnosis:round(diagnosis*100)};
-}

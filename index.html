@@ -1,26 +1,22 @@
 <!doctype html>
-<html lang="ru" data-theme="light">
+<html lang="ru">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Альманах менеджера: теория, интерактивные модели и управленческие тренажёры.">
-  <meta name="theme-color" content="#e0e4eb"><title>Альманах менеджера</title>
-  <link rel="stylesheet" href="assets/styles.css"><link rel="stylesheet" href="assets/course.css"><link rel="stylesheet" href="assets/experience.css"><link rel="stylesheet" href="assets/almanac.css"><link rel="stylesheet" href="assets/shell.css" data-shell-style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Альманах менеджера</title>
+<meta name="description" content="Тренажёр управленческих навыков: короткая теория со схемами, 12 игр с последствиями и ответы на типовые рабочие ситуации.">
+<meta name="theme-color" content="#fff7ec">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/unbounded-cyrillic-800-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/manrope-cyrillic-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/styles.css">
+<link rel="stylesheet" href="assets/games/games.css">
 </head>
-<body><div id="courseHeader"></div>
-<main class="experience-page almanac-home" id="courseRoot">
-  <div id="homeContent">
-    <header class="almanac-cover"><span class="edition-label">Теория · модели · практика</span><h1>Альманах<br>менеджера</h1><p class="almanac-lead">Разобрать управленческую ситуацию, проверить решение в тренажёре и вернуться к результату в работе.</p></header>
-    <nav class="editorial-index" aria-label="Основные разделы">
-      <a class="index-row" href="theory.html" data-path="theory"><span class="index-number">01</span><h2>Теория</h2><p>Почему управленческие решения работают — и где перестают работать.</p></a>
-      <a class="index-row" href="games.html" data-path="games"><span class="index-number">02</span><h2>Игры</h2><p>Примите решение и посмотрите, к чему оно приведёт.</p></a>
-      <a class="index-row" href="workspace.html#route" data-path="situations"><span class="index-number">03</span><h2>Рабочая ситуация</h2><p>Разберите проблему, которая уже есть сегодня.</p></a>
-    </nav>
-    <div class="secondary-index"><p>Конкретный способ действия — <a href="workspace.html#modules" data-path="techniques">Техники</a></p><p>Записи о своём опыте — <a href="workspace.html#diary" data-path="diary">Дневник</a></p></div>
-    <section class="editorial-feature" aria-labelledby="featureTitle">
-      <figure class="feature-gantt"><figcaption>План запуска / 20 дней</figcaption><div class="mini-gantt" aria-label="Задачи запуска: исследование, прототип, интеграция, запуск"><span>Исследование<i style="--start:0%;--length:24%"></i></span><span>Прототип<i style="--start:20%;--length:30%"></i></span><span>Интеграция<i style="--start:45%;--length:35%"></i></span><span>Запуск<i style="--start:80%;--length:20%"></i></span></div></figure>
-      <div><span class="edition-label">Тренажёр / команда · срок · бюджет</span><h2 id="featureTitle">Проект под давлением</h2><p>Проведите запуск сервиса через реальные ограничения.</p><a class="button primary" id="startGame" href="game.html">Начать игру</a></div>
-    </section>
-    <p id="resumeCourse" class="resume-place" hidden></p>
-    <p class="course-entry-line">Темы по порядку: <a id="startCourse" href="learn.html?module=1">10 тем — начать с первой</a> · <a href="index.html#trajectory">Мой маршрут</a></p>
-  </div><section id="secondaryContent" hidden></section>
-</main><script type="module" src="assets/pages/home.js"></script></body></html>
+<body>
+<a class="skip" href="#view">К содержимому</a>
+<header class="topbar" id="topbar"></header>
+<main id="view" tabindex="-1"><noscript><div class="wrap" style="padding:40px 0"><h1>Альманах менеджера</h1><p>Для теории, игр и ответов нужен включённый JavaScript.</p></div></noscript></main>
+<nav class="tabbar" id="tabbar" aria-label="Разделы"></nav>
+<script type="module" src="assets/app.js"></script>
+</body>
+</html>

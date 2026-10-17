@@ -1,5 +1,0 @@
-const {test,expect}=require('@playwright/test'),AxeBuilder=require('@axe-core/playwright').default;
-test.beforeEach(async({page})=>{await require('../helpers/meeting-decision-runs.cjs').openLegacy(page);});
-for(const theme of ['light','dark'])test('meeting room, addressed speech, owner choice and replay are accessible: '+theme,async({page})=>{
-  test.setTimeout(90000);await page.addInitScript(theme=>localStorage.setItem('manager-almanac:theme',theme),theme);await page.setViewportSize({width:390,height:844});await page.goto('/trainer.html?game=meeting');const check=async stage=>{const r=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(r.violations.map(v=>({stage,id:v.id,nodes:v.nodes.map(n=>n.target)}))).toEqual([]);};const a=async(type,value)=>page.locator(`[data-meeting-action=${type}]${value?`[data-value=${value}]`:''}`).first().click();await check('room');await a('person','ops');await a('ask','fact');await check('reply');await a('chooseOwner');await check('owner-mode');await a('person','it');await a('commit');await check('gap');await a('conversation');await a('commit');await check('review');
-});

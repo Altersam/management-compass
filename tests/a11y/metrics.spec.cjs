@@ -1,8 +1,0 @@
-const {test,expect}=require('@playwright/test'),AxeBuilder=require('@axe-core/playwright').default;
-test.beforeEach(async({page})=>require('../helpers/metric-investigation-runs.cjs').openLegacy(page));
-for(const theme of ['light','dark'])test('metrics intermediate facts, correction and narrative are accessible: '+theme,async({page})=>{
-  test.setTimeout(90000);await page.addInitScript(theme=>localStorage.setItem('manager-almanac:theme',theme),theme);await page.setViewportSize({width:390,height:844});await page.goto('/trainer.html?game=metrics');
-  const check=async stage=>{const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze();expect(result.violations.map(v=>({stage,id:v.id,nodes:v.nodes.map(n=>n.target)}))).toEqual([]);};
-  const act=async(type,value)=>page.locator(`[data-action=${type}]${value?`[data-value=${value}]`:''}`).first().click();
-  await check('opening');await act('investigate');await act('inspect','channels');await act('channel','all');await check('channels');await act('inspect','unfinished');await act('pending','true');await check('waiting');await act('inspect','denominator');await check('sample');await act('inspect','distribution');await check('distribution');await act('formulate');await act('conclusion','failure');await act('next','charts');await page.locator('[name=note]').fill('Число не подтверждает результат всего сервиса.');await page.locator('[data-form=decide] button').click();await check('correction');await act('reconsider');await act('conclusion','hypothesis');await act('next','users');await page.locator('[data-form=decide] button').click();await check('review');
-});
