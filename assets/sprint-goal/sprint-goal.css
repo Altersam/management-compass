@@ -19,4 +19,7 @@
   /* Ellipsis needs a block box: long task names no longer overlap neighbouring segments. */
   .goal-capacity-bar .capacity-segment{display:block;text-align:center;line-height:42px}
   @media(max-width:540px){.goal-capacity-bar .capacity-segment{line-height:36px}}
+  /* Launch control next to capacity: the main action is visible without scrolling past the backlog. */
+  .goal-quick-launch{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px solid #63748c}
+  .goal-quick-launch span{font-size:12px}
 }

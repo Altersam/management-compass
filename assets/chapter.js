@@ -1,6 +1,7 @@
 import {Workspace,WorkspaceUI} from './runtime.js';
 import {renderDepth} from './theory-depth.js';
 import {depthFor} from '../content/theory-depth.js';
+import {renderTheoryBlocks,bindTheoryBlocks} from './theory-blocks.js';
 (() => {
   'use strict';
   const S=Workspace,U=WorkspaceUI,esc=U.escape;
@@ -19,7 +20,7 @@ import {depthFor} from '../content/theory-depth.js';
       <div class="theory-introduction"><h2>${['Почему календарь перестаёт помогать','Где поручение теряет результат','Когда команда ждёт разрешения','Как объяснить справедливый выбор','Что адресат прочитал между строк','Где на самом деле принимается решение','Как документ становится действием','Куда уходит время запроса','Что меняется после запуска','Что именно показывает цифра'][chapter.id-1]}</h2><p>${esc(chapter.intro)}</p><div class="workspace-links"><a href="../learn.html?module=${chapter.id}&user=${encodeURIComponent(active)}">Пройти эту тему с практикой</a><a href="../theory.html?user=${encodeURIComponent(active)}&view=schemes&topic=${chapter.id}">Схемы темы</a></div></div>
       <details class="reference-details theory-contents" open><summary>В этой статье</summary><nav aria-label="Объяснения темы">${chapter.theory.map(([title],i)=>`<a href="#reading-base-${i+1}">${esc(title)}</a>`).join('<br>')}${depthFor(chapter.id).map(item=>`<br><a href="#reading-${item.id}">${esc(item.title)}</a>`).join('')}</nav></details>
       ${Visuals.render(chapter.overviewVisual)}
-      <div class="chapter-theory-grid">${chapter.theory.map(([title,text],i)=>`<article class="theory-article" id="reading-base-${i+1}"><span class="edition-label">${String(i+1).padStart(2,'0')}</span><h2>${esc(title)}</h2><p>${esc(text)}</p><p>${esc(chapter.theoryDetails[i])}</p>${i===chapter.coreVisual[1]?Visuals.render(chapter.coreVisual[0]):''}</article>`).join('')}</div>
+      <div class="chapter-theory-grid">${chapter.theory.map(([title,text],i)=>`<article class="theory-article" id="reading-base-${i+1}"><span class="edition-label">${String(i+1).padStart(2,'0')}</span><h2>${esc(title)}</h2><p>${esc(text)}</p>${(()=>{const blocks=renderTheoryBlocks(chapter.id,'base',i);return blocks?blocks+`<details class="theory-more"><summary>Подробнее</summary><p>${esc(chapter.theoryDetails[i])}</p></details>`:`<p>${esc(chapter.theoryDetails[i])}</p>`;})()}${i===chapter.coreVisual[1]?Visuals.render(chapter.coreVisual[0]):''}</article>`).join('')}</div>
       ${renderDepth(chapter.id,esc)}
       <section class="section-block"><h2>Понятия</h2><dl class="term-list">${chapter.terms.map(([term,meaning])=>`<div><dt>${esc(term)}</dt><dd>${esc(meaning)}</dd></div>`).join('')}</dl></section>
       <p class="course-entry-line"><a href="#techniques">Применить технику этой темы</a></p>
@@ -34,6 +35,7 @@ import {depthFor} from '../content/theory-depth.js';
     <section id="case" class="chapter-pane" hidden><div class="section-heading"><h2>Разобрать решение и собственную практику</h2><p>Выберите первый ход, прочитайте последствия и запишите, что это меняет в вашей работе.</p></div><div class="case-grid"></div></section>
     <details class="reference-details related-details"><summary>Связанные ракурсы и дальнейшее чтение</summary><div class="route-steps">${chapter.related.map(n=>`<a href="${link(n)}">${esc(HANDBOOK.chapters[n-1].title)}</a>`).join('')}</div><a href="../sources.html?user=${encodeURIComponent(active)}">Модели и литература →</a></details>
     <footer class="footer"><a href="${home}#modules">← Техники</a><a href="${home}#diary">Мой дневник</a><button class="text-button" id="printPage">Печать открытого раздела</button></footer>`;
+  bindTheoryBlocks(root);
 
   function renderTechnique(t) {
     const holder=document.getElementById('techniquePanel');

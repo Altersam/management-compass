@@ -1,12 +1,13 @@
 import {Workspace,WorkspaceUI} from './runtime.js';
 import * as Experiments from './experiments.js';
 import * as WorkingNavigator from './navigator.js';
+import {createDiary} from './diary.js';
 (() => {
   'use strict';
   const S=Workspace,U=WorkspaceUI,esc=U.escape,chapters=HANDBOOK.chapters;
   const $=id=>document.getElementById(id);
   let active=S.profile(new URLSearchParams(location.search).get('user')||S.active()).id;
-  let editing=null;
+  let quickDiary=null;
   const data=()=>S.profile(active).data;
   const href=p=>`${p}?user=${encodeURIComponent(active)}`;
   const modulePath=n=>`modules/module-${String(n).padStart(2,'0')}.html`;
@@ -15,7 +16,7 @@ import * as WorkingNavigator from './navigator.js';
   function save(mutate){S.update(active,mutate);status();stats();}
   function profiles(){const url=new URL(location.href);url.searchParams.set('user',active);history.replaceState(null,'',url);$('navigatorLink').href=href('navigator.html');document.querySelectorAll('a[href]').forEach(a=>{if(a.getAttribute('href').startsWith('#'))return;const url=new URL(a.href);if(url.origin===location.origin){url.searchParams.set('user',active);a.href=url;}});}
   function stats(){}
-  function resetDiary(){editing=null;$('diaryForm').reset();$('diaryForm').elements.date.value=U.today();$('diaryForm').querySelector('[type=submit]').textContent='Сохранить запись';$('cancelEdit')?.remove();}
+  function resetDiary(){quickDiary?.reset();}
   function switchTo(id){S.select(id);active=id;profiles();renderModules();route();cases();diary();resetDiary();restoreDrafts();stats();}
   let libraryMode='techniques';
   function renderModules(){
@@ -53,29 +54,11 @@ import * as WorkingNavigator from './navigator.js';
   }
   function diary(){
     const experimentRoot=$('workingExperiments');if(experimentRoot)Experiments.render(experimentRoot,S,active);
-    const select=$('diaryFilter'),old=select.value;
-    const types=[...new Set(['Решение',...data().journal.map(e=>e.type)])];
-    select.innerHTML='<option value="all">Все записи</option>'+types.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join('');
-    if(types.includes(old))select.value=old;
-    const q=$('diarySearch').value.toLowerCase().trim();
-    const entries=data().journal.filter(e=>(select.value==='all'||e.type===select.value)&&[e.title,e.situation,e.learning,e.action].join(' ').toLowerCase().includes(q)).sort((a,b)=>b.date.localeCompare(a.date)||b.createdAt.localeCompare(a.createdAt));
-     $('diaryList').innerHTML=entries.length?entries.map(e=>`<article class="diary-entry"><div class="entry-meta"><span class="entry-type">${esc(e.type)}</span><time datetime="${esc(e.date)}">${esc(e.date)}</time></div><h3>${esc(e.title)}</h3><p>${esc(e.situation)}</p>${e.learning?`<p><b>Заметил:</b> ${esc(e.learning)}</p>`:''}${e.action?`<p><b>Изменю:</b> ${esc(e.action)}</p>`:''}<div class="entry-actions"><button class="text-button edit-entry" data-id="${esc(e.id)}">Редактировать</button> <button class="text-button delete-entry" data-id="${esc(e.id)}">Удалить</button></div></article>`).join(''):'<p class="empty-state">Записей пока нет.</p>';
-    $('diaryList').querySelectorAll('.delete-entry').forEach(b=>b.onclick=()=>{if(!confirm('Удалить эту запись?'))return;save(d=>d.journal=d.journal.filter(e=>e.id!==b.dataset.id));if(editing===b.dataset.id)resetDiary();diary();});
-    $('diaryList').querySelectorAll('.edit-entry').forEach(b=>b.onclick=()=>{
-      resetDiary();const e=data().journal.find(x=>x.id===b.dataset.id);editing=e.id;const f=$('diaryForm');
-      if(![...f.elements.type.options].some(o=>o.value===e.type))f.elements.type.add(new Option(e.type,e.type));
-      for(const k of ['date','type','title','situation','learning','action','rating'])f.elements[k].value=e[k];
-       f.hidden=false;f.querySelector('[type=submit]').textContent='Сохранить изменения';
-      const cancel=document.createElement('button');cancel.type='button';cancel.id='cancelEdit';cancel.className='text-button';cancel.textContent='Отменить редактирование';cancel.onclick=()=>{save(d=>delete d.worksheets.diaryDraft);resetDiary();};f.append(cancel);f.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth'});
-    });
+    if(!quickDiary&&$('diaryApp'))quickDiary=createDiary({root:$('diaryApp'),store:S,active:()=>active,notify:U.notify,onChange:()=>{stats();status();}});
+    quickDiary?.render();
   }
-  $('diarySearch').oninput=diary;$('diaryFilter').onchange=diary;
-   $('diaryForm').onsubmit=e=>{e.preventDefault();const f=e.currentTarget;const existing=data().journal.find(x=>x.id===editing);const entry={...(existing||{}),date:f.elements.date.value,type:f.elements.type.value,title:f.elements.title.value.trim()||f.elements.situation.value.trim().slice(0,70),situation:f.elements.situation.value.trim(),learning:f.elements.learning.value.trim(),action:f.elements.action.value.trim(),rating:Number(f.elements.rating.value),updatedAt:new Date().toISOString()};if(!entry.situation){U.notify('Добавьте факты.');return;}S.journal(active,entry);save(d=>delete d.worksheets.diaryDraft);resetDiary();diary();if(matchMedia('(max-width:760px)').matches)f.hidden=true;stats();status();U.notify('Запись сохранена.');};
-  $('diaryForm').addEventListener('input',()=>save(d=>d.worksheets.diaryDraft={...Object.fromEntries(new FormData($('diaryForm'))),editing:editing||''}));
-   $('newDiary').onclick=()=>{$('diaryForm').hidden=false;$('diaryForm').elements.situation.focus();};
-   $('weeklyPrompt').onclick=()=>{resetDiary();const f=$('diaryForm');f.hidden=false;f.elements.type.value='Итог недели';f.elements.title.value='Обзор недели';f.elements.situation.value='Какие результаты получены?\nГде ожидания не совпали с фактами?';f.elements.learning.value='Что повторялось и почему?\nКакая моя привычная реакция помогла / помешала?';f.elements.action.value='Одно изменение на следующую неделю:\nПо какому факту и когда оценю пользу:';f.elements.title.focus();};
   const toolForms=['taskForm','talkForm'];
-   function restoreDrafts(){toolForms.forEach(id=>{const f=$(id);f.reset();const saved=data().worksheets[id]||{};for(const [k,v]of Object.entries(saved)){if(f.elements[k]&&typeof v==='string')f.elements[k].value=v;}$((id==='taskForm'?'task':'talk')+'Output').hidden=true;});const draft=data().worksheets.diaryDraft;$('diaryForm').hidden=matchMedia('(max-width:760px)').matches&&!draft;if(draft){const f=$('diaryForm');if(typeof draft.type==='string'&&![...f.elements.type.options].some(o=>o.value===draft.type))f.elements.type.add(new Option(draft.type,draft.type));for(const k of ['date','type','title','situation','learning','action','rating'])if(typeof draft[k]==='string')f.elements[k].value=draft[k];editing=data().journal.some(e=>e.id===draft.editing)?draft.editing:null;if(editing){f.querySelector('[type=submit]').textContent='Сохранить изменения';const cancel=document.createElement('button');cancel.type='button';cancel.id='cancelEdit';cancel.className='text-button';cancel.textContent='Отменить редактирование';cancel.onclick=()=>{save(d=>delete d.worksheets.diaryDraft);resetDiary();};f.append(cancel);}}}
+   function restoreDrafts(){toolForms.forEach(id=>{const f=$(id);f.reset();const saved=data().worksheets[id]||{};for(const [k,v]of Object.entries(saved)){if(f.elements[k]&&typeof v==='string')f.elements[k].value=v;}$((id==='taskForm'?'task':'talk')+'Output').hidden=true;});}
   toolForms.forEach(id=>$(id).addEventListener('input',()=>{const v=Object.fromEntries(new FormData($(id)));save(d=>d.worksheets[id]=v);}));
   function generated(formId,outputId,lines){const f=$(formId);f.onsubmit=e=>{e.preventDefault();const values=Object.fromEntries(new FormData(f));const output=$(outputId);output.querySelector('p').textContent=lines.map(([title,k])=>`${title}: ${values[k]?.trim()||'уточнить'}`).join('\n');output.hidden=false;};}
   generated('taskForm','taskOutput',[['Результат','result'],['Ответственный','owner'],['Срок','deadline'],['Качество / приёмка','quality'],['Ресурс / зависимость','dependency']]);generated('talkForm','talkOutput',[['Факт','fact'],['Общий результат','goal'],['Интересы и ограничения','interests'],['Варианты','options']]);

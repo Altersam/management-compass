@@ -138,4 +138,7 @@
 }
 @layer pages {
   @media(max-width:760px){.influence-actor[data-map-actor=director]{left:50%;top:8%}.influence-actor[data-map-actor=lead]{left:50%;top:26%}.influence-actor[data-map-actor=it]{left:23%;top:47%}.influence-actor[data-map-actor=finance]{left:77%;top:47%}.influence-actor[data-map-actor=anna]{left:50%;top:68%}.influence-actor[data-map-actor=ops]{left:50%;top:88%}}
+  /* Align the heading with the versions desk; «Все игры» already sits in the game header. */
+  .arcade-page:has(.versions-desk) .arcade-heading{max-width:1160px;margin-inline:auto}
+  [data-game-ui] .arcade-heading>a[href*="games.html"]{display:none}
 }

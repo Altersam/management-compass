@@ -50,11 +50,8 @@
       </section>
 
       <section class="section-block" id="diary" data-screen="journal" hidden>
-        <div class="workspace-links"><a href="experiments.html">Мои действия</a><button type="button" class="text-button" id="newDiary">Новая запись</button></div>
-        <div class="journal-workbench">
-        <div class="diary-layout"><form id="diaryForm" class="diary-form"><label class="journal-title">Заголовок <small>необязательно</small><input name="title"></label><label>Что произошло?<textarea name="situation" required></textarea></label><label>Что заметил?<textarea name="learning"></textarea></label><label>Что сделаю иначе?<textarea name="action"></textarea></label><details class="journal-metadata"><summary>Дата и тип записи</summary><div class="form-row"><label>Дата<input type="date" name="date" required></label><label>Тип<select name="type"><option>Рефлексия</option><option>Решение</option><option>Кейс</option><option>План действия</option><option>Итог недели</option></select></label></div></details><input name="rating" type="hidden" value="3"><button class="button primary" type="submit">Сохранить запись</button></form>
-          <div class="diary-list-wrap"><div class="diary-controls"><label class="search-label">Поиск по дневнику<input id="diarySearch" type="search" placeholder="Слово, тема или решение"></label><select id="diaryFilter" aria-label="Фильтр записей"><option value="all">Все записи</option></select></div><button class="text-button" id="weeklyPrompt">Начать рефлексию недели</button><div class="diary-list" id="diaryList"></div></div></div>
-        </div>
+        <div class="workspace-links"><a href="experiments.html">Мои действия</a></div>
+        <div class="journal-workbench" id="diaryApp"><noscript><p>Дневник работает с JavaScript.</p></noscript></div>
       </section>
 
       <section class="section-block" id="library" data-screen="reference" hidden>

@@ -153,6 +153,6 @@
   [data-game-ui] main .gantt-today>span,[data-game-ui] main .gantt{background:var(--game-paper)}
   [data-game-ui] main .gantt-head{background:var(--game-soft)}
   [data-game-ui] main .task-avatars i{background:var(--game-soft);border:1px solid var(--game-line)}
-  /* :is(#game-ui,body) lifts specificity above the id-based surface list above. */
-  :is(#game-ui,body)[data-game-ui] main :is(button,[role=button],[role=option])[aria-pressed=true],:is(#game-ui,body)[data-game-ui] main [role=option][aria-selected=true]{background:var(--game-accent-soft);border-color:var(--game-accent)}
+  /* :is(#game-ui,body) lifts specificity above the id-based surface list above (light option cards only; dark boards keep their own selection style). */
+  :is(#game-ui,body)[data-game-ui] main :is(.gap-measures button,.approach-measures button,.approach-event-option,.goal-event-option,.gap-source,.gap-fact)[aria-pressed=true]{background:var(--game-accent-soft);border-color:var(--game-accent)}
 }

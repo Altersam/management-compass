@@ -7,4 +7,6 @@
   .meaning-current-slots button{padding:9px 11px}.meaning-current-slots button>b{font-size:11px}.meaning-current-slots button>span{margin-top:3px}
   .meaning-table :is(th,td){padding:4px 6px}.meaning-table button{padding:3px;line-height:1.25}.meaning-table b{font-size:15px;line-height:1.25}.meaning-table small{font-size:9px;line-height:1.25}
   .meaning-segment.waiting{stroke:#8297b2;stroke-dasharray:3 6}.meaning-point.waiting{fill:#243c59;stroke:#8297b2}
+  /* Compact branch list: the action (channel + pass) sits on top, details only for the selected branch. */
+  @media(min-width:701px){.meaning-current-slots{grid-template-columns:1fr 1fr}.meaning-current-slots button:not([aria-pressed=true]) :is(p,small){display:none}.meaning-current-slots button[aria-pressed=true]{grid-column:1/-1}}
 }
