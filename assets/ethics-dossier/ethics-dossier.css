@@ -5,4 +5,6 @@
   @media(max-width:800px){.ethics-dossier-game{padding:12px}.dossier-goal{display:block;padding:18px}.dossier-resources{margin-top:16px}.dossier-layout{grid-template-columns:minmax(0,1fr)}.dossier-documents{grid-column:1;grid-row:1}.dossier-center{grid-column:1;grid-row:2}.dossier-side{grid-column:1;grid-row:3}.dossier-panel{padding:16px}.dossier-quality{grid-template-columns:1fr}.dossier-timeline li{grid-template-columns:1fr;gap:8px}.dossier-actions .button{flex:1}}
   @keyframes dossier-stamp-in{from{transform:scale(.96)}to{transform:none}}.dossier-stamp{animation:dossier-stamp-in .25s ease-out}
   @media(prefers-reduced-motion:reduce){.ethics-dossier-game *{animation:none;transition:none;scroll-behavior:auto}}
+  /* Before a decision exists the right column is empty: give the dossier its width. */
+  @media(min-width:1101px){.dossier-layout:has(>.dossier-side:empty){grid-template-columns:minmax(0,2fr) minmax(240px,.8fr)}.dossier-layout:has(>.dossier-side:empty) .dossier-document-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
 }

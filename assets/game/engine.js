@@ -39,7 +39,7 @@ function delayedEffects(s){
     if(effect.effect==='rework'){
       const t=taskById(s,effect.payload.task),amount=effect.payload.amount;
       t.effort+=amount;t.completedAt=null;t.quality=clamp(t.quality-0.08);s.stats.rework+=amount;s.stats.reworkCost+=18000*amount;s.spent+=18000*amount;
-      emit(s,'rework',{key:effect.key,subject:t.id,detail:`${t.name}: ещё ${amount.toFixed(1)} рабочего дня. Причина: ${effect.payload.reason}`});
+      emit(s,'rework',{key:effect.key,subject:t.id,detail:`${t.name}: ещё ${amount.toFixed(1).replace(".",",")} рабочего дня. Причина: ${effect.payload.reason}`});
       const event=s.events.at(-1);event.relatedAt=effect.payload.sourceAt??effect.due-1.5;
       event.impact={work:amount,cost:18000*amount};event.origin=effect.payload.origin||null;
     }else if(effect.effect==='learn'){

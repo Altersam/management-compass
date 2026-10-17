@@ -16,6 +16,20 @@ export const eventDefinitions={
 for(const e of scenarioEvents)eventDefinitions[e.id]={kind:'external',title:e.title,text:e.text,topic:1,step:'theory-2',explanation:'Доступность, ресурс и обязательства изменились. Сопоставьте потерю времени, стоимость резерва и дополнительную нагрузку.',actions:[],domain:e.domain,choices:e.choices};
 export const actionLabels={clarify:'Сверить два сценария · 12 000 ₽',coordinateIT:'Согласовать окно IT · 15 000 ₽',escalateIT:'Запросить выбор спонсора · 30 000 ₽',acceptIT:'Начать без ответа IT',approve:'Принять решение по этой задаче',alignLeaders:'Согласовать единый канал · 10 000 ₽',inspectMetrics:'Проверить обходы · 12 000 ₽',cutSupport:'Сократить поддержку: −15% расходов',restoreSupport:'Вернуть поддержку'};
 Object.assign(actionLabels,{itBurst:'2 дня помощи сейчас · 25 000 ₽',itWindow:'Полное окно через 4 дня · 8 000 ₽',sponsorTransfer:'Ускорить интеграцию за счёт обучения'});
+export const actionHints={
+  clarify:'Требования сойдутся раньше; исследование займёт немного дольше.',
+  coordinateIT:'IT подтвердит окно примерно через полтора дня. Интеграция не стартует вслепую.',
+  escalateIT:'Самый быстрый ответ IT, но дорого и требует вашего личного решения.',
+  acceptIT:'Без расходов сейчас. Интеграция пойдёт без подтверждённого окна — риск возврата выше.',
+  approve:'Вы снимаете ожидание сами. Задача двинется, но ручных решений станет больше.',
+  alignLeaders:'Руководители договорятся о едином канале; координатор ненадолго отвлечётся.',
+  inspectMetrics:'Через день станет видно, где пользователи обходят сервис.',
+  cutSupport:'Расходы ниже, но после запуска пользователи могут вернуться к старым обходам.',
+  restoreSupport:'Поддержка вернётся; расходы снова вырастут.',
+  itBurst:'Помощь IT сразу на два дня: интеграция ускорится, бюджет уменьшится.',
+  itWindow:'Дешевле, но полноценное окно откроется только через четыре дня.',
+  sponsorTransfer:'Интеграция получит ресурс сразу; обучение пользователей станет тяжелее.'
+};
 export function emit(state,definition,{subject=null,key=definition,detail=''}={}){
   if(state.flags['event:'+key])return;
   state.flags['event:'+key]=true;

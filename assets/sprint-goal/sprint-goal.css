@@ -16,4 +16,7 @@
   @keyframes goal-completed{from{box-shadow:0 0 0 3px #28784e55}to{box-shadow:0 0 0 0 #28784e00}}
   .goal-order-item.complete,.goal-review .goal-sprint-criteria .reached{animation:goal-completed .5s ease-out}
   @media(prefers-reduced-motion:reduce){.goal-sprint-game *{scroll-behavior:auto;transition:none;animation:none}}
+  /* Ellipsis needs a block box: long task names no longer overlap neighbouring segments. */
+  .goal-capacity-bar .capacity-segment{display:block;text-align:center;line-height:42px}
+  @media(max-width:540px){.goal-capacity-bar .capacity-segment{line-height:36px}}
 }

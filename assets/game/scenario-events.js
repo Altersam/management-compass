@@ -4,7 +4,7 @@ import {emit} from './events.js';
 const choices=(cost,days)=>[
   {id:'reserve',title:'Закрыть резервом',detail:'Дополнительные расходы; доступность команды сохранена.',cost},
   {id:'flex',title:'Перестроить работу',detail:'Меньше расходов сейчас; дополнительная нагрузка и риск переделки.',fatigue:.08,effort:.25},
-  {id:'wait',title:'Дать время',detail:`Без доплаты; часть работы ждёт ${days} дня.`,days}
+  {id:'wait',title:'Дать время',detail:`Без доплаты; часть работы ждёт ${String(days).replace(".",",")} дня.`,days}
 ];
 export const scenarioEvents=[
   {id:'childCare',domain:'organisation',weight:2,human:true,title:'Нужен день дома',text:'У коллеги заболел ребёнок. Доступность на ближайший день изменилась.',choices:choices(9000,1)},

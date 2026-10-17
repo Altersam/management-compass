@@ -5,7 +5,7 @@ import {newSeed} from '../detective/generator.js';
 import {mountGamePresentation} from '../game-presentation.js';
 
 C.mount();
-document.querySelector('.product-header').innerHTML=`<a class="learning-brand" href="${C.link('games.html')}">Management Compass<span>Игровой режим</span></a><nav aria-label="Навигация игры"><a href="${C.link('games.html')}">Все игры</a></nav><details class="secondary-menu"><summary>Помощь и данные</summary><div><a href="${C.link('settings.html')}">Профиль и копия данных</a><a href="${C.link('learn.html?module=8')}">Теория процесса</a></div></details>`;
+document.querySelector('.product-header').innerHTML=`<a class="learning-brand" href="${C.link('games.html')}">Альманах менеджера<span>Игровой режим</span></a><nav aria-label="Навигация игры"><a href="${C.link('games.html')}">Все игры</a></nav><details class="secondary-menu"><summary>Помощь и данные</summary><div><a href="${C.link('settings.html')}">Профиль и копия данных</a><a href="${C.link('learn.html?module=8')}">Теория процесса</a></div></details>`;
 document.getElementById('productFooter').innerHTML=`<p>Личные попытки остаются в браузере.</p><a href="${C.link('settings.html#data')}">О данных</a>`;
 const saved=C.data().course?.detectiveGame,restored=resumeState(saved),root=document.getElementById('detectiveRoot');
 if(saved&&!restored){

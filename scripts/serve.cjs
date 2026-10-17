@@ -19,6 +19,6 @@ const server=http.createServer((req,res)=>{
 });
 server.on('error',e=>{console.error(`Cannot start on 127.0.0.1:${port}: ${e.message}`);process.exit(1);});
 server.listen(port,'127.0.0.1',()=>{
-  const url=`http://127.0.0.1:${port}`;console.log(`Management Compass: ${url}\nCtrl+C to stop. Data stays in your browser.`);
+  const url=`http://127.0.0.1:${port}`;console.log(`Альманах менеджера: ${url}\nCtrl+C to stop. Data stays in your browser.`);
   if(args.includes('--open')){let child;if(process.platform==='win32')child=spawn('cmd.exe',['/c','start','',url],{stdio:'ignore'});else child=spawn(process.platform==='darwin'?'open':'xdg-open',[url],{stdio:'ignore'});child.on('error',()=>console.log(`Open ${url} in your browser.`));child.unref();}
 });

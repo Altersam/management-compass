@@ -2,7 +2,7 @@ import {advance,act,workloads,dailyCost,forecast,taskStatus,blockers,reliability
 import {dayLabel,finished} from './state.js';
 import {complete,project} from './project.js';
 import {level,serviceMetrics,report} from './scoring.js';
-import {eventDefinitions,actionLabels} from './events.js';
+import {eventDefinitions,actionLabels,actionHints} from './events.js';
 import {mountPointerDrag} from './pointer-drag.js';
 import {skillFit} from './people.js';
 import {causeReview,causeJournal,influentialDecisions,alternateCommand,gameDay} from './review.js';
@@ -47,7 +47,7 @@ export function mountGame({container,state:initial,onSave,onRestart,link,notify,
   container.querySelector('.game-layout').classList.add('mc-game-layout');
   $('panel-project').classList.add('mc-game-board');$('panel-team').classList.add('mc-resource-tray');
   container.insertAdjacentHTML('beforeend','<section class="mc-actionbar" aria-label="Прогноз и ход"><div id="mcForecast" class="mc-forecast"></div><p id="mcOnboarding" class="mc-onboarding" role="status"></p></section><dialog id="gameEventChoice" aria-labelledby="gameEventTitle"><h2 id="gameEventTitle"></h2><p id="gameEventText"></p><div id="gameEventOptions"></div><button type="button" class="button quiet" id="eventBackToBoard">Игровое поле</button></dialog>');
-  const actionbar=container.querySelector('.mc-actionbar');actionbar.append(container.querySelector('.game-time-controls'),container.querySelector('.autopause-setting'),$('projectNextHint'),$('gameBrief'));
+  const actionbar=container.querySelector('.mc-actionbar');actionbar.append(container.querySelector('.game-time-controls'),container.querySelector('.autopause-setting'),$('projectNextHint'));if($('gameBrief'))actionbar.before($('gameBrief'));
   const history=document.createElement('details');history.id='mcEventHistory';history.className='mc-event-history';history.innerHTML='<summary>События и история</summary>';$('panel-events').before(history);history.append($('panel-events'));
   $('gameLevers').insertAdjacentHTML('beforebegin','<p class="mc-board-hint">Выберите человека в команде и нажмите задачу, либо перетащите его на строку.</p>');
   $('eventBackToBoard').onclick=()=>$('gameEventChoice').close();
@@ -147,7 +147,7 @@ export function mountGame({container,state:initial,onSave,onRestart,link,notify,
   }
   function showEvent(event){
     if(!event||event.status!=='open'||finished(state))return;pause();const def=eventDefinitions[event.definition];$('gameEventTitle').textContent=def.title;$('gameEventText').textContent=event.detail||def.text;
-    $('gameEventOptions').innerHTML=event.scenario?def.choices.map(choice=>`<button type="button" class="mc-event-option" data-case-choice="${choice.id}"><b>${escape(choice.title)}</b><span>${escape(choice.detail)}${choice.cost?' · '+money(choice.cost):''}</span></button>`).join(''):(def.actions.map(type=>`<button type="button" class="mc-event-option" data-event-command="${type}"><b>${escape(actionLabels[type])}</b><span>Изменить условие проекта; время останется на паузе.</span></button>`).join('')+`<button type="button" class="mc-event-option" data-reallocate-event><b>Перераспределить работу</b><span>Выбрать другой ресурс на поле; текущие назначения не очищаются.</span></button><button type="button" class="mc-event-option" data-wait-event><b>Оставить план и наблюдать</b><span>Без нового расхода; ограничение и его последствия остаются в модели.</span></button>`);
+    $('gameEventOptions').innerHTML=event.scenario?def.choices.map(choice=>`<button type="button" class="mc-event-option" data-case-choice="${choice.id}"><b>${escape(choice.title)}</b><span>${escape(choice.detail)}${choice.cost?' · '+money(choice.cost):''}</span></button>`).join(''):(def.actions.map(type=>`<button type="button" class="mc-event-option" data-event-command="${type}"><b>${escape(actionLabels[type])}</b><span>${escape(actionHints[type]||'Изменить условие проекта; время останется на паузе.')}</span></button>`).join('')+`<button type="button" class="mc-event-option" data-reallocate-event><b>Перераспределить работу</b><span>Выбрать другой ресурс на поле; текущие назначения не очищаются.</span></button><button type="button" class="mc-event-option" data-wait-event><b>Оставить план и наблюдать</b><span>Без нового расхода; ограничение и его последствия остаются в модели.</span></button>`);
     $('gameEventOptions').querySelectorAll('[data-case-choice]').forEach(b=>b.onclick=()=>{const previous=state;decide({type:'scenarioChoice',event:event.id,choice:b.dataset.caseChoice});if(state!==previous)$('gameEventChoice').close();});
     $('gameEventOptions').querySelectorAll('[data-event-command]').forEach(b=>b.onclick=()=>{const previous=state;decide({type:b.dataset.eventCommand,...(event.subject&&state.tasks.some(t=>t.id===event.subject)?{task:event.subject}:{})});if(state!==previous)$('gameEventChoice').close();});
     const wait=$('gameEventOptions').querySelector('[data-wait-event]');if(wait)wait.onclick=()=>{decide({type:'acknowledge',event:event.id});$('gameEventChoice').close();};
@@ -160,7 +160,7 @@ export function mountGame({container,state:initial,onSave,onRestart,link,notify,
     else if(button.dataset.pickPerson){pickedPerson=button.dataset.pickPerson;tab='project';render();$('gameStatus').textContent='Выберите задачу для '+state.people.find(p=>p.id===pickedPerson).name;}
     else if(button.dataset.linkEvent){linkedEvent=state.events.find(e=>e.id===button.dataset.linkEvent);tab='project';render();}
     else if(button.dataset.priority){decide({type:'priority',task:selected,value:Number(button.dataset.priority)});}
-    else if(button.dataset.task){pause();selected=button.dataset.task;drawerOpen=true;if(pickedPerson){drop(pickedPerson,selected);pickedPerson=null;}persist();render();$('selectedTaskHeading').focus({preventScroll:true});}
+    else if(button.dataset.task){pause();selected=button.dataset.task;if(pickedPerson){const who=state.people.find(p=>p.id===pickedPerson)?.name;drop(pickedPerson,selected);drawerOpen=false;pickedPerson=null;persist();render();const t=state.tasks.find(t=>t.id===selected);if(who&&t)$('gameStatus').textContent=who+' назначен(а): '+t.name+'. Выберите следующего человека или запустите время.';return;}drawerOpen=true;persist();render();$('selectedTaskHeading').focus({preventScroll:true});}
     else if(button.dataset.command){decide({type:button.dataset.command,...(button.dataset.taskId?{task:button.dataset.taskId}:{}),...(button.dataset.command==='pauseTask'?{value:button.dataset.value==='true'}:{})});}
     else if(button.dataset.openEvent)showEvent(state.events.find(e=>e.id===button.dataset.openEvent));
     else if(button.dataset.coach)decide({type:'coach',person:button.dataset.coach,skill:button.dataset.skill});
@@ -184,7 +184,7 @@ export function mountGame({container,state:initial,onSave,onRestart,link,notify,
   if(finished(state))$('gameBrief').hidden=true;
   else if(state.time>0)$('gameBrief').textContent=`Продолжить проект — день ${dayLabel(state)}. Время на паузе: можно осмотреть план и события.`;
   else if(state.balanceVersion===2)$('gameBrief').textContent+=' Команда выделяет проекту 82% дня: остальное занято текущими обязательствами.';
-  function drop(person,taskId){const t=state.tasks.find(t=>t.id===taskId);if(complete(t)||finished(state)){notify('Эта задача уже завершена.');return;}selected=taskId;drawerOpen=true;decide({type:'assign',task:taskId,people:[...new Set([...t.assigned,person])]});}
+  function drop(person,taskId){const t=state.tasks.find(t=>t.id===taskId);if(complete(t)||finished(state)){notify('Эта задача уже завершена.');return;}selected=taskId;decide({type:'assign',task:taskId,people:[...new Set([...t.assigned,person])]});}
   function decorateProject(prediction){
     for(const p of state.people){const card=[...container.querySelectorAll('.game-person')].find(el=>el.querySelector('[data-person-details]')?.dataset.personDetails===p.id);if(!card)continue;card.dataset.person=p.id;card.querySelector('.person-heading').insertAdjacentHTML('beforeend',`<button class="person-grip" data-drag-person="${p.id}" data-pick-person="${p.id}" aria-label="Выбрать ${p.name} для назначения" ${finished(state)?'disabled':''}>⠿</button>`);}
     for(const p of state.people){const details=container.querySelector(`[data-person-details="${p.id}"]`);if(p.life?.leave)details.insertAdjacentHTML('beforeend',`<p>Запланированное отсутствие: с дня ${Math.floor(p.life.leave.start)+1}, на ${p.life.leave.days} дня.</p>`);if(state.events.some(e=>e.person===p.id&&e.unavailableUntil>state.time&&e.status==='resolved'&&e.choice!=='wait'))details.insertAdjacentHTML('beforeend','<p>На время отсутствия работа прикрыта резервом или перераспределением.</p>');}

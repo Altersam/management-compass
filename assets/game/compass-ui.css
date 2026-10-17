@@ -13,4 +13,6 @@
   @media(prefers-reduced-motion:reduce){.compass-game .mc-energy i,.compass-game .gantt-bar i{transition:none}}
   @media(min-width:901px){.compass-game .task-drawer{top:100px;max-height:calc(100dvh - 370px)}}
   @media(max-width:900px){.compass-game .mc-actionbar{position:static}.compass-game .game-time-controls{margin:0}.compass-game .mc-goalbar h1{font-size:21px}}
+  /* Sticky bar stays compact on desktop so the Gantt keeps most of the screen. */
+  @media(min-width:901px){.compass-game .mc-actionbar{padding:10px 16px;gap:8px 20px}.compass-game .mc-forecast{flex:0 1 auto;display:grid;grid-template-columns:repeat(3,auto);gap:2px 24px}.compass-game .mc-forecast span{margin-bottom:2px}.compass-game .mc-actionbar .mc-onboarding{flex:1 1 220px;margin:0}.compass-game .mc-actionbar #projectNextHint{flex-basis:100%;margin:0;font-size:11px}.compass-game .mc-actionbar .autopause-setting{margin:0}}
 }

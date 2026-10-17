@@ -7,6 +7,8 @@ import {score} from './review.js';
 import {animationController} from './animation.js';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=n=>Number(n).toLocaleString('ru-RU',{maximumFractionDigits:1});
+const unitForms={'дня':['день','дня','дней'],'часа':['час','часа','часов']};
+const unitFor=(n,unit)=>{const forms=unitForms[unit];const v=Math.round(Number(n)*10)/10;if(!forms||!Number.isInteger(v))return unit;const a=Math.abs(v)%100,b=a%10;return forms[a>10&&a<20?2:b===1?0:b>=2&&b<=4?1:2];};
 export function mountGoalSprint({root,state:initial,onSave,onRestart,link,notify}){
   let state=structuredClone(initial),clock,shownEvent=null,cancelTask=null;
   // Reload is always observational; explicitly resume the saved daily simulation.
@@ -18,7 +20,7 @@ export function mountGoalSprint({root,state:initial,onSave,onRestart,link,notify
   function contrast(work=state.run?.work||state.reviews.at(-1)?.work||0,count=achieved(state.scenario,['running','event'].includes(state.phase)?state.run.before:state.values)){return `<div class="goal-sprint-contrast"><div><span>Сделано работы</span><b>${fmt(work)} ед.</b></div><strong aria-label="не равно">≠</strong><div><span>Критерии цели</span><b>${count} / 3</b></div></div>`;}
   function goalbar(){return `<header class="goal-sprint-header"><div><h1>Спринт: цель вместо скорости</h1><p>${esc(state.scenario.domainName)} · ${esc(state.scenario.title)} · Дело #${identifier(state.seed)}</p><span>Спринт ${state.sprint} / 2</span></div>${contrast()}</header>`;}
   function criteria(values=state.values,before=null){return `<div class="goal-sprint-criteria">${state.scenario.criteria.map((c,i)=>{
-    const done=reached(c,values[i]);return `<article class="${done?'reached':''}"><h3>${esc(c.name)}</h3><p><b>${before?fmt(before[i])+' → ':''}${fmt(values[i])} ${c.unit}</b></p><p>Цель ${c.higher?'≥':'≤'} ${fmt(c.target)} ${c.unit}</p><div class="goal-criterion-track" aria-hidden="true"><i style="width:${distanceProgress(c,values[i])*100}%"></i></div><small>${done?'✓ порог достигнут':'Порог ещё впереди'}</small></article>`;
+    const done=reached(c,values[i]);return `<article class="${done?'reached':''}"><h3>${esc(c.name)}</h3><p><b>${before?fmt(before[i])+' → ':''}${fmt(values[i])} ${unitFor(values[i],c.unit)}</b></p><p>Цель ${c.higher?'≥':'≤'} ${fmt(c.target)} ${unitFor(c.target,c.unit)}</p><div class="goal-criterion-track" aria-hidden="true"><i style="width:${distanceProgress(c,values[i])*100}%"></i></div><small>${done?'✓ порог достигнут':'Порог ещё впереди'}</small></article>`;
   }).join('')}</div>`;}
   function capacity(){
     const total=load(state),tail=tailLoad(state),cap=state.run?.capacity??estimatedCapacity(state),used=state.run?.work||0;
