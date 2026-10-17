@@ -6,7 +6,7 @@ test('action-first selection assigns a weak fit, allows parallel work and reveal
   await page.goto('/game.html');await expect(page.locator('.mc-goalbar')).toContainText('20 дней');await expect(page.locator('#mcForecast')).toContainText('Прогноз запуска');
   await expect(page.locator('[data-person-details=anna]')).not.toHaveAttribute('open');
   await page.locator('[data-pick-person=anna]').first().click();await expect(page.locator('#mcOnboarding')).toContainText('2.');
-  await page.locator('.gantt-task-name[data-task=training]').click();await expect(page.locator('[data-assign=anna]')).toBeChecked();await expect(page.locator('#mcOnboarding')).toContainText('3.');
+  await page.locator('.gantt-task-name[data-task=training]').click();await expect(page.locator('#mcOnboarding')).toContainText('3.');await expect(page.locator('#gameStatus')).toContainText('Анна назначен(а)');await page.locator('.gantt-task-name[data-task=training]').click();await expect(page.locator('[data-assign=anna]')).toBeChecked();
   const state=await page.evaluate(()=>Workspace.profile(CourseUI.active).data.course.projectGame);expect(state.tasks.filter(t=>t.assigned.includes('anna')).map(t=>t.id)).toEqual(['requirements','training']);
   await page.locator('#closeTaskDrawer').click();await page.locator('[data-person-details=anna]>summary').click();await expect(page.locator('[data-person-details=anna]')).toContainText('Аналитика');
 });

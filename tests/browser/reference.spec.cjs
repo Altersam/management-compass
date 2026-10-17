@@ -15,8 +15,8 @@ test('profiles isolate working drafts, cases and editable diary, including neste
   await page.locator('[data-case=focus] textarea').fill('Уточнить конфликт приоритетов');await page.locator('[data-case=focus] .save-case-note').click();
   await page.goto(`/workspace.html?user=${a}#diary`);
   await expect(page.locator('#diaryForm')).toBeVisible();
-  await page.locator('#diaryList .edit-entry').first().click();await page.locator('#diaryForm [name=action]').fill('Согласовать срок завтра');await page.locator('#diaryForm [type=submit]').click();
-  await expect(page.locator('#diaryList')).toContainText('Согласовать срок завтра');
+  await page.locator('#diaryList .edit-entry').first().click();const pick=(n,v)=>page.locator(`#diaryForm [data-pick="${n}"][data-value="${v}"]`).click();await pick('topic','6');await pick('situation','Спор о сроках и ресурсах');await pick('rating','3');await pick('next','Зафиксировать договорённость');await page.locator('#diaryForm [type=submit]').click();
+  await expect(page.locator('#diaryList')).toContainText('Зафиксировать договорённость');
   await page.goto(`/modules/module-08.html?user=${a}#process`);await page.locator('.worksheet summary').click();await page.locator('form[data-tool=process] [name=field0]').fill('Вход: обращение, выход: принятый ответ');
   await page.reload();await expect(page.locator('form[data-tool=process] [name=field0]')).toHaveValue('Вход: обращение, выход: принятый ответ');
   await page.locator('.worksheet summary').click();await page.locator('form[data-tool=process] [type=submit]').click();await page.goto(`/workspace.html?user=${a}#diary`);await expect(page.locator('#diaryList')).toContainText('Карта процесса');
@@ -43,8 +43,8 @@ test('mobile reference has no document overflow and searchable sections',async({
   await page.locator('#capacityForm [name=flow]').fill('100');await page.locator('#capacityForm button').click();await expect(page.locator('#capacityResult')).toContainText('очередь будет расти');
 });
 test('unsaved diary draft survives navigation and starts empty in a different profile',async({page})=>{
-  await page.goto('/workspace.html#diary');await page.locator('#diaryForm [name=title]').fill('Черновик наблюдения');await page.locator('#diaryForm [name=situation]').fill('Нужно восстановить факты передачи');
-  await page.reload();await expect(page.locator('#diaryForm [name=title]')).toHaveValue('Черновик наблюдения');
+  await page.goto('/workspace.html#diary');await page.locator('#diaryForm [data-pick="topic"][data-value="6"]').click();await page.locator('#diaryForm [name=title]').fill('Черновик наблюдения');
+  await page.reload();await expect(page.locator('#diaryForm [name=title]')).toHaveValue('Черновик наблюдения');await expect(page.locator('#diaryForm [data-pick="topic"][data-value="6"]')).toHaveAttribute('aria-pressed','true');
   await addProfile(page,'Новая тетрадь');await expect(page.locator('#diaryForm [name=title]')).toHaveValue('');
 });
 test('focused navigation exposes one task at a time and supports direct links and history',async({page})=>{

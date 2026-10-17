@@ -17,7 +17,7 @@ test('pointer assignment previews skill and retains checkbox fallback',async({pa
   const source=await page.locator('[data-drag-person=maxim]').boundingBox(),target=await page.locator('[data-drop-task=prototype]').boundingBox();
   await page.mouse.move(source.x+source.width/2,source.y+source.height/2);await page.mouse.down();await page.mouse.move(target.x+target.width/2,target.y+target.height/2,{steps:12});
   const skill=await page.evaluate(()=>CourseUI.data().course.projectGame.people.find(p=>p.id==='maxim').skills.design);await expect(page.locator('.drag-preview')).toContainText('Прототипирование '+skill+'/3');await page.mouse.up();
-  await expect(page.locator('[data-assign=maxim]')).toBeChecked();await expect(page.locator('[data-drop-task=prototype] .task-avatars')).toContainText('М');
+  await expect(page.locator('[data-drop-task=prototype] .task-avatars')).toContainText('М');await expect(page.locator('#taskDrawer')).toBeHidden();await page.locator('.gantt-task-name[data-task=prototype]').click();await expect(page.locator('[data-assign=maxim]')).toBeChecked();
   await page.locator('[data-assign=maxim]').uncheck();await expect(page.locator('[data-assign=maxim]')).not.toBeChecked();
 });
 test('automatic pause and skip stop at changes without removing the project board',async({page})=>{

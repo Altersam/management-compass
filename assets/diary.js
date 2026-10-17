@@ -74,8 +74,23 @@ function bars(list, max, empty) {
 
 export function createDiary({root, store, active, notify = () => {}, onChange = () => {}}) {
   let choice = {topic: null, situation: null, rating: null, helped: [], blocked: [], next: '', note: '', date: today()};
-  let editing = null, filter = 'all', query = '';
+  let editing = null, filter = 'all', query = '', profileId = null;
   const data = () => store.profile(active()).data;
+  const blank = () => ({topic: null, situation: null, rating: null, helped: [], blocked: [], next: '', note: '', date: today()});
+  // The unsaved choice survives navigation and reloads, separately for each profile.
+  function saveDraft() { store.update(active(), d => { d.worksheets.diaryDraft = {kind: 'quick', ...choice, editing: editing || ''}; }); }
+  function clearDraft() { store.update(active(), d => { delete d.worksheets.diaryDraft; }); }
+  function loadDraft() {
+    const d = data().worksheets?.diaryDraft;
+    choice = blank(); editing = null;
+    if (!d || typeof d !== 'object') return;
+    if (d.kind === 'quick') {
+      choice = {...choice, topic: topicOf(d.topic) ? Number(d.topic) : null, situation: typeof d.situation === 'string' ? d.situation : null, rating: Number(d.rating) || null,
+        helped: Array.isArray(d.helped) ? d.helped.slice(0, MAX_FACTORS) : [], blocked: Array.isArray(d.blocked) ? d.blocked.slice(0, MAX_FACTORS) : [],
+        next: typeof d.next === 'string' ? d.next : '', note: typeof d.note === 'string' ? d.note : '', date: /^\d{4}-\d{2}-\d{2}$/.test(d.date || '') ? d.date : today()};
+      editing = data().journal.some(e => e.id === d.editing) ? d.editing : null;
+    } else if (typeof d.title === 'string') choice.note = d.title;
+  }
 
   const chips = (name, options, selected, multi) => options.map(o => {
     const on = multi ? selected.includes(o) : selected === o;
@@ -131,13 +146,14 @@ export function createDiary({root, store, active, notify = () => {}, onChange = 
   }
 
   function render() {
+    if (profileId !== active()) { profileId = active(); filter = 'all'; query = ''; loadDraft(); }
     const entries = data().journal;
     const focus = document.activeElement?.id;
     root.innerHTML = `<div class="dq-layout"><div class="dq-left">${formHtml()}</div><div class="dq-right">${summaryHtml(entries)}${listHtml(entries)}</div></div>`;
     if (focus === 'diarySearch') { const i = root.querySelector('#diarySearch'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }
   }
 
-  function reset() { editing = null; choice = {topic: null, situation: null, rating: null, helped: [], blocked: [], next: '', note: '', date: today()}; }
+  function reset() { editing = null; choice = blank(); }
 
   root.addEventListener('click', e => {
     const pick = e.target.closest('[data-pick]');
@@ -153,13 +169,13 @@ export function createDiary({root, store, active, notify = () => {}, onChange = 
       } else choice[name] = choice[name] === value ? (name === 'situation' ? null : '') : value;
       choice.note = root.querySelector('[name=title]')?.value || choice.note;
       choice.date = root.querySelector('[name=date]')?.value || choice.date;
-      render();
+      saveDraft(); render();
       root.querySelector(`[data-pick="${name}"][data-value="${CSS.escape(value)}"]`)?.focus();
       return;
     }
     const topicFilter = e.target.closest('[data-filter-topic]');
     if (topicFilter) { filter = String(filter) === topicFilter.dataset.filterTopic ? 'all' : topicFilter.dataset.filterTopic; render(); return; }
-    if (e.target.closest('[data-cancel]')) { reset(); render(); return; }
+    if (e.target.closest('[data-cancel]')) { reset(); clearDraft(); render(); return; }
     const del = e.target.closest('.delete-entry');
     if (del) { if (!confirm('Удалить эту запись?')) return; store.update(active(), d => { d.journal = d.journal.filter(x => x.id !== del.dataset.id); }); if (editing === del.dataset.id) reset(); render(); onChange(); return; }
     const edit = e.target.closest('.edit-entry');
@@ -168,13 +184,13 @@ export function createDiary({root, store, active, notify = () => {}, onChange = 
       editing = entry.id;
       const q = entry.quick || {};
       choice = {topic: entry.topic || null, situation: q.situation || null, rating: Number(entry.rating) || 3, helped: q.helped || [], blocked: q.blocked || [], next: q.next || entry.action || '', note: q.note ?? (entry.quick ? '' : entry.title), date: entry.date};
-      render(); root.querySelector('.dq-form').scrollIntoView({behavior: matchMedia('(prefers-reduced-motion:reduce)').matches ? 'instant' : 'smooth', block: 'start'});
+      saveDraft(); render(); root.querySelector('.dq-form').scrollIntoView({behavior: matchMedia('(prefers-reduced-motion:reduce)').matches ? 'instant' : 'smooth', block: 'start'});
     }
   });
   root.addEventListener('input', e => {
     if (e.target.id === 'diarySearch') { query = e.target.value.toLowerCase().trim(); render(); }
-    else if (e.target.name === 'title') choice.note = e.target.value;
-    else if (e.target.name === 'date') choice.date = e.target.value;
+    else if (e.target.name === 'title') { choice.note = e.target.value; saveDraft(); }
+    else if (e.target.name === 'date') { choice.date = e.target.value; saveDraft(); }
   });
   root.addEventListener('change', e => { if (e.target.id === 'diaryFilter') { filter = e.target.value; render(); } });
   root.addEventListener('submit', e => {
@@ -184,9 +200,9 @@ export function createDiary({root, store, active, notify = () => {}, onChange = 
     const existing = editing ? data().journal.find(x => x.id === editing) : undefined;
     store.journal(active(), composeEntry(choice, existing || {}));
     const wasEditing = Boolean(editing);
-    reset(); render(); onChange();
+    reset(); clearDraft(); render(); onChange();
     notify(wasEditing ? 'Запись обновлена.' : 'Запись сохранена.');
   });
 
-  return {render, reset: () => { reset(); render(); }};
+  return {render, reset: () => { profileId = null; render(); }};
 }
