@@ -59,7 +59,7 @@ export function pilotTimes(c, fix) {
 export function act(state, a) {
   const s = clone(state), c = CASES[s.scenario]; s.flash = null;
   if (a.type === 'open' && s.phase === 'search') {
-    if (s.opened.includes(a.arg) || s.opened.length >= CHECKS) return state;
+    if (!CLUES[a.arg] || s.opened.includes(a.arg) || s.opened.length >= CHECKS) return state;
     s.opened.push(a.arg);
     const [, marks] = CLUES[a.arg](c); s.marked = [...new Set([...s.marked, ...marks])];
     s.hint = s.opened.length < CHECKS ? `Осталось проверок: ${CHECKS - s.opened.length}.` : 'Проверки закончились. Нажмите на этап, где, по‑вашему, главная потеря.';
