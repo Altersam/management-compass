@@ -4,10 +4,11 @@ import {esc, icon} from '../ui.js';
 import {clone, avatar} from './kit.js';
 
 export const intro = {
-  story: 'Через 10 рабочих дней университет должен запустить сервис электронных заявок. У вас четыре человека с разными сильными сторонами и бюджет на 26 человеко-дней.',
+  story: 'Через 10 рабочих дней университет должен запустить сервис электронных заявок. У вас четыре человека с разными сильными сторонами и ограниченный бюджет в человеко-днях.',
   goal: 'Запустить сервис в срок, уложиться в бюджет и не потерять качество.',
   rules: ['Выберите человека, затем задачу — так назначаете работу. Назначения сохраняются на следующие дни.', 'Человек работает лучше на «своей» задаче. Без отдыха он устаёт и замедляется.', 'Задача начинается, только когда готовы предыдущие. Следите за событиями — они меняют план.']
 };
+export const levels = ['10 дней, бюджет 30 человеко-дней', '10 дней, бюджет 26 человеко-дней', '10 дней, бюджет 24 человеко-дня, без подсказок'];
 export const scenarios = [{name: 'Сервис заявок'}, {name: 'Онлайн‑приёмная'}];
 
 const SKILLS = {analysis: 'Анализ', design: 'Дизайн', tech: 'Разработка', training: 'Обучение'};
@@ -24,9 +25,9 @@ const TASKS = [
   {id: 'train', name: 'Обучение пользователей', skill: 'training', effort: 6, deps: ['req']},
   {id: 'test', name: 'Проверка', skill: 'analysis', effort: 4, deps: ['integ']}
 ];
-const DAYS = 10, BUDGET = 26;
+let DAYS = 10, BUDGET = 26;
 
-export function create(scenario = 0) {
+export function create(scenario = 0, level = 1) { BUDGET = [30, 26, 24][level] ?? 26;
   const tasks = clone(TASKS);
   if (scenario === 1) { tasks.find(t => t.id === 'train').effort = 8; tasks.find(t => t.id === 'integ').effort = 8; }
   return {scenario, day: 1, spent: 0, quality: 100, picked: null, tasks: tasks.map(t => ({...t, done: 0})), people: PEOPLE.map(p => ({...clone(p), energy: 4, task: null, away: 0})),

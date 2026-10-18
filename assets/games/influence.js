@@ -8,6 +8,7 @@ export const intro = {
   goal: 'Довести решение до директора по дороге, которой он доверяет, — за 8 ходов.',
   rules: ['Нажмите на человека на карте. «Разведать» открывает его связи и интересы (1 ход).', '«Подготовить» делает человека союзником (1 ход и 1 жетон капитала).', '«Передать решение» двигает маркер по открытой связи к союзнику или к директору.']
 };
+export const levels = ['10 ходов, капитал 4', '8 ходов, капитал 3', '8 ходов, капитал 2, без подсказок'];
 export const scenarios = [{name: 'Порядок закупок'}, {name: 'Новая система оценки'}];
 
 const MAPS = [
@@ -24,9 +25,9 @@ const MAPS = [
   interests: {boss: 'Поддержит, если не придётся спорить с HR.', deputy: 'Передаёт наверх только согласованное.', dir: 'Не меняет оценку без поддержки сотрудников и совета кафедр.', expert: 'Готов поддержать, если систему обсудят с людьми.', advisor: 'Слушает профсоюз. Без него — против.', fin: 'Защищает свою систему.'},
   need: 'expert'}
 ];
-const MOVES = 8, CAPITAL = 3;
+let MOVES = 8, CAPITAL = 3;
 
-export function create(scenario = 0) {
+export function create(scenario = 0, level = 1) { MOVES = [10, 8, 8][level] ?? 8; CAPITAL = [4, 3, 2][level] ?? 3;
   const m = MAPS[scenario];
   return {scenario, token: 'me', from: null, moves: MOVES, capital: CAPITAL, selected: null,
     known: m.edges.map(([a, b]) => a === 'me' || b === 'me'), revealed: ['me'], support: ['me'], visible: ['me', 'boss', 'expert', 'dir', 'deputy'],

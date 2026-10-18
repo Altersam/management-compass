@@ -1,4 +1,4 @@
-// Курс: 10 тем. В каждой — лекционная выжимка по разделам исходников, 3 урока практики и испытание.
+// Курс: 10 тем. В каждой — лекционная выжимка по разделам исходников, игры с тремя уровнями сложности.
 import t1 from './course/t1.js';
 import t2 from './course/t2.js';
 import t3 from './course/t3.js';
@@ -12,4 +12,3 @@ import t10 from './course/t10.js';
 
 export const course = [t1, t2, t3, t4, t5, t6, t7, t8, t9, t10];
 export const unitById = id => course.find(u => String(u.id) === String(id));
-export const LEVELS = ['Основы', 'Применение', 'Ситуации'];

@@ -1,5 +1,5 @@
 const {test,expect}=require('@playwright/test');
-const routes=['#/','#/lectures','#/lectures/1','#/lectures/9','#/practice','#/faq','#/faq/no-time','#/play/project'];
+const routes=['#/','#/lectures','#/lectures/1','#/lectures/9','#/games','#/faq','#/faq/no-time','#/play/project/1','#/play/day/1'];
 test('main routes render without errors and without horizontal scroll on phone and desktop',async({page})=>{
   const errors=[];page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='error')errors.push(m.text());});
   for(const width of [375,1366]){await page.setViewportSize({width,height:900});
@@ -17,18 +17,14 @@ test('lecture blocks are interactive',async({page})=>{
   const quiz=page.locator('[data-block="quiz"]').first();await quiz.locator('.opt').first().click();await expect(quiz.locator('.feedback')).toBeVisible();
   await page.goto('/index.html#/lectures/9');const calc=page.locator('[data-kind="kpi"]');await expect(calc.locator('.b-calc-out')).toContainText('83%');
 });
-test('a lesson can be passed and unlocks the next one',async({page})=>{
-  await page.goto('/index.html#/lesson/1.1');
-  const solve=async()=>{const ex=await page.evaluate(async()=>{const {course}=await import('/content/course.js');const q=document.querySelector('.ls-q').textContent;const t=document.querySelector('.ls').dataset.type;return course[0].lessons[0].ex.find(e=>e.t===t&&q.includes(e.q.split('___')[0].slice(0,20)));});
-    if(ex.t==='tf')await page.click(`[data-tf="${ex.ok}"]`);
-    else if(['choice','case','fill'].includes(ex.t))await page.locator('[data-pick]',{hasText:ex.opts[ex.ok]}).first().click();
-    else if(ex.t==='multi')for(const i of ex.ok)await page.locator('[data-pick]',{hasText:ex.opts[i]}).first().click();
-    else if(ex.t==='match')for(const [a,b] of ex.pairs){await page.locator('[data-ml]',{hasText:a}).click();await page.locator('[data-mr]',{hasText:b}).click();}
-    if(await page.locator('[data-ls="check"]:not([disabled])').count())await page.click('[data-ls="check"]');
-    await expect(page.locator('.ls-foot.is-ok')).toBeVisible();await page.click('[data-ls="next"]');};
-  for(let i=0;i<6;i++)await solve();
-  await expect(page.locator('.ls-result h1')).toContainText('Без единой ошибки');
-  await page.goto('/index.html#/practice');await expect(page.locator('#unit-1 a.node.is-done')).toHaveCount(1);await expect(page.locator('#unit-1 a.node.is-open')).toHaveCount(1);
+test('day game: plan, live the day, earn stars and unlock level 2',async({page})=>{
+  await page.goto('/index.html#/play/day/1');await page.click('[data-kit="start"]');
+  for(const [id,slot] of [['strat',0],['report',2],['talk',3],['mail',4]]){await page.click(`[data-act="pick"][data-arg="${id}"]`);await page.click(`[data-act="slot"][data-arg="${slot}"]`);}
+  await page.click('[data-act="pick"][data-arg="spr"]');await page.click('[data-act="delegate"]');
+  await page.click('[data-act="pick"][data-arg="news"]');await page.click('[data-act="drop"]');
+  await page.click('[data-act="run"]');await expect(page.locator('.g-big-star.on')).toHaveCount(3,{timeout:5000});
+  await expect(page.locator('a[href="#/play/day/2"]')).toBeVisible();
+  await page.goto('/index.html#/games');await expect(page.locator('a.gm-lv[href="#/play/day/2"]')).toBeVisible();await expect(page.locator('#topic-1 .gm-lv.is-locked')).toHaveCount(1);
 });
 test('faq search and topic filter narrow the list',async({page})=>{
   await page.goto('/index.html#/faq');const all=await page.locator('.faq-item').count();
@@ -37,9 +33,10 @@ test('faq search and topic filter narrow the list',async({page})=>{
   await page.locator('.faq-item summary').first().click();await expect(page.locator('.faq-do li').first()).toBeVisible();
 });
 test('a simulation is playable from brief to stars and saves the best result',async({page})=>{
-  await page.goto('/index.html#/play/meeting');await page.click('[data-kit="start"]');
+  await page.goto('/index.html#/play/meeting/1');await page.click('[data-kit="start"]');
   for(const who of ['boss','it','hr','law'])await page.click(`[data-act="talk"][data-arg="${who}"]`);
+  await page.click(`[data-act="meet"]`);
   for(const d of ['scope:1','time:1','train:1'])await page.click(`[data-act="dial"][data-arg="${d}"]`);
-  await page.click('[data-act="commit"]');await expect(page.locator('.g-big-star.on')).toHaveCount(3);
-  await page.goto('/index.html#/practice');await page.click('text=Открыть все уровни');await expect(page.locator('a[href="#/play/meeting"] .stars svg.on')).toHaveCount(3);
+  await page.click('[data-act="commit"]');await expect(page.locator('.g-big-star.on')).toHaveCount(3,{timeout:5000});
+  await page.goto('/index.html#/games');await expect(page.locator('a.gm-lv[href="#/play/meeting/1"] .stars svg.on')).toHaveCount(3);
 });

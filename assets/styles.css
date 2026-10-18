@@ -460,3 +460,37 @@ body.focus{padding-bottom:0}
 .lec>*{min-width:0}
 .ls[data-type=match] [data-ls=check],.ls[data-type=classify] [data-ls=check]{visibility:hidden}
 .blocks>*,.b>*,.b-tabs,.b-tabpanel{min-width:0}
+
+/* Games catalogue */
+.sound-btn{cursor:pointer}
+.sound-btn.is-off{color:var(--faint);text-decoration:line-through}
+.gm-list{display:grid;gap:26px;padding-top:22px;padding-bottom:20px}
+.gm-topic{display:grid;gap:10px}
+.gm-topic-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.gm-topic-head .label{display:flex;gap:6px;align-items:center}
+.gm-topic-head h2{font-size:20px;margin-right:auto}
+.gm-card{padding:18px 20px;display:grid;gap:14px;transition:box-shadow .2s,transform .2s}
+.gm-card:hover{box-shadow:var(--shadow)}
+.gm-main{display:grid;grid-template-columns:48px 1fr auto;gap:16px;align-items:center}
+.gm-ic{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;background:var(--accent-l);color:var(--accent)}
+.gm-ic svg{width:24px;height:24px}
+.gm-main h3{font-size:18px}
+.gm-main p{color:var(--ink-2);font-size:15px;margin-top:2px}
+.gm-skill{display:flex;gap:6px;align-items:center;font-size:13px!important;color:var(--muted)!important;margin-top:6px!important}
+.gm-skill svg{width:14px;height:14px}
+.gm-levels{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.gm-lv{display:grid;gap:2px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);text-decoration:none;background:var(--bg);box-shadow:0 2px 0 var(--line);transition:transform .12s,box-shadow .12s}
+.gm-lv:hover{transform:translateY(-1px);border-color:var(--ink)}
+.gm-lv:active{transform:translateY(2px);box-shadow:none}
+.gm-lv>span:first-child{font:700 11px var(--font);text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.gm-lv b{font-size:14px;display:flex;gap:6px;align-items:center}
+.gm-lv b svg{width:14px;height:14px}
+.gm-lv small{font-size:12px;color:var(--muted)}
+.gm-lv.is-next{border-color:var(--accent);box-shadow:0 2px 0 var(--accent-d);background:var(--surface)}
+.gm-lv.is-done .stars svg.on{color:#c98a00}
+.gm-lv.is-locked{border-style:dashed;box-shadow:none;cursor:not-allowed;background:transparent}
+.gm-lv.is-locked b{color:var(--muted)}
+@media(max-width:640px){.gm-main{grid-template-columns:44px 1fr}.gm-play{grid-column:1/-1}.gm-levels{grid-template-columns:1fr}}
+.logo span{white-space:nowrap}
+@media(max-width:420px){.logo{font-size:14px;gap:8px}.top-stats{gap:4px}.stat-chip{padding:5px 8px}.topbar .wrap{gap:10px}}
+.pr-actions .btn{white-space:nowrap}

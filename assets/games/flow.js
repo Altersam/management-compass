@@ -8,6 +8,7 @@ export const intro = {
   goal: 'Сделать так, чтобы поток успевал за входом и заявления не копились.',
   rules: ['Перед каждым раундом — одно вмешательство: усилить этап или ограничить вход.', 'Раунд — пять рабочих дней. Смотрите, где копятся заявления.', 'Помните: скорость всей цепочки равна скорости самого медленного этапа.']
 };
+export const levels = ['Поток заявок ниже обычного', 'Обычный поток заявок', 'Поток заявок выше обычного, без подсказок'];
 export const scenarios = [{name: 'Приёмная комиссия'}, {name: 'Отдел кадров'}];
 
 const CONFIGS = [
@@ -15,15 +16,16 @@ const CONFIGS = [
   {demand: 5, stages: [['in', 'Приём', 8], ['check', 'Проверка', 3], ['prep', 'Оформление', 6], ['sign', 'Подпись', 4], ['out', 'Выдача', 8]]}
 ];
 const ROUNDS = 3, DAYS = 5;
+let EXTRA = 0;
 const ACTIONS = [
   {id: 'person', name: 'Добавить человека на этап', detail: '+2 заявления в день на выбранном этапе.', needsStage: true},
   {id: 'lean', name: 'Убрать лишнюю работу на этапе', detail: '+1 в день: лишние визы, повторный ввод.', needsStage: true},
   {id: 'limit', name: 'Не запускать больше, чем можем закончить', detail: 'Вход в процесс ограничен мощностью самого медленного этапа.'}
 ];
 
-export function create(scenario = 0) {
+export function create(scenario = 0, level = 1) { EXTRA = [-1, 0, 1][level] ?? 0;
   const cfg = CONFIGS[scenario];
-  const s = {scenario, demand: cfg.demand, round: 0, stages: cfg.stages.map(([id, name, cap]) => ({id, name, cap, queue: 4})), backlog: 0, limit: false, history: [], picks: [], stage: null, action: null, hint: 'Посмотрите на мощности этапов и выберите вмешательство на первый раунд.', done: false};
+  const s = {scenario, demand: cfg.demand + EXTRA, round: 0, stages: cfg.stages.map(([id, name, cap]) => ({id, name, cap, queue: 4})), backlog: 0, limit: false, history: [], picks: [], stage: null, action: null, hint: 'Посмотрите на мощности этапов и выберите вмешательство на первый раунд.', done: false};
   s.firstBottleneck = bottleneck(s);
   return s;
 }

@@ -8,6 +8,7 @@ export const intro = {
   goal: 'За два спринта достичь всех трёх порогов цели. Объём сделанной работы сам по себе не считается.',
   rules: ['Добавляйте задачи в спринт — каждая занимает очки ёмкости. Порядок важен: что не влезло, останется хвостом.', 'Цветные метки показывают, какой показатель двигает задача. Некоторые задачи требуют другую.', 'В середине спринта случится событие — решите, что с ним делать.']
 };
+export const levels = ['Ёмкость спринта — 22 очка', 'Ёмкость спринта — 20 очков', 'Ёмкость спринта — 18 очков, без подсказок'];
 export const scenarios = [{name: 'Служба поддержки'}, {name: 'Приёмная комиссия'}];
 
 const CRIT = {
@@ -38,9 +39,9 @@ const ITEMS = {
     ['sms', 'SMS о статусе заявления', 4, {speed: 1, sat: 3}]
   ]
 };
-const CAP = 20;
+let CAP = 20;
 
-export function create(scenario = 0) {
+export function create(scenario = 0, level = 1) { CAP = [22, 20, 18][level] ?? 20;
   return {scenario, sprint: 1, phase: 'plan', cap: CAP, items: ITEMS[scenario].map(([id, name, pts, eff, dep, kind]) => ({id, name, pts, eff, dep, kind: kind || 'goal', left: pts, done: false})), plan: [], progress: {rep: 0, speed: 0, sat: 0}, reviews: [], worked: 0, hint: 'Добавьте задачи в спринт 1. Ёмкость — 20 очков.', modal: null, done: false};
 }
 const item = (s, id) => s.items.find(i => i.id === id);

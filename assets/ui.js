@@ -48,6 +48,7 @@ const paths = {
   cap:'<path d="m2 9 10-5 10 5-10 5z"/><path d="M6 11v5c3 2.5 9 2.5 12 0v-5M22 9v6"/>',
   crown:'<path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/>',
   touch:'<path d="M9 11V5a1.8 1.8 0 0 1 3.6 0v6"/><path d="M12.6 10.5V9.4a1.8 1.8 0 0 1 3.6 0v2.1a1.8 1.8 0 0 1 3.6 0V15c0 4-2.7 6.5-6.3 6.5-2.6 0-4.1-1.1-5.6-3.4L4.5 13a1.7 1.7 0 0 1 2.8-1.9L9 13"/>',
+  sound:'<path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/>',
   sparkle:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"/>'
 };
 export const icon = (name, cls = '') => `<svg class="ic ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name] || paths.dot}</svg>`;
@@ -65,7 +66,7 @@ export function toast(text) {
 export const shuffle = (arr, rnd = Math.random) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 export const plural = (n, one, few, many) => { const m10 = n % 10, m100 = n % 100; return `${n} ${m10 === 1 && m100 !== 11 ? one : m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? few : many}`; };
 
-// Local progress. Stored only in this browser: read lecture sections, lessons, XP, active days and game stars.
+// Local progress. Stored only in this browser: read lecture sections, XP, active days and stars per game level.
 const KEY = 'almanac:v6';
 function read() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } }
 function write(d) { try { localStorage.setItem(KEY, JSON.stringify(d)); } catch {} }
@@ -84,15 +85,6 @@ export const progress = {
   isRead(key) { return !!read().lec?.[key]; },
   readCount(topic) { return Object.keys(read().lec || {}).filter(k => k.startsWith(topic + '.')).length; },
   quiz(key, ok) { const d = read(); d.quiz ??= {}; if (ok) d.quiz[key] = 1; write(d); },
-  // practice
-  lesson(key) { return read().lessons?.[key] || null; },
-  saveLesson(key, {mistakes, xp}) {
-    const d = read(); d.lessons ??= {}; const prev = d.lessons[key];
-    d.lessons[key] = {done: 1, best: prev ? Math.min(prev.best, mistakes) : mistakes, runs: (prev?.runs || 0) + 1};
-    d.xp = (d.xp || 0) + xp; d.days ??= []; const t = today(); if (!d.days.includes(t)) d.days.push(t); d.days = d.days.slice(-60);
-    d.todayXp = d.todayKey === t ? (d.todayXp || 0) + xp : xp; d.todayKey = t;
-    write(d); return d.lessons[key];
-  },
   xp() { return read().xp || 0; },
   todayXp() { const d = read(); return d.todayKey === today() ? d.todayXp || 0 : 0; },
   streak() { return streakOf(read().days); },
@@ -100,9 +92,10 @@ export const progress = {
   stars(id) { return read().games?.[id]?.stars || 0; },
   saveGame(id, stars) {
     const d = read(); d.games ??= {}; const g = d.games[id] ??= {stars: 0, plays: 0};
-    g.plays++; g.stars = Math.max(g.stars, stars);
-    d.xp = (d.xp || 0) + stars * 10; d.days ??= []; const t = today(); if (!d.days.includes(t)) d.days.push(t);
-    d.todayXp = d.todayKey === t ? (d.todayXp || 0) + stars * 10 : stars * 10; d.todayKey = t;
+    const gain = 5 + 10 * Math.max(0, stars - g.stars);
+    g.plays++; g.stars = Math.max(g.stars, stars); g.gain = gain;
+    d.xp = (d.xp || 0) + gain; d.days ??= []; const t = today(); if (!d.days.includes(t)) d.days.push(t); d.days = d.days.slice(-60);
+    d.todayXp = d.todayKey === t ? (d.todayXp || 0) + gain : gain; d.todayKey = t;
     write(d); return g;
   }
 };

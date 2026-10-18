@@ -7,11 +7,12 @@ const play=(m,sc,actions)=>{let s=m.create(sc);for(const a of actions){if(s.done
 
 test('every game exports the kit contract and renders each scenario',async()=>{
   const {games}=await import(path.join(root,'content/games.js'));
-  assert.equal(games.length,12);
+  assert.equal(games.length,13);
   for(const g of games){const m=await load(g.id);
     for(const k of ['create','act','hud','board','result'])assert.equal(typeof m[k],'function',`${g.id}.${k}`);
     assert.ok(m.intro.story&&m.intro.goal&&m.intro.rules.length>=2,g.id);
-    for(let sc=0;sc<(m.scenarios||[0]).length;sc++){const s=m.create(sc);assert.ok(m.hud(s).length);assert.ok(m.board(s).length>100,g.id);}
+    assert.equal(m.levels.length,3,g.id);
+    for(let sc=0;sc<(m.scenarios||[0]).length;sc++)for(let L=0;L<3;L++){const s=m.create(sc,L);assert.ok(m.hud(s).length);assert.ok(m.board(s).length>100,g.id);}
   }
 });
 
@@ -88,4 +89,20 @@ test('change: well-aimed measures move groups, misses and neglect cost progress'
   assert.equal(m.result(s).stars,3);
   let w=m.create(0);while(!w.done){if(w.ap===0){w=m.act(w,{type:'endWave'});continue;}w=m.act(w,{type:'select',arg:'teach'});w=m.act(w,{type:'train'});}
   assert.equal(m.result(w).stars,1);
+});
+
+test('day: plan by consequences earns three stars on every level, a cluttered day earns one',async()=>{
+  const m=await load('day');
+  const go=(L,plan,del,drop)=>{let s=m.create(0,L);for(const [id,i] of plan){s=m.act(s,{type:'pick',arg:id});s=m.act(s,{type:'slot',arg:String(i)});}
+    for(const id of del){s=m.act(s,{type:'pick',arg:id});s=m.act(s,{type:'delegate'});}for(const id of drop){s=m.act(s,{type:'pick',arg:id});s=m.act(s,{type:'drop'});}
+    return m.result(m.act(s,{type:'run'})).stars;};
+  assert.equal(go(0,[['strat',0],['report',2],['talk',3],['mail',4]],['spr'],['news']),3);
+  assert.equal(go(1,[['strat',0],['report',2],['talk',3],['plan',4]],['spr'],['news','meet','mail']),3);
+  assert.equal(go(2,[['strat',0],['rector',2],['talk',3],['report',4]],['spr','train'],['news','meet','mail']),3);
+  assert.equal(go(2,[['news',0],['mail',1],['strat',4],['report',6],['talk',3],['rector',2]],[],[]),1);
+});
+test('levels tighten resources but the best strategy can still earn three stars',async()=>{
+  const d=await load('detective');let q=d.create(0,2);for(const [x,y] of [['open','chrono'],['open','load'],['suspect','approve'],['fix','deputy'],['pilot']])q=d.act(q,{type:x,arg:y});assert.equal(d.result(q).stars,3);
+  const t=await load('telephone');let s=t.create(0,2);for(const c of ['mail','mail','mail','meet']){s=t.act(s,{type:'channel',arg:c});s=t.act(s,{type:'send'});}assert.equal(t.result(s).stars,3);
+  const sp=await load('sprint');let p=sp.create(0,2);for(const [a,b] of [['add','cause'],['add','base'],['add','tmpl'],['add','train'],['run'],['choose','decline'],['next'],['add','call'],['run'],['choose','trim'],['next']]){if(p.done)break;p=sp.act(p,{type:a,arg:b});}assert.equal(sp.result(p).stars,3);
 });

@@ -6,8 +6,9 @@ import {clone} from './kit.js';
 export const intro = {
   story: 'Вам нужно принять решение, о котором будут говорить. На вас давят с разных сторон, а в досье есть и факты, и мнения заинтересованных людей.',
   goal: 'Принять решение, которое можно объяснить любому участнику и которое опирается на проверенные факты.',
-  rules: ['Читать документы можно бесплатно. Проверить источник — только три раза.', 'Отметьте 2–3 документа, на которые опирается решение.', 'Выберите решение и принцип, которым его объясните.']
+  rules: ['Читать документы можно бесплатно. Проверить источник можно ограниченное число раз.', 'Отметьте 2–3 документа, на которые опирается решение.', 'Выберите решение и принцип, которым его объясните.']
 };
+export const levels = ['4 проверки источников', '3 проверки источников', '2 проверки источников, без подсказок'];
 export const scenarios = [{name: 'Опоздание на конкурс'}, {name: 'Премия по итогам квартала'}];
 
 const CASES = [
@@ -43,9 +44,9 @@ const PRINCIPLES = [
   {id: 'benefit', label: 'Максимальная польза для организации', detail: 'Лучший человек важнее процедуры.'},
   {id: 'letter', label: 'Строгое следование букве правила', detail: 'Никаких толкований.'}
 ];
-const CHECKS = 3;
+let CHECKS = 3;
 
-export function create(scenario = 0) { return {scenario, read: [], checked: [], basis: [], decision: null, principle: null, phase: 'dossier', hint: 'Откройте документы. Проверка покажет, насколько источнику можно доверять.', done: false}; }
+export function create(scenario = 0, level = 1) { CHECKS = [4, 3, 2][level] ?? 3; return {scenario, read: [], checked: [], basis: [], decision: null, principle: null, phase: 'dossier', hint: 'Откройте документы. Проверка покажет, насколько источнику можно доверять.', done: false}; }
 
 export function act(state, a) {
   const s = clone(state); s.flash = null; const c = CASES[s.scenario];
