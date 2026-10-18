@@ -80,7 +80,7 @@ export function mountLesson(root, {title, kicker, back = '#/practice', exercises
 
   function render() {
     const pct = solved / total * 100;
-    root.innerHTML = `<div class="ls" data-type="${cur.t}"><div class="ls-top"><div class="wrap ls-top-in"><a class="ls-close" href="${back}" aria-label="Выйти из урока">${icon('x')}</a><div class="bar ls-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${solved}" aria-label="Пройдено"><i style="width:${pct}%"></i></div>${seconds ? `<span class="ls-timer">${icon('clock')}<b>${fmt(left)}</b></span>` : ''}<span class="ls-hearts" aria-label="Жизни: ${hearts}">${[0, 1, 2].map(i => icon('heart', i < hearts ? 'on' : '')).join('')}</span></div></div>
+    root.innerHTML = `<div class="ls" data-type="${cur.t}"><div class="ls-top"><div class="wrap ls-top-in"><a class="ls-close" href="${back}" aria-label="Выйти из урока">${icon('x')}</a><div class="bar ls-bar" role="progressbar" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${solved}" aria-label="Пройдено"><i style="width:${pct}%"></i></div>${seconds ? `<span class="ls-timer">${icon('clock')}<b>${fmt(left)}</b></span>` : ''}<span class="ls-hearts" role="img" aria-label="Жизни: ${hearts}">${[0, 1, 2].map(i => icon('heart', i < hearts ? 'on' : '')).join('')}</span></div></div>
       <div class="wrap ls-main"><p class="label">${esc(kicker || title)} · ${esc(TYPES[cur.t])}</p>${body()}</div>${foot()}</div>`;
     if (phase !== 'answer') root.querySelector('[data-ls="next"]')?.focus();
   }

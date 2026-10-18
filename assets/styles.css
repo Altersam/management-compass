@@ -9,7 +9,7 @@
 @font-face{font-family:Manrope;font-weight:800;font-display:swap;src:url(fonts/manrope-latin-800-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215}
 
 :root{
-  --bg:#f5f5f3;--surface:#fff;--subtle:#f0f0ec;--ink:#14161b;--ink-2:#353a45;--muted:#5f6672;--faint:#8a909b;--line:#e3e3de;--line-2:#cfcfc8;
+  --bg:#f5f5f3;--surface:#fff;--subtle:#f0f0ec;--ink:#14161b;--ink-2:#353a45;--muted:#5f6672;--faint:#5f6672;--line:#e3e3de;--line-2:#cfcfc8;
   --accent:#2747d8;--accent-d:#1c35a8;--accent-l:#eaeefc;
   --good:#167a3e;--good-l:#e6f3eb;--bad:#b42323;--bad-l:#fbeaea;--warn:#9a5b00;--warn-l:#fbf1de;
   --r:10px;--r-s:6px;--r-l:14px;
@@ -22,7 +22,7 @@
   color-scheme:light;
 }
 /* Topic hues: used only for small markers, never for large fills. */
-[data-t="1"]{--th:#b7791f}[data-t="2"]{--th:#2747d8}[data-t="3"]{--th:#1f7a5a}[data-t="4"]{--th:#b0413e}[data-t="5"]{--th:#2f6fb6}[data-t="6"]{--th:#a2561a}[data-t="7"]{--th:#4b5567}[data-t="8"]{--th:#137480}[data-t="9"]{--th:#8a3f86}[data-t="10"]{--th:#4b49b5}
+[data-t="1"]{--th:#8a5a00}[data-t="2"]{--th:#2747d8}[data-t="3"]{--th:#1a6b4e}[data-t="4"]{--th:#a33a37}[data-t="5"]{--th:#285f9c}[data-t="6"]{--th:#8f4a14}[data-t="7"]{--th:#4b5567}[data-t="8"]{--th:#0f6670}[data-t="9"]{--th:#7d3879}[data-t="10"]{--th:#4b49b5}
 
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;scroll-padding-top:84px}
@@ -459,3 +459,4 @@ body.focus{padding-bottom:0}
 .ls-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 .lec>*{min-width:0}
 .ls[data-type=match] [data-ls=check],.ls[data-type=classify] [data-ls=check]{visibility:hidden}
+.blocks>*,.b>*,.b-tabs,.b-tabpanel{min-width:0}
